@@ -1,6 +1,5 @@
 package me.nallar.tickprofiler.minecraft.profiling;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -12,12 +11,11 @@ import java.util.concurrent.atomic.AtomicLong;
 import com.google.common.base.Functions;
 import com.google.common.collect.Ordering;
 
+import cpw.mods.fml.common.FMLLog;
 import me.nallar.tickprofiler.minecraft.commands.ProfileCommand;
 import me.nallar.tickprofiler.minecraft.entitylist.EntityList;
 import me.nallar.tickprofiler.util.MappingUtil;
-import me.nallar.tickprofiler.util.ReflectUtil;
 import me.nallar.tickprofiler.util.TableFormatter;
-import me.nallar.tickprofiler.util.UnsafeUtil;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.entity.Entity;
@@ -26,18 +24,14 @@ import net.minecraft.util.ReportedException;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.IChunkProvider;
+import net.minecraftforge.common.ForgeDummyContainer;
 import org.cliffc.high_scale_lib.NonBlockingHashMap;
 
 public class EntityTickProfiler {
-	private static final Field unloadedEntityList = ReflectUtil.getFields(World.class, List.class)[1];
 	private int ticks;
 	private final AtomicLong totalTime = new AtomicLong();
 	private int chunkX;
 	private int chunkZ;
-
-	static {
-		unloadedEntityList.setAccessible(true);
-	}
 
 	public void setLocation(final int x, final int z) {
 		chunkX = x;
@@ -45,13 +39,6 @@ public class EntityTickProfiler {
 	}
 
 	public void runEntities(World world, ArrayList<Entity> toTick) {
-		List<Entity> unloadedEntityList;
-		try {
-			unloadedEntityList = (List<Entity>) this.unloadedEntityList.get(world);
-		} catch (IllegalAccessException e) {
-			throw UnsafeUtil.throwIgnoreChecked(e);
-		}
-
 		long end = System.nanoTime();
 		long start;
 		boolean isGlobal = EntityList.profilingState == ProfileCommand.ProfilingState.GLOBAL;
@@ -76,12 +63,25 @@ public class EntityTickProfiler {
 					CrashReportCategory crashReportCategory = crashReport.makeCategory("Entity being ticked");
 					entity.func_85029_a(crashReportCategory);
 
-					throw new ReportedException(crashReport);
+					if (ForgeDummyContainer.removeErroringEntities) {
+						FMLLog.severe(crashReport.getCompleteReport());
+						world.removeEntity(entity);
+					} else {
+						throw new ReportedException(crashReport);
+					}
 				}
 			}
 
 			if (entity.isDead) {
-				unloadedEntityList.add(entity);
+				int chunkX = entity.chunkCoordX;
+				int chunkZ = entity.chunkCoordZ;
+
+				if (entity.addedToChunk && world.getChunkProvider().chunkExists(chunkX, chunkZ)) {
+					world.getChunkFromChunkCoords(chunkX, chunkZ).removeEntity(entity);
+				}
+
+				toTick.remove(i--);
+				world.releaseEntitySkin(entity);
 			}
 			end = System.nanoTime();
 
@@ -110,8 +110,13 @@ public class EntityTickProfiler {
 					CrashReport crashReport = CrashReport.makeCrashReport(var6, "Ticking tile entity");
 					CrashReportCategory crashReportCategory = crashReport.makeCategory("Tile entity being ticked");
 					tileEntity.func_85027_a(crashReportCategory);
-
-					throw new ReportedException(crashReport);
+					if (ForgeDummyContainer.removeErroringTileEntities) {
+						FMLLog.severe(crashReport.getCompleteReport());
+						tileEntity.invalidate();
+						world.setBlockToAir(x, tileEntity.yCoord, z);
+					} else {
+						throw new ReportedException(crashReport);
+					}
 				}
 			}
 
