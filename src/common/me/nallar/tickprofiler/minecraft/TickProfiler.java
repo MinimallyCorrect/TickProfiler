@@ -27,10 +27,8 @@ import net.minecraft.network.packet.PacketCount;
 import net.minecraft.world.World;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.EventPriority;
 import net.minecraftforge.event.ForgeSubscribe;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.world.WorldEvent;
 
 @SuppressWarnings ("WeakerAccess")
 @Mod (modid = "TickProfiler", name = "TickProfiler", version = "@MOD_VERSION@")
@@ -79,11 +77,7 @@ public class TickProfiler {
 		Command.checkForPermissions();
 	}
 
-	@ForgeSubscribe (
-			priority = EventPriority.HIGHEST
-	)
-	public synchronized void onWorldLoad(WorldEvent.Load event) {
-		World world = event.world;
+	public synchronized void hookProfiler(World world) {
 		if (world.isRemote) {
 			Log.severe("World " + Log.name(world) + " seems to be a client world", new Throwable());
 			return;
@@ -93,16 +87,15 @@ public class TickProfiler {
 			new LoadedTileEntityList(world, loadedTileEntityField);
 			Field loadedEntityField = ReflectUtil.getFields(World.class, List.class)[loadedEntityFieldIndex];
 			new LoadedEntityList(world, loadedEntityField);
-			Log.info("Threading initialised for world " + Log.name(world));
+			Log.finer("Profiling hooked for world " + Log.name(world));
 		} catch (Exception e) {
 			Log.severe("Failed to initialise profiling for world " + Log.name(world), e);
 		}
 	}
 
-	@ForgeSubscribe
-	public synchronized void onWorldUnload(WorldEvent.Unload event) {
-		World world = event.world;
+	public synchronized void unhookProfiler(World world) {
 		if (world.isRemote) {
+			Log.severe("World " + Log.name(world) + " seems to be a client world", new Throwable());
 			return;
 		}
 		try {
@@ -116,6 +109,7 @@ public class TickProfiler {
 			if (!(loadedEntityList instanceof EntityList)) {
 				Log.severe("Looks like another mod broke TickProfiler's replacement entity list in world: " + Log.name(world));
 			}
+			Log.finer("Profiling unhooked for world " + Log.name(world));
 		} catch (Exception e) {
 			Log.severe("Failed to unload TickProfiler for world " + Log.name(world), e);
 		}
