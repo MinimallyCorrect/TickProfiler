@@ -51,13 +51,12 @@ public class EntityTickProfiler {
 		} catch (IllegalAccessException e) {
 			throw UnsafeUtil.throwIgnoreChecked(e);
 		}
-		Iterator<Entity> iterator = toTick.iterator();
 
 		long end = System.nanoTime();
 		long start;
 		boolean isGlobal = EntityList.profilingState == ProfileCommand.ProfilingState.GLOBAL;
-		while (iterator.hasNext()) {
-			Entity entity = iterator.next();
+		for (int i = 0; i < toTick.size(); i++) {
+			Entity entity = toTick.get(i);
 
 			start = end;
 			if (entity.ridingEntity != null) {
