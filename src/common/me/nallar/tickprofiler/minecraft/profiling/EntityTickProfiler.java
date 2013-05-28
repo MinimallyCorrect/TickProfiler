@@ -29,11 +29,15 @@ import net.minecraft.world.chunk.IChunkProvider;
 import org.cliffc.high_scale_lib.NonBlockingHashMap;
 
 public class EntityTickProfiler {
+	private static final Field unloadedEntityList = ReflectUtil.getFields(World.class, List.class)[1];
 	private int ticks;
 	private final AtomicLong totalTime = new AtomicLong();
-	private final Field unloadedEntityList = ReflectUtil.getFields(World.class, List.class)[1];
 	private int chunkX;
 	private int chunkZ;
+
+	static {
+		unloadedEntityList.setAccessible(true);
+	}
 
 	public void setLocation(final int x, final int z) {
 		chunkX = x;

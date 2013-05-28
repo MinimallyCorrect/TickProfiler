@@ -19,7 +19,7 @@ import net.minecraft.world.World;
 * */
 public abstract class EntityList<T> extends ArrayList<T> {
 	public static final EntityTickProfiler ENTITY_TICK_PROFILER = new EntityTickProfiler();
-	public static ProfileCommand.ProfilingState profilingState;
+	public static ProfileCommand.ProfilingState profilingState = ProfileCommand.ProfilingState.NONE;
 	private static final ContextAccess contextAccess = ContextAccess.$;
 	protected final ArrayList<T> innerList;
 	protected final World world;
