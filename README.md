@@ -47,6 +47,7 @@ Contributors
 ----------------------------------
 
 * [nallar](https://github.com/nallar/ "Ross Allan")
+* [duaiwe](https://github.com/duaiwe "Jonathan Borzilleri")
 * Everyone who's helped with testing and reporting bugs :)
 
 Acknowledgements
