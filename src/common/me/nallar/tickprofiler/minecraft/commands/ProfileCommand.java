@@ -30,7 +30,7 @@ public class ProfileCommand extends Command {
 	@Override
 	public void processCommand(final ICommandSender commandSender, List<String> arguments) {
 		World world = null;
-		long time_ = 10;
+		long time_ = 30;
 		boolean location = false;
 		Integer x = null;
 		Integer z = null;
@@ -54,7 +54,7 @@ public class ProfileCommand extends Command {
 				world = ((Entity) commandSender).worldObj;
 			}
 		} catch (Exception e) {
-			sendChat(commandSender, "Usage: /profile e/(c [chunk x] [chunk z])] [time=10] [dimensionid=all]");
+			sendChat(commandSender, "Usage: /profile e/(c [chunk x] [chunk z])] [time=30] [dimensionid=all]");
 			return;
 		}
 		final List<World> worlds = new ArrayList<World>();
