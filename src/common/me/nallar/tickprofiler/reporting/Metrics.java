@@ -26,7 +26,7 @@
  * authors and contributors and should not be interpreted as representing official policies,
  * either expressed or implied, of anybody else.
  */
-package me.nallar.reporting;
+package me.nallar.tickprofiler.reporting;
 
 import java.io.BufferedReader;
 import java.io.File;

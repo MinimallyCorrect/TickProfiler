@@ -8,7 +8,7 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.network.NetworkMod;
-import me.nallar.reporting.Metrics;
+import me.nallar.tickprofiler.reporting.Metrics;
 import me.nallar.tickprofiler.Log;
 import me.nallar.tickprofiler.minecraft.commands.Command;
 import me.nallar.tickprofiler.minecraft.commands.DumpCommand;
