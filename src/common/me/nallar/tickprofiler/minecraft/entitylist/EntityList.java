@@ -23,8 +23,10 @@ public abstract class EntityList<T> extends ArrayList<T> {
 	private static final ContextAccess contextAccess = ContextAccess.$;
 	protected final ArrayList<T> innerList;
 	protected final World world;
+	private final Field overridenField;
 
 	EntityList(World world, Field overriddenField) {
+		this.overridenField = overriddenField;
 		this.world = world;
 		overriddenField.setAccessible(true);
 		ArrayList<T> worldList = new ArrayList<T>();
@@ -42,6 +44,10 @@ public abstract class EntityList<T> extends ArrayList<T> {
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to override " + overriddenField.getName() + " in world " + Log.name(world), e);
 		}
+	}
+
+	public void unhook() throws IllegalAccessException {
+		overridenField.set(world, innerList);
 	}
 
 	public abstract void tick();

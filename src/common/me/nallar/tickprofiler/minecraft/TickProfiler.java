@@ -101,12 +101,16 @@ public class TickProfiler {
 		try {
 			Field loadedTileEntityField = ReflectUtil.getFields(World.class, List.class)[loadedTileEntityFieldIndex];
 			Object loadedTileEntityList = loadedTileEntityField.get(world);
-			if (!(loadedTileEntityList instanceof EntityList)) {
+			if (loadedTileEntityList instanceof EntityList) {
+				((EntityList) loadedTileEntityList).unhook();
+			} else {
 				Log.severe("Looks like another mod broke TickProfiler's replacement tile entity list in world: " + Log.name(world));
 			}
 			Field loadedEntityField = ReflectUtil.getFields(World.class, List.class)[loadedEntityFieldIndex];
 			Object loadedEntityList = loadedEntityField.get(world);
-			if (!(loadedEntityList instanceof EntityList)) {
+			if (loadedEntityList instanceof EntityList) {
+				((EntityList) loadedEntityList).unhook();
+			} else {
 				Log.severe("Looks like another mod broke TickProfiler's replacement entity list in world: " + Log.name(world));
 			}
 			Log.finer("Profiling unhooked for world " + Log.name(world));
