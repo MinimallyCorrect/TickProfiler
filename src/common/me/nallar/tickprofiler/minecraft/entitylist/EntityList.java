@@ -77,7 +77,7 @@ public abstract class EntityList<T> extends ArrayList<T> {
 
 	@Override
 	public int size() {
-		if (profilingState == ProfileCommand.ProfilingState.NONE || !World.class.isAssignableFrom(contextAccess.getContext(1)) || !MinecraftServer.class.isAssignableFrom(contextAccess.getContext(2))) {
+		if (profilingState == ProfileCommand.ProfilingState.NONE || !World.class.isAssignableFrom(contextAccess.getContext(1)) || !World.class.isAssignableFrom(contextAccess.getContext(2))) {
 			return innerList.size();
 		}
 		tick();
@@ -186,7 +186,7 @@ public abstract class EntityList<T> extends ArrayList<T> {
 
 	@Override
 	public Iterator<T> iterator() {
-		if (profilingState == ProfileCommand.ProfilingState.NONE || !World.class.isAssignableFrom(contextAccess.getContext(1)) || !MinecraftServer.class.isAssignableFrom(contextAccess.getContext(2))) {
+		if (profilingState == ProfileCommand.ProfilingState.NONE || !World.class.isAssignableFrom(contextAccess.getContext(1)) || !World.class.isAssignableFrom(contextAccess.getContext(2))) {
 			return innerList.iterator();
 		}
 		tick();
