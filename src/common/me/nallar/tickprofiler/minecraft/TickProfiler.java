@@ -180,7 +180,9 @@ public class TickProfiler {
 				@Override
 				public void run() {
 					try {
-						Files.write(entityTickProfiler.writeData(new TableFormatter(MinecraftServer.getServer())).toString(), profilingFile, Charsets.UTF_8);
+						TableFormatter tf = new TableFormatter(MinecraftServer.getServer());
+						tf.tableSeparator = "\n";
+						Files.write(entityTickProfiler.writeData(tf).toString(), profilingFile, Charsets.UTF_8);
 					} catch (Throwable t) {
 						Log.severe("Failed to save periodic profiling data to " + profilingFile, t);
 					}
