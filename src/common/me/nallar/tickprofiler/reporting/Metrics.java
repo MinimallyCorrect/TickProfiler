@@ -53,7 +53,6 @@ import cpw.mods.fml.relauncher.Side;
 import me.nallar.tickprofiler.Log;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.DimensionManager;
 

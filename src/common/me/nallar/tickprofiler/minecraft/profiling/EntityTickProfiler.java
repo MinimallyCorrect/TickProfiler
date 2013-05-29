@@ -15,7 +15,6 @@ import com.google.common.collect.Ordering;
 import cpw.mods.fml.common.FMLLog;
 import me.nallar.tickprofiler.minecraft.TickProfiler;
 import me.nallar.tickprofiler.minecraft.commands.ProfileCommand;
-import me.nallar.tickprofiler.util.MappingUtil;
 import me.nallar.tickprofiler.util.TableFormatter;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
@@ -336,7 +335,7 @@ public class EntityTickProfiler {
 	}
 
 	private static String niceName(Class<?> clazz) {
-		String name = MappingUtil.debobfuscate(clazz.getName());
+		String name = clazz.getName();
 		if (name.contains(".")) {
 			String cName = name.substring(name.lastIndexOf('.') + 1);
 			String pName = name.substring(0, name.lastIndexOf('.'));

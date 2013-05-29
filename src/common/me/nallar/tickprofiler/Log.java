@@ -15,7 +15,6 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import cpw.mods.fml.common.FMLLog;
-import me.nallar.tickprofiler.util.MappingUtil;
 import net.minecraft.server.gui.GuiLogOutputHandler;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
@@ -270,7 +269,7 @@ public class Log {
 	}
 
 	public static String classString(Object o) {
-		return "c " + MappingUtil.debobfuscate(o.getClass().getName()) + ' ';
+		return "c " + o.getClass().getName() + ' ';
 	}
 
 	public static void log(Level level, Throwable throwable, String s) {
