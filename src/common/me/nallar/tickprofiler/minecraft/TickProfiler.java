@@ -162,6 +162,7 @@ public class TickProfiler {
 		private static final EnumSet<TickType> TICKS = EnumSet.of(TickType.SERVER);
 		private final int profilingInterval;
 		private final File profilingFile;
+		private int counter = 0;
 
 		public ProfilingScheduledTickHandler(final int profilingInterval, final File profilingFile) {
 			this.profilingInterval = profilingInterval;
@@ -170,12 +171,16 @@ public class TickProfiler {
 
 		@Override
 		public int nextTickSpacing() {
-			return profilingInterval * 60 * 20;
+			return 1;
 		}
 
 		@Override
 		public void tickStart(final EnumSet<TickType> type, final Object... tickData) {
-			final EntityTickProfiler entityTickProfiler = EntityList.ENTITY_TICK_PROFILER;
+			final EntityTickProfiler entityTickProfiler = EntityTickProfiler.ENTITY_TICK_PROFILER;
+			entityTickProfiler.tick();
+			if (counter++ % profilingInterval * 60 * 20 != 0) {
+				return;
+			}
 			entityTickProfiler.startProfiling(new Runnable() {
 				@Override
 				public void run() {

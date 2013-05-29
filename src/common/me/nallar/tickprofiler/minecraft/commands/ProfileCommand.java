@@ -6,7 +6,6 @@ import java.util.List;
 
 import me.nallar.tickprofiler.Log;
 import me.nallar.tickprofiler.minecraft.TickProfiler;
-import me.nallar.tickprofiler.minecraft.entitylist.EntityList;
 import me.nallar.tickprofiler.minecraft.profiling.EntityTickProfiler;
 import me.nallar.tickprofiler.util.TableFormatter;
 import net.minecraft.command.ICommandSender;
@@ -66,7 +65,7 @@ public class ProfileCommand extends Command {
 			worlds.add(world);
 		}
 		final int time = time_;
-		final EntityTickProfiler entityTickProfiler = EntityList.ENTITY_TICK_PROFILER;
+		final EntityTickProfiler entityTickProfiler = EntityTickProfiler.ENTITY_TICK_PROFILER;
 		if (!entityTickProfiler.startProfiling(new Runnable() {
 			@Override
 			public void run() {

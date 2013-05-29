@@ -12,15 +12,12 @@ import me.nallar.tickprofiler.Log;
 import me.nallar.tickprofiler.minecraft.commands.ProfileCommand;
 import me.nallar.tickprofiler.minecraft.profiling.EntityTickProfiler;
 import me.nallar.tickprofiler.util.contextaccess.ContextAccess;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
 
 /*
 * Used to override World.loadedTile/EntityList.
 * */
 public abstract class EntityList<T> extends ArrayList<T> {
-	public static final EntityTickProfiler ENTITY_TICK_PROFILER = new EntityTickProfiler();
-	public static ProfileCommand.ProfilingState profilingState = ProfileCommand.ProfilingState.NONE;
 	private static final ContextAccess contextAccess = ContextAccess.$;
 	protected final ArrayList<T> innerList;
 	protected final World world;
@@ -53,18 +50,6 @@ public abstract class EntityList<T> extends ArrayList<T> {
 
 	public abstract void tick();
 
-	public static synchronized boolean startProfiling(ProfileCommand.ProfilingState profilingState_) {
-		if (profilingState != ProfileCommand.ProfilingState.NONE) {
-			return false;
-		}
-		profilingState = profilingState_;
-		return true;
-	}
-
-	public static synchronized void endProfiling() {
-		profilingState = ProfileCommand.ProfilingState.NONE;
-	}
-
 	@Override
 	public void trimToSize() {
 		innerList.trimToSize();
@@ -77,7 +62,7 @@ public abstract class EntityList<T> extends ArrayList<T> {
 
 	@Override
 	public int size() {
-		if (profilingState == ProfileCommand.ProfilingState.NONE || !World.class.isAssignableFrom(contextAccess.getContext(1)) || !World.class.isAssignableFrom(contextAccess.getContext(2))) {
+		if (EntityTickProfiler.profilingState == ProfileCommand.ProfilingState.NONE || !World.class.isAssignableFrom(contextAccess.getContext(1)) || !World.class.isAssignableFrom(contextAccess.getContext(2))) {
 			return innerList.size();
 		}
 		tick();
@@ -186,7 +171,7 @@ public abstract class EntityList<T> extends ArrayList<T> {
 
 	@Override
 	public Iterator<T> iterator() {
-		if (profilingState == ProfileCommand.ProfilingState.NONE || !World.class.isAssignableFrom(contextAccess.getContext(1)) || !World.class.isAssignableFrom(contextAccess.getContext(2))) {
+		if (EntityTickProfiler.profilingState == ProfileCommand.ProfilingState.NONE || !World.class.isAssignableFrom(contextAccess.getContext(1)) || !World.class.isAssignableFrom(contextAccess.getContext(2))) {
 			return innerList.iterator();
 		}
 		tick();
