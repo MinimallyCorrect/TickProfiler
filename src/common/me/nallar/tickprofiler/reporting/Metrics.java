@@ -52,7 +52,10 @@ import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
 import me.nallar.tickprofiler.Log;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.Configuration;
+import net.minecraftforge.common.DimensionManager;
 
 /**
  * <p>
@@ -146,8 +149,14 @@ public class Metrics {
 		debug = configuration.get(Configuration.CATEGORY_GENERAL, "debug",
 				false, "Set to true for verbose debug").getBoolean(false);
 		configuration.save();
-		if (start()) {
-			Log.info("Started TickProfiler metrics reporting. This can be disabled in PluginMetrics.cfg");
+		if (!isOptOut()) {
+			Graph graph = createGraph("Perf");
+			graph.addPlotter(new TileEntityPlotter());
+			graph.addPlotter(new EntityPlotter());
+			graph.addPlotter(new ChunkPlotter());
+			if (start()) {
+				Log.info("Started TickProfiler metrics reporting. This can be disabled in PluginMetrics.cfg");
+			}
 		}
 	}
 
@@ -672,6 +681,51 @@ public class Metrics {
 			final Plotter plotter = (Plotter) object;
 			return plotter.name.equals(name)
 					&& plotter.getValue() == getValue();
+		}
+	}
+
+	private static class TileEntityPlotter extends Plotter {
+		public TileEntityPlotter() {
+			super("TileEntities");
+		}
+
+		@Override
+		public int getValue() {
+			int i = 0;
+			for (World world : DimensionManager.getWorlds()) {
+				i += world.loadedTileEntityList.size();
+			}
+			return i;
+		}
+	}
+
+	private static class EntityPlotter extends Plotter {
+		public EntityPlotter() {
+			super("Entities");
+		}
+
+		@Override
+		public int getValue() {
+			int i = 0;
+			for (World world : DimensionManager.getWorlds()) {
+				i += world.loadedEntityList.size();
+			}
+			return i;
+		}
+	}
+
+	private static class ChunkPlotter extends Plotter {
+		public ChunkPlotter() {
+			super("Chunks");
+		}
+
+		@Override
+		public int getValue() {
+			int i = 0;
+			for (World world : DimensionManager.getWorlds()) {
+				i += world.getChunkProvider().getLoadedChunkCount();
+			}
+			return i;
 		}
 	}
 }
