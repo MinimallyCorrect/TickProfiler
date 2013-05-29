@@ -12,6 +12,7 @@ import me.nallar.tickprofiler.Log;
 import me.nallar.tickprofiler.minecraft.commands.ProfileCommand;
 import me.nallar.tickprofiler.minecraft.profiling.EntityTickProfiler;
 import me.nallar.tickprofiler.util.contextaccess.ContextAccess;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
 
 /*
@@ -76,7 +77,7 @@ public abstract class EntityList<T> extends ArrayList<T> {
 
 	@Override
 	public int size() {
-		if (profilingState == ProfileCommand.ProfilingState.NONE || !World.class.isAssignableFrom(contextAccess.getContext(1))) {
+		if (profilingState == ProfileCommand.ProfilingState.NONE || !World.class.isAssignableFrom(contextAccess.getContext(1)) || !MinecraftServer.class.isAssignableFrom(contextAccess.getContext(2))) {
 			return innerList.size();
 		}
 		tick();
@@ -185,7 +186,7 @@ public abstract class EntityList<T> extends ArrayList<T> {
 
 	@Override
 	public Iterator<T> iterator() {
-		if (profilingState == ProfileCommand.ProfilingState.NONE || !World.class.isAssignableFrom(contextAccess.getContext(1))) {
+		if (profilingState == ProfileCommand.ProfilingState.NONE || !World.class.isAssignableFrom(contextAccess.getContext(1)) || !MinecraftServer.class.isAssignableFrom(contextAccess.getContext(2))) {
 			return innerList.iterator();
 		}
 		tick();
