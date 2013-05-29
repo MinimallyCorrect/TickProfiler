@@ -80,7 +80,11 @@ public class EntityTickProfiler {
 					world.getChunkFromChunkCoords(chunkX, chunkZ).removeEntity(entity);
 				}
 
-				toTick.remove(i--);
+				if (toTick.size() <= i || toTick.get(i) != entity) {
+					toTick.remove(entity);
+				} else {
+					toTick.remove(i--);
+				}
 				world.releaseEntitySkin(entity);
 			}
 			end = System.nanoTime();
