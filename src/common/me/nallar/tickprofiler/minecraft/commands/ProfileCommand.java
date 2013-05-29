@@ -30,14 +30,11 @@ public class ProfileCommand extends Command {
 	@Override
 	public void processCommand(final ICommandSender commandSender, List<String> arguments) {
 		World world = null;
-		long time_ = 30;
+		int time_ = 30;
 		boolean location = false;
 		Integer x = null;
 		Integer z = null;
 		try {
-			if (arguments.isEmpty()) {
-				throw new Exception();
-			}
 			if ("c".equals(arguments.get(0))) {
 				location = true;
 				if (arguments.size() > 2) {
@@ -53,8 +50,13 @@ public class ProfileCommand extends Command {
 			} else if (commandSender instanceof Entity) {
 				world = ((Entity) commandSender).worldObj;
 			}
+			if (location && x == null) {
+				Entity entity = (Entity) commandSender;
+				x = entity.chunkCoordX;
+				z = entity.chunkCoordZ;
+			}
 		} catch (Exception e) {
-			sendChat(commandSender, "Usage: /profile e/(c [chunk x] [chunk z])] [time=30] [dimensionid=all]");
+			sendChat(commandSender, "Usage: /profile [e/(c [chunk x] [chunk z])] [time=30] [dimensionid=all]");
 			return;
 		}
 		final List<World> worlds = new ArrayList<World>();
@@ -63,42 +65,20 @@ public class ProfileCommand extends Command {
 		} else {
 			worlds.add(world);
 		}
-		final long time = time_;
-		synchronized (EntityList.class) {
-			if (!EntityList.startProfiling(location ? ProfilingState.CHUNK : ProfilingState.GLOBAL)) {
-				sendChat(commandSender, "Someone else is currently profiling.");
-				return;
-			}
-			for (World world_ : worlds) {
-				TickProfiler.instance.hookProfiler(world_);
-			}
-			EntityTickProfiler entityTickProfiler = EntityList.ENTITY_TICK_PROFILER;
-			if (location) {
-				entityTickProfiler.setLocation(x, z);
-			}
-		}
-		Runnable profilingRunnable = new Runnable() {
+		final int time = time_;
+		final EntityTickProfiler entityTickProfiler = EntityList.ENTITY_TICK_PROFILER;
+		if (!entityTickProfiler.startProfiling(new Runnable() {
 			@Override
 			public void run() {
-				try {
-					Thread.sleep(1000 * time);
-				} catch (InterruptedException ignored) {
-				}
-
-				synchronized (EntityList.class) {
-					EntityList.endProfiling();
-					sendChat(commandSender, EntityList.ENTITY_TICK_PROFILER.writeData(new TableFormatter(commandSender)).toString());
-					EntityList.ENTITY_TICK_PROFILER.clear();
-					for (World world_ : worlds) {
-						TickProfiler.instance.unhookProfiler(world_);
-					}
-				}
+				sendChat(commandSender, entityTickProfiler.writeData(new TableFormatter(commandSender)).toString());
 			}
-		};
-		Thread profilingThread = new Thread(profilingRunnable);
-		profilingThread.setName("TickProfiler");
+		}, location ? ProfilingState.CHUNK : ProfilingState.GLOBAL, time, worlds)) {
+			sendChat(commandSender, "Someone else is currently profiling.");
+		}
+		if (location) {
+			entityTickProfiler.setLocation(x, z);
+		}
 		sendChat(commandSender, "Profiling for " + time + " seconds in " + (world == null ? "all worlds " : Log.name(world)) + (location ? " at " + x + ',' + z : ""));
-		profilingThread.start();
 	}
 
 	public static enum ProfilingState {

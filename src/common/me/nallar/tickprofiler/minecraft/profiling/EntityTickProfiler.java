@@ -1,6 +1,7 @@
 package me.nallar.tickprofiler.minecraft.profiling;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import com.google.common.base.Functions;
 import com.google.common.collect.Ordering;
 
+import me.nallar.tickprofiler.minecraft.TickProfiler;
 import me.nallar.tickprofiler.minecraft.commands.ProfileCommand;
 import me.nallar.tickprofiler.minecraft.entitylist.EntityList;
 import me.nallar.tickprofiler.util.MappingUtil;
@@ -28,12 +30,50 @@ import org.cliffc.high_scale_lib.NonBlockingHashMap;
 public class EntityTickProfiler {
 	private int ticks;
 	private final AtomicLong totalTime = new AtomicLong();
-	private int chunkX;
-	private int chunkZ;
+	private volatile int chunkX;
+	private volatile int chunkZ;
 
 	public void setLocation(final int x, final int z) {
 		chunkX = x;
 		chunkZ = z;
+	}
+
+	public boolean startProfiling(final Runnable runnable, ProfileCommand.ProfilingState state, final int time, final Collection<World> worlds_) {
+		if (time <= 0) {
+			throw new IllegalArgumentException("time must be > 0");
+		}
+		final Collection<World> worlds = new ArrayList<World>(worlds_);
+		synchronized (EntityList.class) {
+			if (!EntityList.startProfiling(state)) {
+				return false;
+			}
+			for (World world_ : worlds) {
+				TickProfiler.instance.hookProfiler(world_);
+			}
+		}
+
+		Runnable profilingRunnable = new Runnable() {
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(1000 * time);
+				} catch (InterruptedException ignored) {
+				}
+
+				synchronized (EntityList.class) {
+					EntityList.endProfiling();
+					runnable.run();
+					clear();
+					for (World world_ : worlds) {
+						TickProfiler.instance.unhookProfiler(world_);
+					}
+				}
+			}
+		};
+		Thread profilingThread = new Thread(profilingRunnable);
+		profilingThread.setName("TickProfiler");
+		profilingThread.start();
+		return true;
 	}
 
 	public void runEntities(World world, ArrayList<Entity> toTick) {
