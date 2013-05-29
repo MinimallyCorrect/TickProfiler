@@ -16,6 +16,7 @@ public class TableFormatter {
 	public String headingSplitter = " | ";
 	public String headingColour = "";
 	public String rowColour = "";
+	public String tableSeparator = "";
 
 	public TableFormatter(ICommandSender commandSender) {
 		boolean chat = commandSender instanceof Entity;
@@ -82,6 +83,7 @@ public class TableFormatter {
 				cSplit = "";
 			}
 		}
+		sb.append(tableSeparator);
 		currentHeadings.clear();
 		currentData.clear();
 	}
