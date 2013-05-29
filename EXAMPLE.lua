@@ -41,6 +41,7 @@ function printColouredBars(str, first)
 end
 
 function profile()
+  term.setCursorPos(1, 1)
   local file = fs.open("profile.txt", "r")
   local text = file.readAll()
   file.close()
