@@ -1,6 +1,5 @@
 package me.nallar.tickprofiler.minecraft.profiling;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -15,9 +14,7 @@ import com.google.common.collect.Ordering;
 import me.nallar.tickprofiler.minecraft.commands.ProfileCommand;
 import me.nallar.tickprofiler.minecraft.entitylist.EntityList;
 import me.nallar.tickprofiler.util.MappingUtil;
-import me.nallar.tickprofiler.util.ReflectUtil;
 import me.nallar.tickprofiler.util.TableFormatter;
-import me.nallar.tickprofiler.util.UnsafeUtil;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.entity.Entity;
@@ -29,15 +26,10 @@ import net.minecraft.world.chunk.IChunkProvider;
 import org.cliffc.high_scale_lib.NonBlockingHashMap;
 
 public class EntityTickProfiler {
-	private static final Field unloadedEntityList = ReflectUtil.getFields(World.class, List.class)[1];
 	private int ticks;
 	private final AtomicLong totalTime = new AtomicLong();
 	private int chunkX;
 	private int chunkZ;
-
-	static {
-		unloadedEntityList.setAccessible(true);
-	}
 
 	public void setLocation(final int x, final int z) {
 		chunkX = x;
@@ -45,13 +37,6 @@ public class EntityTickProfiler {
 	}
 
 	public void runEntities(World world, ArrayList<Entity> toTick) {
-		List<Entity> unloadedEntityList;
-		try {
-			unloadedEntityList = (List<Entity>) this.unloadedEntityList.get(world);
-		} catch (IllegalAccessException e) {
-			throw UnsafeUtil.throwIgnoreChecked(e);
-		}
-
 		long end = System.nanoTime();
 		long start;
 		boolean isGlobal = EntityList.profilingState == ProfileCommand.ProfilingState.GLOBAL;
@@ -81,7 +66,19 @@ public class EntityTickProfiler {
 			}
 
 			if (entity.isDead) {
-				unloadedEntityList.add(entity);
+				int chunkX = entity.chunkCoordX;
+				int chunkZ = entity.chunkCoordZ;
+
+				if (entity.addedToChunk && world.getChunkProvider().chunkExists(chunkX, chunkZ)) {
+					world.getChunkFromChunkCoords(chunkX, chunkZ).removeEntity(entity);
+				}
+
+				if (toTick.size() <= i || toTick.get(i) != entity) {
+					toTick.remove(entity);
+				} else {
+					toTick.remove(i--);
+				}
+				world.releaseEntitySkin(entity);
 			}
 			end = System.nanoTime();
 
