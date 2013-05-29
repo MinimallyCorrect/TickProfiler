@@ -59,8 +59,8 @@ function profile()
 end
 
 while true do
-    sleep(60)
-    profile()
+  profile()
+  sleep(60)
 end
 
 term.restore()
