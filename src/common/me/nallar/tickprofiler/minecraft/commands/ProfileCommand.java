@@ -46,7 +46,7 @@ public class ProfileCommand extends Command {
 			}
 			if (arguments.size() > 2) {
 				world = DimensionManager.getWorld(Integer.valueOf(arguments.get(2)));
-			} else if (commandSender instanceof Entity) {
+			} else if (location && commandSender instanceof Entity) {
 				world = ((Entity) commandSender).worldObj;
 			}
 			if (location && x == null) {
