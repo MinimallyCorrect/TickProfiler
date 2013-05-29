@@ -1,2 +1,1 @@
-*.obj -crlf
-*.obj -text
+*.bin binary

@@ -12,7 +12,7 @@ public enum MappingUtil {
 
 	private static Map<String, String> getMappings() {
 		try {
-			ObjectInputStream s = new ObjectInputStream(MappingUtil.class.getResourceAsStream("/mappings.obj"));
+			ObjectInputStream s = new ObjectInputStream(MappingUtil.class.getResourceAsStream("/mappings.bin"));
 			try {
 				//noinspection unchecked
 				return (Map<String, String>) s.readObject();
