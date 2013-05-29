@@ -105,6 +105,9 @@ public class TableFormatter {
 	 * http://stackoverflow.com/a/10554128/250076
 	 */
 	public static String formatDoubleWithPrecision(double val, int precision) {
+		if (Double.isInfinite(val) || Double.isNaN(val)) {
+			return Double.toString(val);
+		}
 		StringBuilder sb = new StringBuilder();
 		if (val < 0) {
 			sb.append('-');

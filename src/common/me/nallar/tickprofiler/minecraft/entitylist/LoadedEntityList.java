@@ -2,6 +2,7 @@ package me.nallar.tickprofiler.minecraft.entitylist;
 
 import java.lang.reflect.Field;
 
+import me.nallar.tickprofiler.minecraft.profiling.EntityTickProfiler;
 import net.minecraft.entity.Entity;
 import net.minecraft.world.World;
 
@@ -12,7 +13,7 @@ public class LoadedEntityList extends EntityList<Entity> {
 
 	@Override
 	public void tick() {
-		ENTITY_TICK_PROFILER.tick();
-		ENTITY_TICK_PROFILER.runEntities(world, innerList);
+		EntityTickProfiler.ENTITY_TICK_PROFILER.tick();
+		EntityTickProfiler.ENTITY_TICK_PROFILER.runEntities(world, innerList);
 	}
 }

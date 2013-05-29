@@ -15,7 +15,6 @@ import com.google.common.collect.Ordering;
 import cpw.mods.fml.common.FMLLog;
 import me.nallar.tickprofiler.minecraft.TickProfiler;
 import me.nallar.tickprofiler.minecraft.commands.ProfileCommand;
-import me.nallar.tickprofiler.minecraft.entitylist.EntityList;
 import me.nallar.tickprofiler.util.MappingUtil;
 import me.nallar.tickprofiler.util.TableFormatter;
 import net.minecraft.crash.CrashReport;
@@ -30,10 +29,27 @@ import net.minecraftforge.common.ForgeDummyContainer;
 import org.cliffc.high_scale_lib.NonBlockingHashMap;
 
 public class EntityTickProfiler {
+	public static final EntityTickProfiler ENTITY_TICK_PROFILER = new EntityTickProfiler();
+	public static ProfileCommand.ProfilingState profilingState = ProfileCommand.ProfilingState.NONE;
 	private int ticks;
 	private final AtomicLong totalTime = new AtomicLong();
 	private volatile int chunkX;
 	private volatile int chunkZ;
+
+	private EntityTickProfiler() {
+	}
+
+	public static synchronized boolean startProfiling(ProfileCommand.ProfilingState profilingState_) {
+		if (profilingState != ProfileCommand.ProfilingState.NONE) {
+			return false;
+		}
+		profilingState = profilingState_;
+		return true;
+	}
+
+	public static synchronized void endProfiling() {
+		profilingState = ProfileCommand.ProfilingState.NONE;
+	}
 
 	public void setLocation(final int x, final int z) {
 		chunkX = x;
@@ -45,8 +61,8 @@ public class EntityTickProfiler {
 			throw new IllegalArgumentException("time must be > 0");
 		}
 		final Collection<World> worlds = new ArrayList<World>(worlds_);
-		synchronized (EntityList.class) {
-			if (!EntityList.startProfiling(state)) {
+		synchronized (EntityTickProfiler.class) {
+			if (!startProfiling(state)) {
 				return false;
 			}
 			for (World world_ : worlds) {
@@ -62,8 +78,8 @@ public class EntityTickProfiler {
 				} catch (InterruptedException ignored) {
 				}
 
-				synchronized (EntityList.class) {
-					EntityList.endProfiling();
+				synchronized (EntityTickProfiler.class) {
+					endProfiling();
 					runnable.run();
 					clear();
 					for (World world_ : worlds) {
@@ -81,7 +97,7 @@ public class EntityTickProfiler {
 	public void runEntities(World world, ArrayList<Entity> toTick) {
 		long end = System.nanoTime();
 		long start;
-		boolean isGlobal = EntityList.profilingState == ProfileCommand.ProfilingState.GLOBAL;
+		boolean isGlobal = profilingState == ProfileCommand.ProfilingState.GLOBAL;
 		for (int i = 0; i < toTick.size(); i++) {
 			Entity entity = toTick.get(i);
 
@@ -140,7 +156,7 @@ public class EntityTickProfiler {
 		Iterator<TileEntity> iterator = toTick.iterator();
 		long end = System.nanoTime();
 		long start;
-		boolean isGlobal = EntityList.profilingState == ProfileCommand.ProfilingState.GLOBAL;
+		boolean isGlobal = profilingState == ProfileCommand.ProfilingState.GLOBAL;
 		while (iterator.hasNext()) {
 			start = end;
 			TileEntity tileEntity = iterator.next();
@@ -204,7 +220,9 @@ public class EntityTickProfiler {
 	}
 
 	public void tick() {
-		ticks++;
+		if (profilingState != ProfileCommand.ProfilingState.NONE) {
+			ticks++;
+		}
 	}
 
 	public TableFormatter writeData(TableFormatter tf) {
