@@ -67,7 +67,7 @@ public class TickProfiler {
 	@Mod.Init
 	public void init(FMLInitializationEvent event) {
 		MinecraftForge.EVENT_BUS.register(this);
-		TickRegistry.registerScheduledTickHandler(new ProfilingScheduledTickHandler(profilingInterval, MinecraftServer.getServer().getFile(profilingFileName)), Side.SERVER);
+		TickRegistry.registerScheduledTickHandler(new ProfilingScheduledTickHandler(profilingInterval, new File(".", profilingFileName)), Side.SERVER);
 	}
 
 	@SuppressWarnings ("FieldRepeatedlyAccessedInMethod")
