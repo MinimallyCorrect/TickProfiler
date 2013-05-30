@@ -8,6 +8,7 @@ else
 end
 
 function explode(inSplitPattern, str)
+  str = str .. ""
   local outResults = { }
   local theStart = 1
   local theSplitStart, theSplitEnd = string.find( str, inSplitPattern, theStart )
@@ -45,16 +46,22 @@ function profile()
   local file = fs.open("profile.txt", "r")
   local text = file.readAll()
   file.close()
-  local tables = explode("\n\n", text)
+  local tables = explode("\n\n", string.gsub(text, "\r\n", "\n"))
   term.clear()
   local i, j
   for i = 1, #tables do
     lines = explode("\n", tables[i] .. "")
-    for j = 1, #lines do
-      printColouredBars(lines[j] .. "\n", j == 1)
-    end
-	if i ~= #tables then
-		io.write("\n")
+	if #lines == 1 then
+	  term.setTextColor(colors.green)
+	  print(lines[1])
+	  term.setTextColor(colors.white)
+	else
+      for j = 1, #lines do
+        printColouredBars(lines[j] .. "\n", j == 1)
+      end
+	  if i ~= #tables then
+	    io.write("\n")
+	  end
 	end
   end
 end

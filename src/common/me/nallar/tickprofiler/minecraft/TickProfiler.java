@@ -55,6 +55,7 @@ public class TickProfiler {
 	public boolean requireOpForDumpCommand = true;
 	private int profilingInterval = 0;
 	private String profilingFileName = "world/computer/<computer id>/profile.txt";
+	private boolean profilingJson = false;
 
 	static {
 		new Metrics("TickProfiler", VersionUtil.versionNumber());
@@ -67,7 +68,7 @@ public class TickProfiler {
 	@Mod.Init
 	public void init(FMLInitializationEvent event) {
 		MinecraftForge.EVENT_BUS.register(this);
-		TickRegistry.registerScheduledTickHandler(new ProfilingScheduledTickHandler(profilingInterval, new File(".", profilingFileName)), Side.SERVER);
+		TickRegistry.registerScheduledTickHandler(new ProfilingScheduledTickHandler(profilingInterval, new File(".", profilingFileName), profilingJson), Side.SERVER);
 	}
 
 	@SuppressWarnings ("FieldRepeatedlyAccessedInMethod")
@@ -83,6 +84,7 @@ public class TickProfiler {
 		requireOpForDumpCommand = config.get(GENERAL, "requireOpForProfileCommand", requireOpForDumpCommand, "If a player must be opped to use /dump").getBoolean(requireOpForDumpCommand);
 		profilingInterval = config.get(GENERAL, "profilingInterval", profilingInterval, "Interval, in minutes, to record profiling information to disk. 0 = never. Recommended >= 2.").getInt();
 		profilingFileName = config.get(GENERAL, "profilingFileName", profilingFileName, "Location to store profiling information to, relative to the server folder. For example, why not store it in a computercraft computer's folder?").getString();
+		profilingJson = config.get(GENERAL, "profilingJson", profilingJson, "Whether to write periodic profiling in JSON format").getBoolean(profilingJson);
 		config.save();
 		PacketCount.allowCounting = false;
 	}
@@ -154,11 +156,13 @@ public class TickProfiler {
 		private static final EnumSet<TickType> TICKS = EnumSet.of(TickType.SERVER);
 		private final int profilingInterval;
 		private final File profilingFile;
+		private final boolean json;
 		private int counter = 0;
 
-		public ProfilingScheduledTickHandler(final int profilingInterval, final File profilingFile) {
+		public ProfilingScheduledTickHandler(final int profilingInterval, final File profilingFile, final boolean json) {
 			this.profilingInterval = profilingInterval;
 			this.profilingFile = profilingFile;
+			this.json = json;
 		}
 
 		@Override
@@ -180,7 +184,11 @@ public class TickProfiler {
 					try {
 						TableFormatter tf = new TableFormatter(MinecraftServer.getServer());
 						tf.tableSeparator = "\n";
-						Files.write(entityTickProfiler.writeData(tf).toString(), profilingFile, Charsets.UTF_8);
+						if (json) {
+							entityTickProfiler.writeJSONData(profilingFile);
+						} else {
+							Files.write(entityTickProfiler.writeStringData(tf, 6).toString(), profilingFile, Charsets.UTF_8);
+						}
 					} catch (Throwable t) {
 						Log.severe("Failed to save periodic profiling data to " + profilingFile, t);
 					}
