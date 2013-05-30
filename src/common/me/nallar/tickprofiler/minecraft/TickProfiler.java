@@ -67,14 +67,6 @@ public class TickProfiler {
 	@Mod.Init
 	public void init(FMLInitializationEvent event) {
 		MinecraftForge.EVENT_BUS.register(this);
-		initPeriodicProfiling();
-	}
-
-	private void initPeriodicProfiling() {
-		final int profilingInterval = this.profilingInterval;
-		if (profilingInterval == 0) {
-			return;
-		}
 		TickRegistry.registerScheduledTickHandler(new ProfilingScheduledTickHandler(profilingInterval, MinecraftServer.getServer().getFile(profilingFileName)), Side.SERVER);
 	}
 
@@ -178,7 +170,8 @@ public class TickProfiler {
 		public void tickStart(final EnumSet<TickType> type, final Object... tickData) {
 			final EntityTickProfiler entityTickProfiler = EntityTickProfiler.ENTITY_TICK_PROFILER;
 			entityTickProfiler.tick();
-			if (counter++ % (profilingInterval * 60 * 20) != 0) {
+			int profilingInterval = this.profilingInterval;
+			if (profilingInterval <= 0 || counter++ % (profilingInterval * 60 * 20) != 0) {
 				return;
 			}
 			entityTickProfiler.startProfiling(new Runnable() {
