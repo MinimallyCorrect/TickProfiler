@@ -69,7 +69,7 @@ public class ProfileCommand extends Command {
 		if (!entityTickProfiler.startProfiling(new Runnable() {
 			@Override
 			public void run() {
-				sendChat(commandSender, entityTickProfiler.writeData(new TableFormatter(commandSender)).toString());
+				sendChat(commandSender, entityTickProfiler.writeStringData(new TableFormatter(commandSender)).toString());
 			}
 		}, location ? ProfilingState.CHUNK : ProfilingState.GLOBAL, time, worlds)) {
 			sendChat(commandSender, "Someone else is currently profiling.");

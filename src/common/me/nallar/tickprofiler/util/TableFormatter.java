@@ -1,7 +1,9 @@
 package me.nallar.tickprofiler.util;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import me.nallar.tickprofiler.util.stringfillers.StringFiller;
 import net.minecraft.command.ICommandSender;
@@ -17,6 +19,8 @@ public class TableFormatter {
 	public String headingColour = "";
 	public String rowColour = "";
 	public String tableSeparator = "";
+	private boolean recordTables = false;
+	private ArrayList<List<Map<String, String>>> tables;
 
 	public TableFormatter(ICommandSender commandSender) {
 		boolean chat = commandSender instanceof Entity;
@@ -74,9 +78,22 @@ public class TableFormatter {
 		sb.append('\n');
 		cSplit = "";
 		rowIndex = 0;
+		ArrayList<Map<String, String>> table = null;
+		if (recordTables) {
+			table = new ArrayList<Map<String, String>>();
+			tables.add(table);
+		}
+		HashMap<String, String> entry = null;
 		for (String data : currentData) {
+			if (rowIndex % rowCount == 0 && table != null) {
+				entry = new HashMap<String, String>();
+				table.add(entry);
+			}
 			sb.append(cSplit).append(rowColour).append(stringFiller.fill(data, rowLengths[rowIndex % rowCount]));
 			cSplit = splitter;
+			if (entry != null) {
+				entry.put(currentHeadings.get(rowIndex % rowCount), data);
+			}
 			rowIndex++;
 			if (rowIndex % rowCount == 0 && rowIndex != currentData.size()) {
 				sb.append('\n');
@@ -127,5 +144,14 @@ public class TableFormatter {
 	@Override
 	public String toString() {
 		return sb.toString();
+	}
+
+	public void recordTables() {
+		recordTables = true;
+		tables = new ArrayList<List<Map<String, String>>>();
+	}
+
+	public List getTables() {
+		return tables;
 	}
 }

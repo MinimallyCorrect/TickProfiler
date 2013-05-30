@@ -13,7 +13,6 @@ public class LoadedEntityList extends EntityList<Entity> {
 
 	@Override
 	public void tick() {
-		EntityTickProfiler.ENTITY_TICK_PROFILER.tick();
 		EntityTickProfiler.ENTITY_TICK_PROFILER.runEntities(world, innerList);
 	}
 }
