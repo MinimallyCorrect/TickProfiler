@@ -183,6 +183,11 @@
 			</filterset>
 		</copy>
 
+		<exec executable="cp" osfamily="unix">
+			<arg value="resources/mappings.bin"/>
+			<arg value="build/classes/mappings.bin"/>
+		</exec>
+
 		<!-- Reset src dir to post-forge-install state -->
 		<delete dir="${mcpsrc.dir}/minecraft/me/nallar"/>
 
