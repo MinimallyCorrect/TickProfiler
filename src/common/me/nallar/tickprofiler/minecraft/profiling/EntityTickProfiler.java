@@ -220,7 +220,7 @@ public class EntityTickProfiler {
 		invocationCount.clear();
 		time.clear();
 		totalTime.set(0);
-		map.clear();
+		singleTime.clear();
 		singleInvocationCount.clear();
 		ticks = 0;
 	}
@@ -261,7 +261,7 @@ public class EntityTickProfiler {
 			time.put(entry.getKey(), entry.getValue().get());
 		}
 		Map<Object, Long> singleTime = new HashMap<Object, Long>();
-		for (Map.Entry<Object, AtomicLong> entry : this.map.entrySet()) {
+		for (Map.Entry<Object, AtomicLong> entry : this.singleTime.entrySet()) {
 			singleTime.put(entry.getKey(), entry.getValue().get());
 		}
 		double totalTime = this.totalTime.get();
@@ -382,7 +382,7 @@ public class EntityTickProfiler {
 
 	private final Map<Class<?>, AtomicInteger> invocationCount = new NonBlockingHashMap<Class<?>, AtomicInteger>();
 	private final Map<Class<?>, AtomicLong> time = new NonBlockingHashMap<Class<?>, AtomicLong>();
-	private final Map<Object, AtomicLong> map = new NonBlockingHashMap<Object, AtomicLong>();
+	private final Map<Object, AtomicLong> singleTime = new NonBlockingHashMap<Object, AtomicLong>();
 	private final Map<Object, AtomicLong> singleInvocationCount = new NonBlockingHashMap<Object, AtomicLong>();
 
 	private AtomicLong getSingleInvocationCount(Object o) {
@@ -417,13 +417,13 @@ public class EntityTickProfiler {
 	}
 
 	private AtomicLong getSingleTime(Object o) {
-		AtomicLong t = map.get(o);
+		AtomicLong t = singleTime.get(o);
 		if (t == null) {
 			synchronized (o) {
-				t = map.get(o);
+				t = singleTime.get(o);
 				if (t == null) {
 					t = new AtomicLong();
-					map.put(o, t);
+					singleTime.put(o, t);
 				}
 			}
 		}
