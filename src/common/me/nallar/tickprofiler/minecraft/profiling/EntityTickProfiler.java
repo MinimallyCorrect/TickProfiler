@@ -16,6 +16,7 @@ import com.google.common.collect.Ordering;
 
 import me.nallar.tickprofiler.minecraft.TickProfiler;
 import me.nallar.tickprofiler.minecraft.commands.ProfileCommand;
+import me.nallar.tickprofiler.util.CollectionsUtil;
 import me.nallar.tickprofiler.util.MappingUtil;
 import me.nallar.tickprofiler.util.TableFormatter;
 import me.nallar.tickprofiler.util.stringfillers.StringFiller;
@@ -225,7 +226,13 @@ public class EntityTickProfiler {
 		tf.recordTables();
 		writeData(tf, 20);
 		ObjectMapper objectMapper = new ObjectMapper();
-		objectMapper.writeValue(file, tf.getTables());
+		List<Object> tables = tf.getTables();
+		long timeProfiled = System.currentTimeMillis() - startTime;
+		float tps = ticks * 1000f / timeProfiled;
+		tables.add(0, CollectionsUtil.map(
+				"TPS", tps
+		));
+		objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, tables);
 	}
 
 	private static <T> List<T> sortedKeys(Map<T, ? extends Comparable<?>> map, int elements) {
