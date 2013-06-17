@@ -14,7 +14,10 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.FMLLog;
+import net.minecraft.client.Minecraft;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.gui.GuiLogOutputHandler;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
@@ -28,7 +31,19 @@ public class Log {
 	};
 	private static Handler handler;
 	private static final int numberOfLogFiles = Integer.getInteger("tickprofiler.numberOfLogFiles", 5);
-	private static final File logFolder = new File("TickThreadingLogs");
+	private static final File logFolder;
+
+	static {
+		File logFolder_ = new File("TickProfilerLogs");
+		try {
+			if (FMLCommonHandler.instance().getEffectiveSide().isClient()) {
+				logFolder_ = new File(Minecraft.getMinecraftDir(), "TickProfilerLogs");
+			}
+		} catch (Exception ignored) {
+		}
+		logFolder = logFolder_;
+	}
+
 	private static Handler wrappedHandler;
 	private static final Handler handlerWrapper = new Handler() {
 		Pattern pattern = Pattern.compile("\\P{Print}");
