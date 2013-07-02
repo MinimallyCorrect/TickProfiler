@@ -95,7 +95,6 @@
 		</typedef>
 		<artifact:dependencies filesetId="dependency.fileset"
 													 versionsId="dependency.versions">
-			<artifact:dependency groupId="com.github.stephenc.high-scale-lib" artifactId="high-scale-lib" version="1.1.4"/>
 			<artifact:dependency groupId="org.codehaus.jackson" artifactId="jackson-core-lgpl" version="1.9.12"/>
 			<artifact:dependency groupId="org.codehaus.jackson" artifactId="jackson-mapper-lgpl" version="1.9.12"/>
 		</artifact:dependencies>
@@ -199,7 +198,6 @@
 	</target>
 
 	<target name="packageDependencies">
-		<unzip dest="${classes.dir}/" src="${lib.dir}/high-scale-lib.jar"/>
 		<unzip dest="${classes.dir}/" src="${lib.dir}/jackson-core-lgpl.jar"/>
 		<unzip dest="${classes.dir}/" src="${lib.dir}/jackson-mapper-lgpl.jar"/>
 		<delete file="${classes.dir}/net/minecraft/server/MinecraftServer.class"/>

@@ -30,7 +30,6 @@ import net.minecraft.world.WorldProvider;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraftforge.common.ForgeDummyContainer;
-import org.cliffc.high_scale_lib.NonBlockingHashMap;
 import org.codehaus.jackson.map.ObjectMapper;
 
 public class EntityTickProfiler {
@@ -387,10 +386,10 @@ public class EntityTickProfiler {
 		return name;
 	}
 
-	private final Map<Class<?>, AtomicInteger> invocationCount = new NonBlockingHashMap<Class<?>, AtomicInteger>();
-	private final Map<Class<?>, AtomicLong> time = new NonBlockingHashMap<Class<?>, AtomicLong>();
-	private final Map<Object, AtomicLong> singleTime = new NonBlockingHashMap<Object, AtomicLong>();
-	private final Map<Object, AtomicLong> singleInvocationCount = new NonBlockingHashMap<Object, AtomicLong>();
+	private final Map<Class<?>, AtomicInteger> invocationCount = new PartiallySynchronizedMap<Class<?>, AtomicInteger>();
+	private final Map<Class<?>, AtomicLong> time = new PartiallySynchronizedMap<Class<?>, AtomicLong>();
+	private final Map<Object, AtomicLong> singleTime = new PartiallySynchronizedMap<Object, AtomicLong>();
+	private final Map<Object, AtomicLong> singleInvocationCount = new PartiallySynchronizedMap<Object, AtomicLong>();
 
 	private AtomicLong getSingleInvocationCount(Object o) {
 		AtomicLong t = singleInvocationCount.get(o);
@@ -481,6 +480,32 @@ public class EntityTickProfiler {
 		@Override
 		public int hashCode() {
 			return (chunkXPos * 7907) + chunkXPos;
+		}
+	}
+
+	public class PartiallySynchronizedMap<K, V> extends HashMap<K, V> {
+		public PartiallySynchronizedMap() {
+			super();
+		}
+
+		@Override
+		public synchronized V put(final K key, final V value) {
+			return super.put(key, value);
+		}
+
+		@Override
+		public synchronized void putAll(final Map<? extends K, ? extends V> m) {
+			super.putAll(m);
+		}
+
+		@Override
+		public synchronized V remove(final Object key) {
+			return super.remove(key);
+		}
+
+		@Override
+		public synchronized void clear() {
+			super.clear();
 		}
 	}
 }
