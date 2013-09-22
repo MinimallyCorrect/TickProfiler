@@ -6,7 +6,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.text.Normalizer;
-import java.util.Arrays;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -16,9 +15,6 @@ import java.util.regex.Pattern;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.FMLLog;
-import net.minecraft.client.Minecraft;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.gui.GuiLogOutputHandler;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 
@@ -37,7 +33,7 @@ public class Log {
 		File logFolder_ = new File("TickProfilerLogs");
 		try {
 			if (FMLCommonHandler.instance().getEffectiveSide().isClient()) {
-				logFolder_ = new File(Minecraft.getMinecraftDir(), "TickProfilerLogs");
+				logFolder_ = new File(new File("."), "TickProfilerLogs");
 			}
 		} catch (Exception ignored) {
 		}
@@ -78,13 +74,13 @@ public class Log {
 			setFileName("tickprofiler", Level.INFO, LOGGER);
 			Logger minecraftLogger = Logger.getLogger("Minecraft");
 			for (Handler handler : minecraftLogger.getHandlers()) {
-				if (handler instanceof GuiLogOutputHandler) {
-					if (!Arrays.asList(parent.getHandlers()).contains(handlerWrapper)) {
-						wrappedHandler = handler;
-						parent.addHandler(handlerWrapper);
-						break;
-					}
-				}
+//				if (handler instanceof GuiLogOutputHandler) {
+//					if (!Arrays.asList(parent.getHandlers()).contains(handlerWrapper)) {
+//						wrappedHandler = handler;
+//						parent.addHandler(handlerWrapper);
+//						break;
+//					}
+//				}
 			}
 		} catch (NoClassDefFoundError ignored) {
 			// Not running under forge
