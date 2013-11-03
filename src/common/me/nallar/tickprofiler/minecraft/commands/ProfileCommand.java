@@ -85,4 +85,9 @@ public class ProfileCommand extends Command {
 		GLOBAL,
 		CHUNK
 	}
+
+	@Override
+	public String getCommandUsage(ICommandSender icommandsender) {
+		return "Usage: /profile [e/(c [chunk x] [chunk z])] [time=30] [dimensionid=all]";
+	}
 }
