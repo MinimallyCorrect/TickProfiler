@@ -47,7 +47,7 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 @Mod (modid = "TickProfiler", name = "TickProfiler", version = "@MOD_VERSION@")
 @NetworkMod (clientSideRequired = false, serverSideRequired = false)
 public class TickProfiler {
-	@Mod.Instance
+	@Mod.Instance("TickProfiler")
 	public static TickProfiler instance;
 	private static final int loadedEntityFieldIndex = 0;
 	private static final int loadedTileEntityFieldIndex = 2;

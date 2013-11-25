@@ -96,4 +96,9 @@ public class DumpCommand extends Command {
 		} while ((clazz = clazz.getSuperclass()) != Object.class);
 		tf.finishTable();
 	}
+
+	@Override
+	public String getCommandUsage(ICommandSender icommandsender) {
+		return "Usage: /dump x y z [world=currentworld]";
+	}
 }

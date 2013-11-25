@@ -123,7 +123,7 @@ public class EntityTickProfiler {
 				} catch (Throwable var8) {
 					CrashReport crashReport = CrashReport.makeCrashReport(var8, "Ticking entity");
 					CrashReportCategory crashReportCategory = crashReport.makeCategory("Entity being ticked");
-					entity.func_85029_a(crashReportCategory);
+					entity.addEntityCrashInfo(crashReportCategory);
 
 					if (ForgeDummyContainer.removeErroringEntities) {
 						FMLLog.severe(crashReport.getCompleteReport());
@@ -147,7 +147,9 @@ public class EntityTickProfiler {
 				} else {
 					toTick.remove(i--);
 				}
-				world.releaseEntitySkin(entity);
+				
+				world.loadedEntityList.remove(i--);
+				world.onEntityRemoved(entity);
 			}
 			end = System.nanoTime();
 
@@ -169,7 +171,7 @@ public class EntityTickProfiler {
 
 			int x = tileEntity.xCoord;
 			int z = tileEntity.zCoord;
-			if (!tileEntity.isInvalid() && tileEntity.func_70309_m() && chunkProvider.chunkExists(x >> 4, z >> 4)) {
+            if (!tileEntity.isInvalid() && tileEntity.hasWorldObj() && world.blockExists(tileEntity.xCoord, tileEntity.yCoord, tileEntity.zCoord)) {
 				try {
 					tileEntity.updateEntity();
 				} catch (Throwable var6) {

@@ -3,11 +3,15 @@
 	<property environment="env"/>
 	<!-- Properties -->
 
-	<property name="build.dir" value="build"/>
+	<property name="mc.version" value="1.6.4"/>
+	<property name="forge.version" value="9.11.0.898"/>
+	<property name="project.version" value="1.1.0"/>
+
+	<property name="build.dir" value="../build_${mc.version}"/>
 	<property name="src.dir" value="src"/>
 	<property name="lib.dir" value="libs"/>
 
-	<property name="download.dir" value="download"/>
+	<property name="download.dir" value="../download"/>
 
 	<property name="classes.dir" value="${build.dir}/classes"/>
 	<property name="jar.dir" value="target"/>
@@ -16,10 +20,6 @@
 	<property name="mcp.dir" value="${forge.dir}/mcp"/>
 
 	<property name="mcpsrc.dir" value="${mcp.dir}/src"/>
-
-	<property name="mc.version" value="1.5.2"/>
-	<property name="forge.version" value="7.8.0.715"/>
-	<property name="project.version" value="1.0.0"/>
 
 	<property name="forge.name" value="minecraftforge-src-${mc.version}-${forge.version}.zip"/>
 	<property name="maven-ant-tasks.name" value="maven-ant-tasks-2.1.3.jar"/>
@@ -95,8 +95,8 @@
 		</typedef>
 		<artifact:dependencies filesetId="dependency.fileset"
 													 versionsId="dependency.versions">
-			<artifact:dependency groupId="org.codehaus.jackson" artifactId="jackson-core-lgpl" version="1.9.12"/>
-			<artifact:dependency groupId="org.codehaus.jackson" artifactId="jackson-mapper-lgpl" version="1.9.12"/>
+			<artifact:dependency groupId="org.codehaus.jackson" artifactId="jackson-core-lgpl" version="1.9.13"/>
+			<artifact:dependency groupId="org.codehaus.jackson" artifactId="jackson-mapper-lgpl" version="1.9.13"/>
 		</artifact:dependencies>
 		<copy todir="${lib.dir}">
 			<fileset refid="dependency.fileset"/>

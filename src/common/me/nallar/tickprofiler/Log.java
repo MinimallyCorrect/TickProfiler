@@ -18,7 +18,7 @@ import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.FMLLog;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.gui.GuiLogOutputHandler;
+import net.minecraft.server.gui.TextAreaLogHandler;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 
@@ -37,7 +37,7 @@ public class Log {
 		File logFolder_ = new File("TickProfilerLogs");
 		try {
 			if (FMLCommonHandler.instance().getEffectiveSide().isClient()) {
-				logFolder_ = new File(Minecraft.getMinecraftDir(), "TickProfilerLogs");
+				logFolder_ = new File(Minecraft.getMinecraft().mcDataDir, "TickProfilerLogs");
 			}
 		} catch (Exception ignored) {
 		}
@@ -78,7 +78,7 @@ public class Log {
 			setFileName("tickprofiler", Level.INFO, LOGGER);
 			Logger minecraftLogger = Logger.getLogger("Minecraft");
 			for (Handler handler : minecraftLogger.getHandlers()) {
-				if (handler instanceof GuiLogOutputHandler) {
+				if (handler instanceof TextAreaLogHandler) {
 					if (!Arrays.asList(parent.getHandlers()).contains(handlerWrapper)) {
 						wrappedHandler = handler;
 						parent.addHandler(handlerWrapper);
