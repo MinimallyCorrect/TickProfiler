@@ -1,9 +1,5 @@
 package me.nallar.tickprofiler.minecraft.commands;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import me.nallar.tickprofiler.Log;
 import me.nallar.tickprofiler.minecraft.TickProfiler;
 import me.nallar.tickprofiler.minecraft.profiling.EntityTickProfiler;
@@ -12,6 +8,10 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.Entity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class ProfileCommand extends Command {
 	public static String name = "profile";

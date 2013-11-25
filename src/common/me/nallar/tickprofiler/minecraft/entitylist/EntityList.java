@@ -1,18 +1,13 @@
 package me.nallar.tickprofiler.minecraft.entitylist;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-
 import me.nallar.tickprofiler.Log;
 import me.nallar.tickprofiler.minecraft.commands.ProfileCommand;
 import me.nallar.tickprofiler.minecraft.profiling.EntityTickProfiler;
 import me.nallar.tickprofiler.util.contextaccess.ContextAccess;
 import net.minecraft.world.World;
+
+import java.lang.reflect.Field;
+import java.util.*;
 
 /*
 * Used to override World.loadedTile/EntityList.

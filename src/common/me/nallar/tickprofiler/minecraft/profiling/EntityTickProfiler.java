@@ -1,19 +1,7 @@
 package me.nallar.tickprofiler.minecraft.profiling;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
-
 import com.google.common.base.Functions;
 import com.google.common.collect.Ordering;
-
 import cpw.mods.fml.common.FMLLog;
 import me.nallar.tickprofiler.minecraft.TickProfiler;
 import me.nallar.tickprofiler.minecraft.commands.ProfileCommand;
@@ -31,6 +19,12 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraftforge.common.ForgeDummyContainer;
 import org.codehaus.jackson.map.ObjectMapper;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class EntityTickProfiler {
 	public static final EntityTickProfiler ENTITY_TICK_PROFILER = new EntityTickProfiler();
@@ -147,7 +141,7 @@ public class EntityTickProfiler {
 				} else {
 					toTick.remove(i--);
 				}
-				
+
 				world.loadedEntityList.remove(i--);
 				world.onEntityRemoved(entity);
 			}
@@ -171,7 +165,7 @@ public class EntityTickProfiler {
 
 			int x = tileEntity.xCoord;
 			int z = tileEntity.zCoord;
-            if (!tileEntity.isInvalid() && tileEntity.hasWorldObj() && world.blockExists(tileEntity.xCoord, tileEntity.yCoord, tileEntity.zCoord)) {
+			if (!tileEntity.isInvalid() && tileEntity.hasWorldObj() && chunkProvider.chunkExists(x >> 4, z >> 4)) {
 				try {
 					tileEntity.updateEntity();
 				} catch (Throwable var6) {

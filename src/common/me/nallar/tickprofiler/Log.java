@@ -1,28 +1,19 @@
 package me.nallar.tickprofiler;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.text.Normalizer;
-import java.util.Arrays;
-import java.util.logging.FileHandler;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
-import java.util.logging.Logger;
-import java.util.regex.Pattern;
-
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.FMLLog;
 import net.minecraft.client.Minecraft;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.gui.TextAreaLogHandler;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 
-@SuppressWarnings ({"UnusedDeclaration", "UseOfSystemOutOrSystemErr"})
+import java.io.*;
+import java.text.Normalizer;
+import java.util.Arrays;
+import java.util.logging.*;
+import java.util.regex.Pattern;
+
+@SuppressWarnings({"UnusedDeclaration", "UseOfSystemOutOrSystemErr"})
 public class Log {
 	public static final Logger LOGGER = Logger.getLogger("TickProfiler");
 	public static final boolean debug = System.getProperty("tickprofiler.debug") != null;

@@ -1,9 +1,5 @@
 package me.nallar.tickprofiler.minecraft.commands;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.List;
-
 import me.nallar.tickprofiler.Log;
 import me.nallar.tickprofiler.minecraft.TickProfiler;
 import me.nallar.tickprofiler.util.BlockInfo;
@@ -13,6 +9,10 @@ import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.List;
 
 public class DumpCommand extends Command {
 	public static String name = "dump";
@@ -53,7 +53,7 @@ public class DumpCommand extends Command {
 	}
 
 	public static TableFormatter dump(TableFormatter tf, World world, int x, int y, int z, int maxLen) {
-		@SuppressWarnings ("MismatchedQueryAndUpdateOfStringBuilder")
+		@SuppressWarnings("MismatchedQueryAndUpdateOfStringBuilder")
 		StringBuilder sb = tf.sb;
 		int blockId = world.getBlockId(x, y, z);
 		if (blockId < 1) {

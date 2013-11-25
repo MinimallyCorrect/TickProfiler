@@ -28,7 +28,7 @@ public class LogFormatter extends Formatter {
 				.append(record.getMessage()).append(LINE_SEPARATOR);
 
 		// No need to throw this, we're in a log formatter!
-		@SuppressWarnings ("ThrowableResultOfMethodCallIgnored")
+		@SuppressWarnings("ThrowableResultOfMethodCallIgnored")
 		Throwable throwable = record.getThrown();
 		if (throwable != null) {
 			if (throwable.getStackTrace().length == 0) {

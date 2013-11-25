@@ -1,13 +1,13 @@
 package me.nallar.tickprofiler.util;
 
+import me.nallar.tickprofiler.util.stringfillers.StringFiller;
+import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.Entity;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import me.nallar.tickprofiler.util.stringfillers.StringFiller;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.Entity;
 
 public class TableFormatter {
 	public final StringFiller stringFiller;

@@ -1,17 +1,11 @@
 package me.nallar.tickprofiler.util;
 
+import com.google.common.base.Function;
+import me.nallar.tickprofiler.Log;
+
 import java.io.File;
 import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import com.google.common.base.Function;
-
-import me.nallar.tickprofiler.Log;
+import java.util.*;
 
 public enum CollectionsUtil {
 	;
@@ -88,7 +82,7 @@ public enum CollectionsUtil {
 		return stringBuilder.toString();
 	}
 
-	@SuppressWarnings ("unchecked")
+	@SuppressWarnings("unchecked")
 	public static <K, V> Map<K, V> map(Object... objects) {
 		HashMap map = new HashMap();
 		Object key = null;

@@ -1,14 +1,7 @@
 package me.nallar.tickprofiler.minecraft;
 
-import java.io.File;
-import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.List;
-
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
-
 import cpw.mods.fml.common.IScheduledTickHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.TickType;
@@ -43,9 +36,15 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ForgeSubscribe;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 
-@SuppressWarnings ("WeakerAccess")
-@Mod (modid = "TickProfiler", name = "TickProfiler", version = "@MOD_VERSION@")
-@NetworkMod (clientSideRequired = false, serverSideRequired = false)
+import java.io.File;
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.List;
+
+@SuppressWarnings("WeakerAccess")
+@Mod(modid = "TickProfiler", name = "TickProfiler", version = "@MOD_VERSION@")
+@NetworkMod(clientSideRequired = false, serverSideRequired = false)
 public class TickProfiler {
 	@Mod.Instance("TickProfiler")
 	public static TickProfiler instance;
@@ -71,7 +70,7 @@ public class TickProfiler {
 		TickRegistry.registerScheduledTickHandler(new ProfilingScheduledTickHandler(profilingInterval, new File(".", profilingFileName), profilingJson), Side.SERVER);
 	}
 
-	@SuppressWarnings ("FieldRepeatedlyAccessedInMethod")
+	@SuppressWarnings("FieldRepeatedlyAccessedInMethod")
 	@Mod.PreInit
 	public void preInit(FMLPreInitializationEvent event) {
 		Configuration config = new Configuration(event.getSuggestedConfigurationFile());

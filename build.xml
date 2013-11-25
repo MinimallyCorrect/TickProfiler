@@ -7,11 +7,11 @@
 	<property name="forge.version" value="9.11.0.898"/>
 	<property name="project.version" value="1.1.0"/>
 
-	<property name="build.dir" value="../build_${mc.version}"/>
+	<property name="build.dir" value="build"/>
 	<property name="src.dir" value="src"/>
 	<property name="lib.dir" value="libs"/>
 
-	<property name="download.dir" value="../download"/>
+	<property name="download.dir" value="download"/>
 
 	<property name="classes.dir" value="${build.dir}/classes"/>
 	<property name="jar.dir" value="target"/>

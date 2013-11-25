@@ -3,7 +3,7 @@ package me.nallar.tickprofiler.util;
 import net.minecraft.server.MinecraftServer;
 
 // 'constants' aren't constant, the build script replaces them with versioning information
-@SuppressWarnings ("MethodReturnAlwaysConstant")
+@SuppressWarnings("MethodReturnAlwaysConstant")
 public enum VersionUtil {
 	;
 
