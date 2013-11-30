@@ -142,7 +142,6 @@ public class EntityTickProfiler {
 					toTick.remove(i--);
 				}
 
-				world.loadedEntityList.remove(i--);
 				world.onEntityRemoved(entity);
 			}
 			end = System.nanoTime();
