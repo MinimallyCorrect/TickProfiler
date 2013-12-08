@@ -29,6 +29,10 @@ import java.util.concurrent.atomic.AtomicLong;
 public class EntityTickProfiler {
 	public static final EntityTickProfiler ENTITY_TICK_PROFILER = new EntityTickProfiler();
 	public static ProfileCommand.ProfilingState profilingState = ProfileCommand.ProfilingState.NONE;
+	private final HashMap<Class<?>, AtomicInteger> invocationCount = new HashMap<Class<?>, AtomicInteger>();
+	private final HashMap<Class<?>, AtomicLong> time = new HashMap<Class<?>, AtomicLong>();
+	private final HashMap<Object, AtomicLong> singleTime = new HashMap<Object, AtomicLong>();
+	private final HashMap<Object, AtomicLong> singleInvocationCount = new HashMap<Object, AtomicLong>();
 	private int ticks;
 	private final AtomicLong totalTime = new AtomicLong();
 	private volatile int chunkX;
@@ -381,37 +385,25 @@ public class EntityTickProfiler {
 		return name;
 	}
 
-	private final Map<Class<?>, AtomicInteger> invocationCount = new PartiallySynchronizedMap<Class<?>, AtomicInteger>();
-	private final Map<Class<?>, AtomicLong> time = new PartiallySynchronizedMap<Class<?>, AtomicLong>();
-	private final Map<Object, AtomicLong> singleTime = new PartiallySynchronizedMap<Object, AtomicLong>();
-	private final Map<Object, AtomicLong> singleInvocationCount = new PartiallySynchronizedMap<Object, AtomicLong>();
-
 	private AtomicLong getSingleInvocationCount(Object o) {
 		AtomicLong t = singleInvocationCount.get(o);
 		if (t == null) {
-			synchronized (o) {
-				t = singleInvocationCount.get(o);
-				if (t == null) {
-					t = new AtomicLong();
-					singleInvocationCount.put(o, t);
-				}
+			t = singleInvocationCount.get(o);
+			if (t == null) {
+				t = new AtomicLong();
+				singleInvocationCount.put(o, t);
 			}
 		}
 		return t;
 	}
 
-	// We synchronize on the class name as it is always the same object
-	// We do not synchronize on the class object as that would also
-	// prevent any synchronized static methods on it from running
 	private AtomicInteger getInvocationCount(Class<?> clazz) {
 		AtomicInteger i = invocationCount.get(clazz);
 		if (i == null) {
-			synchronized (clazz.getName()) {
-				i = invocationCount.get(clazz);
-				if (i == null) {
-					i = new AtomicInteger();
-					invocationCount.put(clazz, i);
-				}
+			i = invocationCount.get(clazz);
+			if (i == null) {
+				i = new AtomicInteger();
+				invocationCount.put(clazz, i);
 			}
 		}
 		return i;
@@ -420,12 +412,10 @@ public class EntityTickProfiler {
 	private AtomicLong getSingleTime(Object o) {
 		AtomicLong t = singleTime.get(o);
 		if (t == null) {
-			synchronized (o) {
-				t = singleTime.get(o);
-				if (t == null) {
-					t = new AtomicLong();
-					singleTime.put(o, t);
-				}
+			t = singleTime.get(o);
+			if (t == null) {
+				t = new AtomicLong();
+				singleTime.put(o, t);
 			}
 		}
 		return t;
@@ -434,12 +424,10 @@ public class EntityTickProfiler {
 	private AtomicLong getTime(Class<?> clazz) {
 		AtomicLong t = time.get(clazz);
 		if (t == null) {
-			synchronized (clazz.getName()) {
-				t = time.get(clazz);
-				if (t == null) {
-					t = new AtomicLong();
-					time.put(clazz, t);
-				}
+			t = time.get(clazz);
+			if (t == null) {
+				t = new AtomicLong();
+				time.put(clazz, t);
 			}
 		}
 		return t;
@@ -475,32 +463,6 @@ public class EntityTickProfiler {
 		@Override
 		public int hashCode() {
 			return (chunkXPos * 7907) + chunkXPos;
-		}
-	}
-
-	public class PartiallySynchronizedMap<K, V> extends HashMap<K, V> {
-		public PartiallySynchronizedMap() {
-			super();
-		}
-
-		@Override
-		public synchronized V put(final K key, final V value) {
-			return super.put(key, value);
-		}
-
-		@Override
-		public synchronized void putAll(final Map<? extends K, ? extends V> m) {
-			super.putAll(m);
-		}
-
-		@Override
-		public synchronized V remove(final Object key) {
-			return super.remove(key);
-		}
-
-		@Override
-		public synchronized void clear() {
-			super.clear();
 		}
 	}
 }
