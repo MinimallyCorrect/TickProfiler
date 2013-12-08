@@ -6,7 +6,7 @@ import me.nallar.tickprofiler.minecraft.profiling.EntityTickProfiler;
 import me.nallar.tickprofiler.util.contextaccess.ContextAccess;
 import net.minecraft.world.World;
 
-import java.lang.reflect.Field;
+import java.lang.reflect.*;
 import java.util.*;
 
 /*

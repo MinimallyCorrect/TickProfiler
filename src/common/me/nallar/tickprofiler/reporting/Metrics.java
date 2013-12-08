@@ -40,10 +40,7 @@ import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.DimensionManager;
 
 import java.io.*;
-import java.net.Proxy;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLEncoder;
+import java.net.*;
 import java.util.*;
 
 /**
@@ -156,7 +153,7 @@ public class Metrics {
 	 *
 	 * @param name The name of the graph
 	 * @return Graph object created. Will never return NULL under normal
-	 *         circumstances unless bad parameters are given
+	 * circumstances unless bad parameters are given
 	 */
 	public Graph createGraph(final String name) {
 		if (name == null) {

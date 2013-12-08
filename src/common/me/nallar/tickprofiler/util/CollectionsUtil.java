@@ -3,8 +3,8 @@ package me.nallar.tickprofiler.util;
 import com.google.common.base.Function;
 import me.nallar.tickprofiler.Log;
 
-import java.io.File;
-import java.lang.reflect.Constructor;
+import java.io.*;
+import java.lang.reflect.*;
 import java.util.*;
 
 public enum CollectionsUtil {

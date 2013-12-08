@@ -36,11 +36,9 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ForgeSubscribe;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 
-import java.io.File;
-import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.List;
+import java.io.*;
+import java.lang.reflect.*;
+import java.util.*;
 
 @SuppressWarnings("WeakerAccess")
 @Mod(modid = "TickProfiler", name = "TickProfiler", version = "@MOD_VERSION@")

@@ -2,9 +2,7 @@ package me.nallar.tickprofiler.util.stringfillers;
 
 import me.nallar.tickprofiler.util.ChatFormat;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Derived from https://github.com/andfRa/Saga/blob/master/src/org/saga/utility/chat/ChatFiller.java
