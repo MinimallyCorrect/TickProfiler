@@ -4,6 +4,7 @@ import me.nallar.tickprofiler.Log;
 import me.nallar.tickprofiler.minecraft.commands.ProfileCommand;
 import me.nallar.tickprofiler.minecraft.profiling.EntityTickProfiler;
 import me.nallar.tickprofiler.util.contextaccess.ContextAccess;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
 
 import java.lang.reflect.*;
@@ -57,11 +58,15 @@ public abstract class EntityList<T> extends ArrayList<T> {
 
 	@Override
 	public int size() {
-		if (EntityTickProfiler.profilingState == ProfileCommand.ProfilingState.NONE || !World.class.isAssignableFrom(contextAccess.getContext(1)) || !World.class.isAssignableFrom(contextAccess.getContext(2))) {
-			return innerList.size();
+		boolean tick = EntityTickProfiler.profilingState != ProfileCommand.ProfilingState.NONE && World.class.isAssignableFrom(contextAccess.getContext(1));
+		if (tick) {
+			Class secondCaller = contextAccess.getContext(2);
+			if (secondCaller == MinecraftServer.class || World.class.isAssignableFrom(secondCaller)) {
+				tick();
+				return 0;
+			}
 		}
-		tick();
-		return 0;
+		return innerList.size();
 	}
 
 	@Override
@@ -166,11 +171,15 @@ public abstract class EntityList<T> extends ArrayList<T> {
 
 	@Override
 	public Iterator<T> iterator() {
-		if (EntityTickProfiler.profilingState == ProfileCommand.ProfilingState.NONE || !World.class.isAssignableFrom(contextAccess.getContext(1)) || !World.class.isAssignableFrom(contextAccess.getContext(2))) {
-			return innerList.iterator();
+		boolean tick = EntityTickProfiler.profilingState != ProfileCommand.ProfilingState.NONE && World.class.isAssignableFrom(contextAccess.getContext(1));
+		if (tick) {
+			Class secondCaller = contextAccess.getContext(2);
+			if (secondCaller == MinecraftServer.class || World.class.isAssignableFrom(secondCaller)) {
+				tick();
+				return Collections.<T>emptyList().iterator();
+			}
 		}
-		tick();
-		return Collections.<T>emptyList().iterator();
+		return innerList.iterator();
 	}
 
 	@Override
