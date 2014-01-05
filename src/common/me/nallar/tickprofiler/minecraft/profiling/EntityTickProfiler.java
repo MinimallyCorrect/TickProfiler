@@ -1,8 +1,10 @@
 package me.nallar.tickprofiler.minecraft.profiling;
 
 import com.google.common.base.Functions;
+import com.google.common.base.Throwables;
 import com.google.common.collect.Ordering;
 import cpw.mods.fml.common.FMLLog;
+import me.nallar.tickprofiler.Log;
 import me.nallar.tickprofiler.minecraft.TickProfiler;
 import me.nallar.tickprofiler.minecraft.commands.ProfileCommand;
 import me.nallar.tickprofiler.util.CollectionsUtil;
@@ -21,10 +23,28 @@ import net.minecraftforge.common.ForgeDummyContainer;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.*;
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.atomic.*;
 
 public class EntityTickProfiler {
+	private final Method isChunkActive = getIsChunkActiveMethod();
+
+	private Method getIsChunkActiveMethod() {
+		Class<World> clazz = World.class;
+		try {
+			Method method = clazz.getDeclaredMethod("isChunkActive", int.class, int.class);
+			Log.info("Found MCPC+ isChunkActive method " + method);
+			return method;
+		} catch (NoSuchMethodException e) {
+			Log.info("Did not find MCPC+ isChunkActive method, assuming vanilla entity ticking.");
+		}
+		return null;
+	}
+
+	private int lastCX = Integer.MIN_VALUE;
+	private int lastCZ = Integer.MIN_VALUE;
+	private boolean cachedActive = false;
 	public static final EntityTickProfiler ENTITY_TICK_PROFILER = new EntityTickProfiler();
 	public static ProfileCommand.ProfilingState profilingState = ProfileCommand.ProfilingState.NONE;
 	private final HashMap<Class<?>, AtomicInteger> invocationCount = new HashMap<Class<?>, AtomicInteger>();
@@ -166,6 +186,11 @@ public class EntityTickProfiler {
 
 			int x = tileEntity.xCoord;
 			int z = tileEntity.zCoord;
+
+			if (!isChunkActive(world, x >> 4, z >> 4)) {
+				continue;
+			}
+
 			if (!tileEntity.isInvalid() && tileEntity.hasWorldObj() && chunkProvider.chunkExists(x >> 4, z >> 4)) {
 				try {
 					tileEntity.updateEntity();
@@ -434,6 +459,26 @@ public class EntityTickProfiler {
 			}
 		}
 		return t;
+	}
+
+	private boolean isChunkActive(World world, int chunkX, int chunkZ) {
+		if (isChunkActive == null) {
+			return true;
+		}
+
+		if (lastCX == chunkX && lastCZ == chunkZ) {
+			return cachedActive;
+		}
+
+		try {
+			boolean result = (Boolean) isChunkActive.invoke(world, chunkX, chunkZ);
+			cachedActive = result;
+			lastCX = chunkX;
+			lastCZ = chunkZ;
+			return result;
+		} catch (Throwable t) {
+			throw Throwables.propagate(t);
+		}
 	}
 
 	private class ComparableLongHolder implements Comparable<ComparableLongHolder> {
