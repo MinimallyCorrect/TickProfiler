@@ -62,11 +62,19 @@ public abstract class EntityList<T> extends ArrayList<T> {
 		if (tick) {
 			Class secondCaller = contextAccess.getContext(2);
 			if (secondCaller == MinecraftServer.class || World.class.isAssignableFrom(secondCaller)) {
-				tick();
+				doTick();
 				return 0;
 			}
 		}
 		return innerList.size();
+	}
+
+	private void doTick() {
+		try {
+			tick();
+		} catch (Throwable t) {
+			Log.severe("Caught error while profiling in TP tick hook " + this, t);
+		}
 	}
 
 	@Override
@@ -175,7 +183,7 @@ public abstract class EntityList<T> extends ArrayList<T> {
 		if (tick) {
 			Class secondCaller = contextAccess.getContext(2);
 			if (secondCaller == MinecraftServer.class || World.class.isAssignableFrom(secondCaller)) {
-				tick();
+				doTick();
 				return Collections.<T>emptyList().iterator();
 			}
 		}
