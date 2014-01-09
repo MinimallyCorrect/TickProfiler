@@ -28,16 +28,16 @@ import java.util.*;
 import java.util.concurrent.atomic.*;
 
 public class EntityTickProfiler {
-	private final Method isChunkActive = getIsChunkActiveMethod();
+	private final Method isActiveChunk = getIsActiveChunkMethod();
 
-	private Method getIsChunkActiveMethod() {
+	private Method getIsActiveChunkMethod() {
 		Class<World> clazz = World.class;
 		try {
-			Method method = clazz.getDeclaredMethod("isChunkActive", int.class, int.class);
-			Log.info("Found MCPC+ isChunkActive method " + method);
+			Method method = clazz.getDeclaredMethod("isActiveChunk", int.class, int.class);
+			Log.info("Found MCPC+ isActiveChunk method " + method);
 			return method;
 		} catch (NoSuchMethodException e) {
-			Log.info("Did not find MCPC+ isChunkActive method, assuming vanilla entity ticking.");
+			Log.info("Did not find MCPC+ isActiveChunk method, assuming vanilla entity ticking.");
 		}
 		return null;
 	}
@@ -187,7 +187,7 @@ public class EntityTickProfiler {
 			int x = tileEntity.xCoord;
 			int z = tileEntity.zCoord;
 
-			if (!isChunkActive(world, x >> 4, z >> 4)) {
+			if (!isActiveChunk(world, x >> 4, z >> 4)) {
 				continue;
 			}
 
@@ -461,8 +461,8 @@ public class EntityTickProfiler {
 		return t;
 	}
 
-	private boolean isChunkActive(World world, int chunkX, int chunkZ) {
-		if (isChunkActive == null) {
+	private boolean isActiveChunk(World world, int chunkX, int chunkZ) {
+		if (isActiveChunk == null) {
 			return true;
 		}
 
@@ -471,7 +471,7 @@ public class EntityTickProfiler {
 		}
 
 		try {
-			boolean result = (Boolean) isChunkActive.invoke(world, chunkX, chunkZ);
+			boolean result = (Boolean) isActiveChunk.invoke(world, chunkX, chunkZ);
 			cachedActive = result;
 			lastCX = chunkX;
 			lastCZ = chunkZ;
