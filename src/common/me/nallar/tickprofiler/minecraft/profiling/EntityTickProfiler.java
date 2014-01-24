@@ -101,11 +101,11 @@ public class EntityTickProfiler {
 
 				synchronized (EntityTickProfiler.class) {
 					endProfiling();
-					runnable.run();
-					clear();
 					for (World world_ : worlds) {
 						TickProfiler.instance.unhookProfiler(world_);
 					}
+					runnable.run();
+					clear();
 				}
 			}
 		};
