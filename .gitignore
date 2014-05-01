@@ -42,6 +42,7 @@ Thumbs.db
 .classpath
 .project
 .settings
+.gradle
 MANIFEST.MF
 *.iml
 .idea
