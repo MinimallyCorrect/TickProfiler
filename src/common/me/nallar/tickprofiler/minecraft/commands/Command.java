@@ -8,7 +8,7 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatMessageComponent;
-import ru.tehkode.permissions.IPermissions;
+import com.sperion.forgeperms.api.IPermissionManager;
 
 import java.util.*;
 
@@ -29,13 +29,14 @@ public abstract class Command extends CommandBase {
 		return !requireOp() || super.canCommandSenderUseCommand(commandSender);
 	}
 
-	private static IPermissions permissions;
+	private static IPermissionManager permissions;
 
 	public Boolean checkPermission(EntityPlayer entityPlayer) {
 		if (permissions == null) {
 			return null;
 		}
-		return permissions.has(entityPlayer, this.getClass().getName());
+		String perm = this.getClass().getName();
+                return permissions.canAccess(entityPlayer.username, entityPlayer.worldObj.getProviderName(), perm);
 	}
 
 	public static void sendChat(ICommandSender commandSender, String message) {
@@ -67,8 +68,8 @@ public abstract class Command extends CommandBase {
 	public static void checkForPermissions() {
 		for (ModContainer modContainer : Loader.instance().getActiveModList()) {
 			Object mod = modContainer.getMod();
-			if (mod instanceof IPermissions) {
-				Command.permissions = (IPermissions) mod;
+                        if (mod instanceof IPermissionManager) {
+                                Command.permissions = (IPermissionManager) mod;
 				Log.info("Using " + Log.toString(mod) + ':' + modContainer.getModId() + " as a permissions source.");
 				return;
 			}
