@@ -41,7 +41,7 @@ import java.lang.reflect.*;
 import java.util.*;
 
 @SuppressWarnings("WeakerAccess")
-@Mod(modid = "TickProfiler", name = "TickProfiler", version = "@MOD_VERSION@")
+@Mod(modid = "TickProfiler", name = "TickProfiler")
 @NetworkMod(clientSideRequired = false, serverSideRequired = false)
 public class TickProfiler {
 	@Mod.Instance("TickProfiler")
