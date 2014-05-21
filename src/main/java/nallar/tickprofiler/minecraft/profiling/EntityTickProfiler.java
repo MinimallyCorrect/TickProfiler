@@ -240,9 +240,13 @@ public class EntityTickProfiler {
 
 	public void clear() {
 		invocationCount.clear();
-		time.clear();
+		synchronized (time) {
+			time.clear();
+		}
 		totalTime.set(0);
-		singleTime.clear();
+		synchronized (singleTime) {
+			singleTime.clear();
+		}
 		singleInvocationCount.clear();
 		ticks = 0;
 	}
@@ -285,12 +289,16 @@ public class EntityTickProfiler {
 
 	public TableFormatter writeData(TableFormatter tf, int elements) {
 		Map<Class<?>, Long> time = new HashMap<Class<?>, Long>();
-		for (Map.Entry<Class<?>, AtomicLong> entry : this.time.entrySet()) {
-			time.put(entry.getKey(), entry.getValue().get());
+		synchronized (this.time) {
+			for (Map.Entry<Class<?>, AtomicLong> entry : this.time.entrySet()) {
+				time.put(entry.getKey(), entry.getValue().get());
+			}
 		}
 		Map<Object, Long> singleTime = new HashMap<Object, Long>();
-		for (Map.Entry<Object, AtomicLong> entry : this.singleTime.entrySet()) {
-			singleTime.put(entry.getKey(), entry.getValue().get());
+		synchronized (this.singleTime) {
+			for (Map.Entry<Object, AtomicLong> entry : this.singleTime.entrySet()) {
+				singleTime.put(entry.getKey(), entry.getValue().get());
+			}
 		}
 		double totalTime = this.totalTime.get();
 		tf
@@ -440,10 +448,12 @@ public class EntityTickProfiler {
 	private AtomicLong getSingleTime(Object o) {
 		AtomicLong t = singleTime.get(o);
 		if (t == null) {
-			t = singleTime.get(o);
-			if (t == null) {
-				t = new AtomicLong();
-				singleTime.put(o, t);
+			synchronized (singleTime) {
+				t = singleTime.get(o);
+				if (t == null) {
+					t = new AtomicLong();
+					singleTime.put(o, t);
+				}
 			}
 		}
 		return t;
@@ -453,9 +463,11 @@ public class EntityTickProfiler {
 		AtomicLong t = time.get(clazz);
 		if (t == null) {
 			t = time.get(clazz);
-			if (t == null) {
-				t = new AtomicLong();
-				time.put(clazz, t);
+			synchronized (time) {
+				if (t == null) {
+					t = new AtomicLong();
+					time.put(clazz, t);
+				}
 			}
 		}
 		return t;
