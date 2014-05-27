@@ -248,10 +248,12 @@ public class EntityTickProfiler {
 			singleTime.clear();
 		}
 		singleInvocationCount.clear();
-		ticks = 0;
+		synchronized (this) {
+			ticks = 0;
+		}
 	}
 
-	public void tick() {
+	public synchronized void tick() {
 		if (profilingState != ProfileCommand.ProfilingState.NONE) {
 			ticks++;
 		}
