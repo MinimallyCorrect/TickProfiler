@@ -37,7 +37,7 @@ import java.lang.reflect.*;
 import java.util.*;
 
 @SuppressWarnings("WeakerAccess")
-@Mod(modid = "TickProfiler", name = "TickProfiler")
+@Mod(modid = "TickProfiler", name = "TickProfiler", version = "1.7.10", acceptableRemoteVersions = "*")
 public class TickProfiler {
 	@Mod.Instance("TickProfiler")
 	public static TickProfiler instance;
