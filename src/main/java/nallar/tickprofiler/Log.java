@@ -1,270 +1,45 @@
 package nallar.tickprofiler;
 
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.FMLLog;
-import net.minecraft.client.Minecraft;
-import net.minecraft.server.gui.TextAreaLogHandler;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
-
-import java.io.*;
-import java.text.*;
-import java.util.*;
-import java.util.logging.*;
-import java.util.regex.*;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @SuppressWarnings({"UnusedDeclaration", "UseOfSystemOutOrSystemErr"})
 public class Log {
-	public static final Logger LOGGER = Logger.getLogger("TickProfiler");
-	public static final boolean debug = System.getProperty("tickprofiler.debug") != null;
-	public static final Level DEBUG = new Level("DEBUG", Level.SEVERE.intValue(), null) {
-		// Inner class as constructors are protected.
-	};
-	private static Handler handler;
-	private static final int numberOfLogFiles = Integer.getInteger("tickprofiler.numberOfLogFiles", 5);
-	private static final File logFolder;
+	public static final Logger LOGGER = LogManager.getLogger("TickProfiler");
 
-	static {
-		File logFolder_ = new File("TickProfilerLogs");
-		try {
-			if (FMLCommonHandler.instance().getEffectiveSide().isClient()) {
-				logFolder_ = new File(Minecraft.getMinecraft().mcDataDir, "TickProfilerLogs");
-			}
-		} catch (Exception ignored) {
-		}
-		logFolder = logFolder_;
+	public static void error(String msg) {
+		LOGGER.error(msg);
 	}
 
-	private static Handler wrappedHandler;
-	private static final Handler handlerWrapper = new Handler() {
-		Pattern pattern = Pattern.compile("\\P{Print}");
-
-		@Override
-		public void publish(final LogRecord record) {
-			String initialMessage = record.getMessage();
-			String sanitizedMessage = java.text.Normalizer.normalize(initialMessage, Normalizer.Form.NFC).replace("\r\n", "\n");
-			sanitizedMessage = pattern.matcher(sanitizedMessage).replaceAll("");
-			record.setMessage(sanitizedMessage);
-			wrappedHandler.publish(record);
-			record.setMessage(initialMessage);
-		}
-
-		@Override
-		public void flush() {
-		}
-
-		@Override
-		public void close() throws SecurityException {
-		}
-	};
-
-	static {
-		try {
-			Logger parent = FMLLog.getLogger();
-			if (parent == null) {
-				throw new NoClassDefFoundError();
-			}
-			LOGGER.setParent(parent);
-			LOGGER.setUseParentHandlers(true);
-			setFileName("tickprofiler", Level.INFO, LOGGER);
-			Logger minecraftLogger = Logger.getLogger("Minecraft");
-			for (Handler handler : minecraftLogger.getHandlers()) {
-				if (handler instanceof TextAreaLogHandler) {
-					if (!Arrays.asList(parent.getHandlers()).contains(handlerWrapper)) {
-						wrappedHandler = handler;
-						parent.addHandler(handlerWrapper);
-						break;
-					}
-				}
-			}
-		} catch (NoClassDefFoundError ignored) {
-			// Not running under forge
-			LOGGER.setUseParentHandlers(false);
-			LOGGER.addHandler(new Handler() {
-				private final nallar.tickprofiler.LogFormatter logFormatter = new nallar.tickprofiler.LogFormatter();
-
-				@Override
-				public void publish(LogRecord record) {
-					System.out.print(logFormatter.format(record));
-				}
-
-				@Override
-				public void flush() {
-				}
-
-				@Override
-				public void close() throws SecurityException {
-				}
-			});
-		}
-		LOGGER.setLevel(Level.ALL);
-	}
-
-	public static synchronized void disableDiskWriting(String finalMessage) {
-		Handler handler = Log.handler;
-		if (handler == null) {
-			return;
-		}
-		Log.handler = null;
-		LogRecord finalRecord = new LogRecord(Level.SEVERE, finalMessage);
-		try {
-			Logger fmlLog = FMLLog.getLogger();
-			for (Handler handler1 : fmlLog.getHandlers()) {
-				if (handler1 instanceof FileHandler) {
-					fmlLog.removeHandler(handler1);
-					handler1.publish(finalRecord);
-					handler1.flush();
-				}
-			}
-		} catch (NoClassDefFoundError ignored) {
-
-		}
-		handler.publish(finalRecord);
-		handler.flush();
-		LOGGER.removeHandler(handler);
-		Log.severe(finalMessage);
-	}
-
-	public static void setFileName(String name, final Level minimumLevel, Logger... loggers) {
-		logFolder.mkdir();
-		for (int i = numberOfLogFiles; i >= 1; i--) {
-			File currentFile = new File(logFolder, name + '.' + i + ".log");
-			if (currentFile.exists()) {
-				if (i == numberOfLogFiles) {
-					currentFile.delete();
-				} else {
-					currentFile.renameTo(new File(logFolder, name + '.' + (i + 1) + ".log"));
-				}
-			}
-		}
-		// TODO: Remove after two recommended builds
-		File oldNamingFile = new File(logFolder, name + ".log");
-		if (oldNamingFile.exists()) {
-			oldNamingFile.renameTo(new File(logFolder, name + ".2.log"));
-		}
-		final File saveFile = new File(logFolder, name + ".1.log");
-		try {
-			RandomAccessFile randomAccessFile = new RandomAccessFile(saveFile, "rw");
-			try {
-				randomAccessFile.setLength(0);
-			} finally {
-				randomAccessFile.close();
-			}
-			//noinspection IOResourceOpenedButNotSafelyClosed
-			handler = new Handler() {
-				private final nallar.tickprofiler.LogFormatter logFormatter = new nallar.tickprofiler.LogFormatter();
-				private final BufferedWriter outputWriter = new BufferedWriter(new FileWriter(saveFile));
-
-				@Override
-				public void publish(LogRecord record) {
-					if (record.getLevel().intValue() >= minimumLevel.intValue()) {
-						try {
-							outputWriter.write(logFormatter.format(record));
-						} catch (IOException ignored) {
-							// Can't log here, might cause infinite recursion
-						}
-					}
-				}
-
-				@Override
-				public void flush() {
-					try {
-						outputWriter.flush();
-					} catch (IOException ignored) {
-					}
-				}
-
-				@Override
-				public void close() throws SecurityException {
-					try {
-						outputWriter.close();
-					} catch (IOException ignored) {
-						// ignored - shouldn't log if logging fails
-					}
-				}
-			};
-			for (Logger logger : loggers) {
-				logger.addHandler(handler);
-			}
-		} catch (IOException e) {
-			Log.severe("Can't write logs to disk", e);
-		}
-	}
-
-	public static void flush() {
-		if (handler != null) {
-			handler.flush();
-		}
-	}
-
-	public static void debug(String msg) {
-		debug(msg, null);
-	}
-
-	public static void severe(String msg) {
-		LOGGER.severe(msg);
-	}
-
-	public static void warning(String msg) {
-		LOGGER.warning(msg);
+	public static void warn(String msg) {
+		LOGGER.warn(msg);
 	}
 
 	public static void info(String msg) {
 		LOGGER.info(msg);
 	}
 
-	public static void config(String msg) {
-		LOGGER.config(msg);
+	public static void trace(String msg) {
+		LOGGER.trace(msg);
 	}
 
-	public static void fine(String msg) {
-		LOGGER.fine(msg);
+	public static void error(String msg, Throwable t) {
+		LOGGER.log(Level.ERROR, msg, t);
 	}
 
-	public static void finer(String msg) {
-		LOGGER.finer(msg);
-	}
-
-	public static void finest(String msg) {
-		LOGGER.finest(msg);
-	}
-
-	public static void debug(String msg, Throwable t) {
-		if (debug) {
-			LOGGER.log(DEBUG, msg, t);
-		} else {
-			throw new Error("Logged debug message when not in debug mode.");
-			// To prevent people logging debug messages which will just be ignored, wasting resources constructing the message.
-			// (s/people/me being lazy/ :P)
-		}
-	}
-
-	public static void severe(String msg, Throwable t) {
-		LOGGER.log(Level.SEVERE, msg, t);
-	}
-
-	public static void warning(String msg, Throwable t) {
-		LOGGER.log(Level.WARNING, msg, t);
+	public static void warn(String msg, Throwable t) {
+		LOGGER.log(Level.WARN, msg, t);
 	}
 
 	public static void info(String msg, Throwable t) {
 		LOGGER.log(Level.INFO, msg, t);
 	}
 
-	public static void config(String msg, Throwable t) {
-		LOGGER.log(Level.CONFIG, msg, t);
-	}
-
-	public static void fine(String msg, Throwable t) {
-		LOGGER.log(Level.FINE, msg, t);
-	}
-
-	public static void finer(String msg, Throwable t) {
-		LOGGER.log(Level.FINER, msg, t);
-	}
-
-	public static void finest(String msg, Throwable t) {
-		LOGGER.log(Level.FINEST, msg, t);
+	public static void trace(String msg, Throwable t) {
+		LOGGER.log(Level.TRACE, msg, t);
 	}
 
 	public static String name(World world) {

@@ -27,10 +27,10 @@ public abstract class EntityList<T> extends ArrayList<T> {
 		try {
 			worldList = (ArrayList<T>) overriddenField.get(world);
 			if (worldList.getClass() != ArrayList.class) {
-				Log.severe("Another mod has replaced an entity list with " + Log.toString(worldList));
+				Log.error("Another mod has replaced an entity list with " + Log.toString(worldList));
 			}
 		} catch (Throwable t) {
-			Log.severe("Failed to get " + overriddenField.getName() + " in world " + Log.name(world));
+			Log.error("Failed to get " + overriddenField.getName() + " in world " + Log.name(world));
 		}
 		innerList = worldList;
 		try {
@@ -73,7 +73,7 @@ public abstract class EntityList<T> extends ArrayList<T> {
 		try {
 			tick();
 		} catch (Throwable t) {
-			Log.severe("Caught error while profiling in TP tick hook " + this, t);
+			Log.error("Caught error while profiling in TP tick hook " + this, t);
 		}
 	}
 

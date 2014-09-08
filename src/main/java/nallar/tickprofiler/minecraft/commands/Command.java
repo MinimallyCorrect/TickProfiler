@@ -8,7 +8,7 @@ import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.ChatMessageComponent;
+import net.minecraft.util.ChatComponentText;
 import ru.tehkode.permissions.IPermissions;
 
 import java.util.*;
@@ -54,7 +54,7 @@ public abstract class Command extends CommandBase {
 				sent = message.substring(0, nlIndex);
 				message = message.substring(nlIndex + 1);
 			}
-			commandSender.sendChatToPlayer(new ChatMessageComponent().addText(sent));
+			commandSender.addChatMessage(new ChatComponentText(sent));
 		}
 	}
 

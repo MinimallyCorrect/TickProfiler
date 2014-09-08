@@ -29,7 +29,7 @@ public enum ReflectUtil {
 			for (Method method_ : c.getDeclaredMethods()) {
 				if (method_.getName().equals(name)) {
 					if (method != null) {
-						Log.severe("Two possible matches: " + method + ", " + method_);
+						Log.error("Two possible matches: " + method + ", " + method_);
 					}
 					method = method_;
 				}

@@ -6,21 +6,18 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.StatCollector;
 
 public class BlockInfo {
-	public final int id;
 	public final int meta;
-	public final Block type;
+	public final Block block;
 	public final String name;
 
-	public BlockInfo(final int id, final int meta) {
-		this.id = id;
+	public BlockInfo(final Block block, final int meta) {
 		this.meta = meta;
-		Block type;
-		this.type = type = Block.blocksList[id];
-		Item item = type == null ? null : Item.itemsList[id];
-		ItemStack itemType = item == null ? null : new ItemStack(id, 1, meta);
+		this.block = block;
+		Item item = block == null ? null : Item.getItemFromBlock(block);
+		ItemStack itemType = item == null ? null : new ItemStack(item, 1, meta);
 		String name = itemType == null ?
-				(type == null ? "unknown" : type.getLocalizedName()) :
-				item.getItemDisplayName(itemType);
+				(block == null ? "unknown" : block.getLocalizedName()) :
+				item.getUnlocalizedName(itemType);
 		String preTranslateName = "item." + name;
 		String localizedName = StatCollector.translateToLocal(preTranslateName);
 		//noinspection StringEquality
@@ -32,6 +29,6 @@ public class BlockInfo {
 
 	@Override
 	public String toString() {
-		return id + ':' + meta + ", " + name;
+		return block.toString() + ':' + meta + ", " + name;
 	}
 }

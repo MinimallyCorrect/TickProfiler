@@ -2,15 +2,13 @@ package nallar.tickprofiler.minecraft;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
-import cpw.mods.fml.common.IScheduledTickHandler;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.TickType;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
-import cpw.mods.fml.common.network.NetworkMod;
-import cpw.mods.fml.common.registry.TickRegistry;
-import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.TickEvent;
 import nallar.tickprofiler.Log;
 import nallar.tickprofiler.minecraft.commands.Command;
 import nallar.tickprofiler.minecraft.commands.DumpCommand;
@@ -27,13 +25,11 @@ import net.minecraft.command.ServerCommandManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.packet.PacketCount;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
-import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.ForgeSubscribe;
+import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 
 import java.io.*;
@@ -42,7 +38,6 @@ import java.util.*;
 
 @SuppressWarnings("WeakerAccess")
 @Mod(modid = "TickProfiler", name = "TickProfiler")
-@NetworkMod(clientSideRequired = false, serverSideRequired = false)
 public class TickProfiler {
 	@Mod.Instance("TickProfiler")
 	public static TickProfiler instance;
@@ -58,14 +53,10 @@ public class TickProfiler {
 		new Metrics("TickProfiler", VersionUtil.versionNumber());
 	}
 
-	public TickProfiler() {
-		Log.LOGGER.getLevel(); // Force log class to load
-	}
-
 	@Mod.EventHandler
 	public void init(FMLInitializationEvent event) {
 		MinecraftForge.EVENT_BUS.register(this);
-		TickRegistry.registerScheduledTickHandler(new ProfilingScheduledTickHandler(profilingInterval, new File(".", profilingFileName), profilingJson), Side.SERVER);
+		FMLCommonHandler.instance().bus().register(new ProfilingScheduledTickHandler(profilingInterval, new File(".", profilingFileName), profilingJson));
 	}
 
 	@SuppressWarnings("FieldRepeatedlyAccessedInMethod")
@@ -83,7 +74,6 @@ public class TickProfiler {
 		profilingFileName = config.get(GENERAL, "profilingFileName", profilingFileName, "Location to store profiling information to, relative to the server folder. For example, why not store it in a computercraft computer's folder?").getString();
 		profilingJson = config.get(GENERAL, "profilingJson", profilingJson, "Whether to write periodic profiling in JSON format").getBoolean(profilingJson);
 		config.save();
-		PacketCount.allowCounting = false;
 	}
 
 	@Mod.EventHandler
@@ -96,22 +86,22 @@ public class TickProfiler {
 
 	public synchronized void hookProfiler(World world) {
 		if (world.isRemote) {
-			Log.severe("World " + Log.name(world) + " seems to be a client world", new Throwable());
+			Log.error("World " + Log.name(world) + " seems to be a client world", new Throwable());
 		}
 		try {
 			Field loadedTileEntityField = ReflectUtil.getFields(World.class, List.class)[loadedTileEntityFieldIndex];
 			new LoadedTileEntityList(world, loadedTileEntityField);
 			Field loadedEntityField = ReflectUtil.getFields(World.class, List.class)[loadedEntityFieldIndex];
 			new LoadedEntityList(world, loadedEntityField);
-			Log.finer("Profiling hooked for world " + Log.name(world));
+			Log.trace("Profiling hooked for world " + Log.name(world));
 		} catch (Exception e) {
-			Log.severe("Failed to initialise profiling for world " + Log.name(world), e);
+			Log.error("Failed to initialise profiling for world " + Log.name(world), e);
 		}
 	}
 
 	public synchronized void unhookProfiler(World world) {
 		if (world.isRemote) {
-			Log.severe("World " + Log.name(world) + " seems to be a client world", new Throwable());
+			Log.error("World " + Log.name(world) + " seems to be a client world", new Throwable());
 		}
 		try {
 			Field loadedTileEntityField = ReflectUtil.getFields(World.class, List.class)[loadedTileEntityFieldIndex];
@@ -119,29 +109,29 @@ public class TickProfiler {
 			if (loadedTileEntityList instanceof EntityList) {
 				((EntityList) loadedTileEntityList).unhook();
 			} else {
-				Log.severe("Looks like another mod broke TickProfiler's replacement tile entity list in world: " + Log.name(world));
+				Log.error("Looks like another mod broke TickProfiler's replacement tile entity list in world: " + Log.name(world));
 			}
 			Field loadedEntityField = ReflectUtil.getFields(World.class, List.class)[loadedEntityFieldIndex];
 			Object loadedEntityList = loadedEntityField.get(world);
 			if (loadedEntityList instanceof EntityList) {
 				((EntityList) loadedEntityList).unhook();
 			} else {
-				Log.severe("Looks like another mod broke TickProfiler's replacement entity list in world: " + Log.name(world));
+				Log.error("Looks like another mod broke TickProfiler's replacement entity list in world: " + Log.name(world));
 			}
-			Log.finer("Profiling unhooked for world " + Log.name(world));
+			Log.trace("Profiling unhooked for world " + Log.name(world));
 		} catch (Exception e) {
-			Log.severe("Failed to unload TickProfiler for world " + Log.name(world), e);
+			Log.error("Failed to unload TickProfiler for world " + Log.name(world), e);
 		}
 	}
 
-	@ForgeSubscribe
+	@SubscribeEvent
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		if (event.action == PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK) {
 			EntityPlayer entityPlayer = event.entityPlayer;
 			ItemStack usedItem = entityPlayer.getCurrentEquippedItem();
 			if (usedItem != null) {
 				Item usedItemType = usedItem.getItem();
-				if (usedItemType == Item.pocketSundial && (!requireOpForDumpCommand || entityPlayer.canCommandSenderUseCommand(4, "dump"))) {
+				if (usedItemType == Item.itemRegistry.getObject("clock") && (!requireOpForDumpCommand || entityPlayer.canCommandSenderUseCommand(4, "dump"))) {
 					Command.sendChat(entityPlayer, DumpCommand.dump(new TableFormatter(entityPlayer), entityPlayer.worldObj, event.x, event.y, event.z, 35).toString());
 					event.setCanceled(true);
 				}
@@ -149,8 +139,7 @@ public class TickProfiler {
 		}
 	}
 
-	private static class ProfilingScheduledTickHandler implements IScheduledTickHandler {
-		private static final EnumSet<TickType> TICKS = EnumSet.of(TickType.SERVER);
+	private static class ProfilingScheduledTickHandler {
 		private final int profilingInterval;
 		private final File profilingFile;
 		private final boolean json;
@@ -162,13 +151,8 @@ public class TickProfiler {
 			this.json = json;
 		}
 
-		@Override
-		public int nextTickSpacing() {
-			return 1;
-		}
-
-		@Override
-		public void tickStart(final EnumSet<TickType> type, final Object... tickData) {
+		@SubscribeEvent
+		public void tick(TickEvent.ServerTickEvent tick) {
 			final EntityTickProfiler entityTickProfiler = EntityTickProfiler.ENTITY_TICK_PROFILER;
 			entityTickProfiler.tick();
 			int profilingInterval = this.profilingInterval;
@@ -187,24 +171,10 @@ public class TickProfiler {
 							Files.write(entityTickProfiler.writeStringData(tf, 6).toString(), profilingFile, Charsets.UTF_8);
 						}
 					} catch (Throwable t) {
-						Log.severe("Failed to save periodic profiling data to " + profilingFile, t);
+						Log.error("Failed to save periodic profiling data to " + profilingFile, t);
 					}
 				}
 			}, ProfileCommand.ProfilingState.GLOBAL, 10, Arrays.<World>asList(DimensionManager.getWorlds()));
-		}
-
-		@Override
-		public void tickEnd(final EnumSet<TickType> type, final Object... tickData) {
-		}
-
-		@Override
-		public EnumSet<TickType> ticks() {
-			return TICKS;
-		}
-
-		@Override
-		public String getLabel() {
-			return "TickProfiler scheduled profiling handler";
 		}
 	}
 }

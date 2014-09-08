@@ -19,7 +19,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.IChunkProvider;
-import net.minecraftforge.common.ForgeDummyContainer;
+import net.minecraftforge.common.ForgeModContainer;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.*;
@@ -28,16 +28,16 @@ import java.util.*;
 import java.util.concurrent.atomic.*;
 
 public class EntityTickProfiler {
-	private final Method isActiveChunk = getIsActiveChunkMethod();
+	private static final Method isActiveChunk = getIsActiveChunkMethod();
 
-	private Method getIsActiveChunkMethod() {
+	private static Method getIsActiveChunkMethod() {
 		Class<World> clazz = World.class;
 		try {
 			Method method = clazz.getDeclaredMethod("isActiveChunk", int.class, int.class);
 			Log.info("Found MCPC+ isActiveChunk method " + method);
 			return method;
 		} catch (NoSuchMethodException e) {
-			Log.info("Did not find MCPC+ isActiveChunk method, assuming vanilla entity ticking.");
+			Log.warn("Did not find MCPC+ isActiveChunk method, assuming vanilla entity ticking.");
 		}
 		return null;
 	}
@@ -141,7 +141,7 @@ public class EntityTickProfiler {
 					CrashReportCategory crashReportCategory = crashReport.makeCategory("Entity being ticked");
 					entity.addEntityCrashInfo(crashReportCategory);
 
-					if (ForgeDummyContainer.removeErroringEntities) {
+					if (ForgeModContainer.removeErroringEntities) {
 						FMLLog.severe(crashReport.getCompleteReport());
 						world.removeEntity(entity);
 					} else {
@@ -197,8 +197,8 @@ public class EntityTickProfiler {
 				} catch (Throwable var6) {
 					CrashReport crashReport = CrashReport.makeCrashReport(var6, "Ticking tile entity");
 					CrashReportCategory crashReportCategory = crashReport.makeCategory("Tile entity being ticked");
-					tileEntity.func_85027_a(crashReportCategory);
-					if (ForgeDummyContainer.removeErroringTileEntities) {
+					tileEntity.func_145828_a(crashReportCategory);
+					if (ForgeModContainer.removeErroringTileEntities) {
 						FMLLog.severe(crashReport.getCompleteReport());
 						tileEntity.invalidate();
 						world.setBlockToAir(x, tileEntity.yCoord, z);
@@ -215,7 +215,7 @@ public class EntityTickProfiler {
 					Chunk chunk = world.getChunkFromChunkCoords(tileEntity.xCoord >> 4, tileEntity.zCoord >> 4);
 
 					if (chunk != null) {
-						chunk.cleanChunkBlockTileEntity(tileEntity.xCoord & 15, tileEntity.yCoord, tileEntity.zCoord & 15);
+						chunk.removeTileEntity(tileEntity.xCoord & 15, tileEntity.yCoord, tileEntity.zCoord & 15);
 					}
 				}
 			}
@@ -342,7 +342,7 @@ public class EntityTickProfiler {
 				z = ((TileEntity) o).zCoord >> 4;
 				dimension = getDimension((TileEntity) o);
 			} else {
-				throw new RuntimeException("Wrong type: " + o.getClass());
+				throw new RuntimeException("Wrong block: " + o.getClass());
 			}
 			if (x != Integer.MIN_VALUE) {
 				chunkTimeMap.get(new ChunkCoords(x, z, dimension)).value += singleTimeEntry.getValue();
@@ -392,7 +392,7 @@ public class EntityTickProfiler {
 	}
 
 	private static int getDimension(TileEntity o) {
-		WorldProvider worldProvider = o.worldObj.provider;
+		WorldProvider worldProvider = o.getWorldObj().provider;
 		return worldProvider == null ? -999 : worldProvider.dimensionId;
 	}
 

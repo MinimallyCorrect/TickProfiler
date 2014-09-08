@@ -4,8 +4,10 @@ import nallar.tickprofiler.Log;
 import nallar.tickprofiler.minecraft.TickProfiler;
 import nallar.tickprofiler.util.BlockInfo;
 import nallar.tickprofiler.util.TableFormatter;
+import net.minecraft.block.Block;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.Entity;
+import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
@@ -54,16 +56,16 @@ public class DumpCommand extends Command {
 	public static TableFormatter dump(TableFormatter tf, World world, int x, int y, int z, int maxLen) {
 		@SuppressWarnings("MismatchedQueryAndUpdateOfStringBuilder")
 		StringBuilder sb = tf.sb;
-		int blockId = world.getBlockId(x, y, z);
-		if (blockId < 1) {
+		Block block = world.getBlock(x, y, z);
+		if (block == Blocks.air) {
 			sb.append("No block at ").append(Log.name(world)).append(" x,y,z").append(x).append(',').append(y).append(',').append(z).append('\n');
 		} else {
 			int metaData = world.getBlockMetadata(x, y, z);
-			BlockInfo blockInfo = new BlockInfo(blockId, metaData);
-			sb.append(blockId).append(':').append(blockInfo.name).append(':').append(metaData).append('\n');
+			BlockInfo blockInfo = new BlockInfo(block, metaData);
+			sb.append(blockInfo.name).append(':').append(metaData).append('\n');
 		}
 		sb.append("World time: ").append(world.getWorldTime()).append('\n');
-		TileEntity toDump = world.getBlockTileEntity(x, y, z);
+		TileEntity toDump = world.getTileEntity(x, y, z);
 		if (toDump == null) {
 			sb.append("No tile entity at ").append(Log.name(world)).append(" x,y,z").append(x).append(',').append(y).append(',').append(z).append('\n');
 			return tf;

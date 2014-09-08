@@ -35,7 +35,7 @@ public enum CollectionsUtil {
 		try {
 			constructor = type.getConstructor(String.class);
 		} catch (NoSuchMethodException e) {
-			Log.severe("Failed to convert string list to " + type, e);
+			Log.error("Failed to convert string list to " + type, e);
 			return Collections.emptyList();
 		}
 		List<Object> objects = new ArrayList<Object>();
@@ -43,7 +43,7 @@ public enum CollectionsUtil {
 			try {
 				objects.add(constructor.newInstance(s));
 			} catch (Exception e) {
-				Log.severe("Failed to convert string list to " + type + " with string " + s, e);
+				Log.error("Failed to convert string list to " + type + " with string " + s, e);
 			}
 		}
 		return (List<T>) objects;

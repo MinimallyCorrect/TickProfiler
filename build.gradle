@@ -11,7 +11,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:1.0-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
     }
 }
 
@@ -31,13 +31,13 @@ dependencies {
 }
 
 sourceCompatibility = JavaVersion.VERSION_1_6
-version = "1.6.4.${System.env.BUILD_NUMBER}"
+version = "1.7.10.${System.env.BUILD_NUMBER}"
 group = "nallar.tickprofiler" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "TickProfiler"
 
 minecraft {
-    version = "1.6.4-9.11.1.964"
-    assetDir = "eclipse/assets"
+    version = "1.7.10-10.13.0.1208"
+    runDir = "eclipse/assets"
 }
 
 compileJava {
