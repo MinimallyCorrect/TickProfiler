@@ -2,7 +2,6 @@ package nallar.tickprofiler.minecraft.commands;
 
 import nallar.tickprofiler.Log;
 import net.minecraft.command.CommandBase;
-import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
@@ -44,11 +43,4 @@ public abstract class Command extends CommandBase {
 	}
 
 	protected abstract void processCommand(ICommandSender commandSender, List<String> arguments);
-
-	@Override
-	public int compareTo(Object o) {
-		return super.compareTo((ICommand) o);
-		// Necessary because generic types are stripped in minecraft, and deobfuscation doesn't add them back.
-		// This confuses javac for some reason - compareTo(object) actually is implemented in the superclass.
-	}
 }
