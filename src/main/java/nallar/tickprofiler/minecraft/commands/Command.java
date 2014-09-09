@@ -1,15 +1,11 @@
 package nallar.tickprofiler.minecraft.commands;
 
-import cpw.mods.fml.common.Loader;
-import cpw.mods.fml.common.ModContainer;
 import nallar.tickprofiler.Log;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
-import ru.tehkode.permissions.IPermissions;
 
 import java.util.*;
 
@@ -20,23 +16,7 @@ public abstract class Command extends CommandBase {
 
 	@Override
 	public boolean canCommandSenderUseCommand(ICommandSender commandSender) {
-		Boolean permission = null;
-		if (commandSender instanceof EntityPlayer) {
-			permission = checkPermission((EntityPlayer) commandSender);
-		}
-		if (permission != null) {
-			return permission;
-		}
 		return !requireOp() || super.canCommandSenderUseCommand(commandSender);
-	}
-
-	private static IPermissions permissions;
-
-	public Boolean checkPermission(EntityPlayer entityPlayer) {
-		if (permissions == null) {
-			return null;
-		}
-		return permissions.has(entityPlayer, this.getClass().getName());
 	}
 
 	public static void sendChat(ICommandSender commandSender, String message) {
@@ -65,16 +45,6 @@ public abstract class Command extends CommandBase {
 
 	protected abstract void processCommand(ICommandSender commandSender, List<String> arguments);
 
-	public static void checkForPermissions() {
-		for (ModContainer modContainer : Loader.instance().getActiveModList()) {
-			Object mod = modContainer.getMod();
-			if (mod instanceof IPermissions) {
-				Command.permissions = (IPermissions) mod;
-				Log.info("Using " + Log.toString(mod) + ':' + modContainer.getModId() + " as a permissions source.");
-				return;
-			}
-		}
-	}
 
 	@Override
 	public int compareTo(Object o) {

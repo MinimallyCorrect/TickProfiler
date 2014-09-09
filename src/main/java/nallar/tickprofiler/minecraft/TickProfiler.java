@@ -82,7 +82,6 @@ public class TickProfiler {
 		ServerCommandManager serverCommandManager = (ServerCommandManager) event.getServer().getCommandManager();
 		serverCommandManager.registerCommand(new ProfileCommand());
 		serverCommandManager.registerCommand(new DumpCommand());
-		Command.checkForPermissions();
 	}
 
 	public synchronized void hookProfiler(World world) {
