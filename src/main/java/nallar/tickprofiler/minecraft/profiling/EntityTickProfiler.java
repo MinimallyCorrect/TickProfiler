@@ -34,10 +34,10 @@ public class EntityTickProfiler {
 		Class<World> clazz = World.class;
 		try {
 			Method method = clazz.getDeclaredMethod("isActiveChunk", int.class, int.class);
-			Log.info("Found MCPC+ isActiveChunk method " + method);
+			Log.info("Found Cauldron isActiveChunk method " + method);
 			return method;
 		} catch (NoSuchMethodException e) {
-			Log.warn("Did not find MCPC+ isActiveChunk method, assuming vanilla entity ticking.");
+			Log.warn("Did not find Cauldron isActiveChunk method, assuming vanilla entity ticking.");
 		}
 		return null;
 	}
