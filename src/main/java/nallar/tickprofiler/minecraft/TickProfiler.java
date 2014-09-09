@@ -23,6 +23,7 @@ import nallar.tickprofiler.util.TableFormatter;
 import nallar.tickprofiler.util.VersionUtil;
 import net.minecraft.command.ServerCommandManager;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
@@ -131,7 +132,7 @@ public class TickProfiler {
 			ItemStack usedItem = entityPlayer.getCurrentEquippedItem();
 			if (usedItem != null) {
 				Item usedItemType = usedItem.getItem();
-				if (usedItemType == Item.itemRegistry.getObject("clock") && (!requireOpForDumpCommand || entityPlayer.canCommandSenderUseCommand(4, "dump"))) {
+				if (usedItemType == Items.clock && (!requireOpForDumpCommand || entityPlayer.canCommandSenderUseCommand(4, "dump"))) {
 					Command.sendChat(entityPlayer, DumpCommand.dump(new TableFormatter(entityPlayer), entityPlayer.worldObj, event.x, event.y, event.z, 35).toString());
 					event.setCanceled(true);
 				}
