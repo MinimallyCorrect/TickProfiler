@@ -45,7 +45,6 @@ public abstract class Command extends CommandBase {
 
 	protected abstract void processCommand(ICommandSender commandSender, List<String> arguments);
 
-
 	@Override
 	public int compareTo(Object o) {
 		return super.compareTo((ICommand) o);
