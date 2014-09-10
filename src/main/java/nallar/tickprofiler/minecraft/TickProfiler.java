@@ -139,7 +139,7 @@ public class TickProfiler {
 		}
 	}
 
-	private static class ProfilingScheduledTickHandler {
+	public static class ProfilingScheduledTickHandler {
 		private final int profilingInterval;
 		private final File profilingFile;
 		private final boolean json;
