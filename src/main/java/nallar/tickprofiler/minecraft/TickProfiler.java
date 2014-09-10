@@ -153,6 +153,9 @@ public class TickProfiler {
 
 		@SubscribeEvent
 		public void tick(TickEvent.ServerTickEvent tick) {
+			if (tick.phase != TickEvent.Phase.START) {
+				return;
+			}
 			final EntityTickProfiler entityTickProfiler = EntityTickProfiler.ENTITY_TICK_PROFILER;
 			entityTickProfiler.tick();
 			int profilingInterval = this.profilingInterval;
