@@ -13,6 +13,7 @@ import nallar.tickprofiler.Log;
 import nallar.tickprofiler.minecraft.commands.Command;
 import nallar.tickprofiler.minecraft.commands.DumpCommand;
 import nallar.tickprofiler.minecraft.commands.ProfileCommand;
+import nallar.tickprofiler.minecraft.commands.TPSCommand;
 import nallar.tickprofiler.minecraft.entitylist.EntityList;
 import nallar.tickprofiler.minecraft.entitylist.LoadedEntityList;
 import nallar.tickprofiler.minecraft.entitylist.LoadedTileEntityList;
@@ -42,6 +43,8 @@ import java.util.*;
 public class TickProfiler {
 	@Mod.Instance("TickProfiler")
 	public static TickProfiler instance;
+	public static long tickTime = 20;
+	public static long lastTickTime;
 	private static final int loadedEntityFieldIndex = 0;
 	private static final int loadedTileEntityFieldIndex = 2;
 	public boolean requireOpForProfileCommand = true;
@@ -56,6 +59,7 @@ public class TickProfiler {
 
 	@Mod.EventHandler
 	public void init(FMLInitializationEvent event) {
+		lastTickTime = System.nanoTime();
 		MinecraftForge.EVENT_BUS.register(this);
 		FMLCommonHandler.instance().bus().register(new ProfilingScheduledTickHandler(profilingInterval, new File(".", profilingFileName), profilingJson));
 	}
@@ -68,7 +72,8 @@ public class TickProfiler {
 		String GENERAL = Configuration.CATEGORY_GENERAL;
 
 		ProfileCommand.name = config.get(GENERAL, "profileCommandName", ProfileCommand.name, "Name of the command to be used for profiling reports.").getString();
-		DumpCommand.name = config.get(GENERAL, "dumpCommandName", DumpCommand.name, "Name of the command to be used for profiling reports.").getString();
+		DumpCommand.name = config.get(GENERAL, "dumpCommandName", DumpCommand.name, "Name of the command to be used for dumping block data.").getString();
+		TPSCommand.name = config.get(GENERAL, "tpsCommandName", TPSCommand.name, "Name of the command to be used for TPS reports.").getString();
 		requireOpForProfileCommand = config.get(GENERAL, "requireOpForProfileCommand", requireOpForProfileCommand, "If a player must be opped to use /profile").getBoolean(requireOpForProfileCommand);
 		requireOpForDumpCommand = config.get(GENERAL, "requireOpForProfileCommand", requireOpForDumpCommand, "If a player must be opped to use /dump").getBoolean(requireOpForDumpCommand);
 		profilingInterval = config.get(GENERAL, "profilingInterval", profilingInterval, "Interval, in minutes, to record profiling information to disk. 0 = never. Recommended >= 2.").getInt();
@@ -82,6 +87,7 @@ public class TickProfiler {
 		ServerCommandManager serverCommandManager = (ServerCommandManager) event.getServer().getCommandManager();
 		serverCommandManager.registerCommand(new ProfileCommand());
 		serverCommandManager.registerCommand(new DumpCommand());
+		serverCommandManager.registerCommand(new TPSCommand());
 	}
 
 	public synchronized void hookProfiler(World world) {
@@ -156,6 +162,10 @@ public class TickProfiler {
 			if (tick.phase != TickEvent.Phase.START) {
 				return;
 			}
+			long time = System.nanoTime();
+			long thisTickTime = time - lastTickTime;
+			lastTickTime = time;
+			tickTime = (tickTime * 19 + thisTickTime) / 20;
 			final EntityTickProfiler entityTickProfiler = EntityTickProfiler.ENTITY_TICK_PROFILER;
 			entityTickProfiler.tick();
 			int profilingInterval = this.profilingInterval;
