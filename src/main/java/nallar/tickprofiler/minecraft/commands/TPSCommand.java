@@ -58,7 +58,7 @@ public class TPSCommand extends Command {
 				.row(entities)
 				.row(tileEntities)
 				.row(chunks)
-				.row(TableFormatter.formatDoubleWithPrecision((TickProfiler.tickTime * 100L) / 50000000L, 2) + '%');
+				.row(TableFormatter.formatDoubleWithPrecision((TickProfiler.tickTime * 100D) / 50000000, 2) + '%');
 		tf.finishTable();
 		tf.sb.append('\n').append(getTPSString(commandSender instanceof EntityPlayer));
 		sendChat(commandSender, tf.toString());
@@ -68,7 +68,7 @@ public class TPSCommand extends Command {
 
 	private static String getTPSString(boolean withColour) {
 		double targetTPS = 20;
-		double tps = TimeUnit.SECONDS.toNanos(1) / TickProfiler.tickTime;
+		double tps = TimeUnit.SECONDS.toNanos(1) / (double) TickProfiler.tickTime;
 		if (tps > 20) {
 			tps = 20;
 		}
