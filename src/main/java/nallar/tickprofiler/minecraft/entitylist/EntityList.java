@@ -30,7 +30,7 @@ public abstract class EntityList<T> extends ArrayList<T> {
 				Log.error("Another mod has replaced an entity list with " + Log.toString(worldList));
 			}
 		} catch (Throwable t) {
-			Log.error("Failed to get " + overriddenField.getName() + " in world " + Log.name(world));
+			Log.error("Failed to get " + overriddenField.getName() + " in world " + Log.name(world), t);
 		}
 		innerList = worldList;
 		try {
