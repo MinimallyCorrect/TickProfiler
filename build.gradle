@@ -26,7 +26,7 @@ dependencies {
     compile 'org.projectlombok:lombok:1.16.6'
 }
 
-version = "1.8.${System.env.BUILD_NUMBER}"
+version = "1.8.8.${System.env.BUILD_NUMBER}"
 group = "nallar.tickprofiler" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "TickProfiler"
 

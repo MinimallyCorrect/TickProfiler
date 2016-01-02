@@ -1,4 +1,4 @@
-TickProfiler [![Build Status](http://nallar.me/buildservice/job/TickProfiler/badge/icon)](http://nallar.me/buildservice/job/TickProfiler/)
+TickProfiler [![Build Status](http://nallar.me/buildservice/job/TickProfiler-1.8.8/badge/icon)](http://nallar.me/buildservice/job/TickProfiler-1.8.8/)
 ==========
 A small mod for servers to assist with finding which TileEntities(machines) and Entities are being slow.
 
@@ -14,16 +14,11 @@ Configuration
 TickProfiler uses minecraft forge's suggested config location - minecraft folder/configs/TickProfiler.cfg
 It's commented quite well, and is hopefully understandable. If any of the descriptions don't make sense please make an issue.
 
-Source
-------
-You're staring right at it! :P
-
 Compiling
 ---------
-TickProfiler is built using Ant. astyle is also required for linux users.
+TickProfiler is built using Gradle
 
-* Install [Ant](http://ant.apache.org/)
-* Checkout this repo and run: `ant`
+* Checkout this repo and run: `./gradlew build` or `gradlew.bat build`
 
 Coding and Pull Request Formatting
 ----------------------------------
@@ -37,13 +32,7 @@ Please follow the above conventions if you want your pull requests accepted.
 Donations
 ----------------------------------
 
-![QR Code](http://i.imgur.com/U2ftDFQ.png)
-
-[1BUjvwxxGH23Fkj7vdGtbrgLEF91u8npQu](bitcoin:1BUjvwxxGH23Fkj7vdGtbrgLEF91u8npQu)
-
-![](http://ansrv.com/png?s=http://blockexplorer.com/q/getreceivedbyaddress/1BUjvwxxGH23Fkj7vdGtbrgLEF91u8npQu&amp;c=000000&amp;b=FFFFFF&amp;size=5)
-
-Alternatively, you can donate via paypal to rossallan3+pp@googlemail.com
+Paypal to rossallan3+pp@googlemail.com
 
 Contributors
 ----------------------------------
