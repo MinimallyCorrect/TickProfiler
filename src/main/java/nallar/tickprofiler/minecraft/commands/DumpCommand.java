@@ -2,13 +2,13 @@ package nallar.tickprofiler.minecraft.commands;
 
 import nallar.tickprofiler.Log;
 import nallar.tickprofiler.minecraft.TickProfiler;
-import nallar.tickprofiler.util.BlockInfo;
 import nallar.tickprofiler.util.TableFormatter;
-import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 
@@ -51,25 +51,23 @@ public class DumpCommand extends Command {
 			sendChat(commandSender, "Usage: /dump x y z [world=currentworld]");
 		}
 		else {
-			sendChat(commandSender, dump(new TableFormatter(commandSender), world, x, y, z, commandSender instanceof Entity ? 35 : 70).toString());
+			sendChat(commandSender, dump(new TableFormatter(commandSender), world, new BlockPos(x, y, z), commandSender instanceof Entity ? 35 : 70).toString());
 		}	
 	}
 
-	public static TableFormatter dump(TableFormatter tf, World world, int x, int y, int z, int maxLen) {
+	public static TableFormatter dump(TableFormatter tf, World world, BlockPos pos, int maxLen) {
 		@SuppressWarnings("MismatchedQueryAndUpdateOfStringBuilder")
 		StringBuilder sb = tf.sb;
-		Block block = world.getBlock(x, y, z);
-		if (block == Blocks.air) {
-			sb.append("No block at ").append(Log.name(world)).append(" x,y,z").append(x).append(',').append(y).append(',').append(z).append('\n');
+		IBlockState block = world.getBlockState(pos);
+		if (block == null || block.getBlock() == Blocks.air) {
+			sb.append("No block at ").append(Log.name(world)).append(" ").append(Log.toString(pos)).append('\n');
 		} else {
-			int metaData = world.getBlockMetadata(x, y, z);
-			BlockInfo blockInfo = new BlockInfo(block, metaData);
-			sb.append(blockInfo.name).append(':').append(metaData).append('\n');
+			sb.append(block.getBlock()).append(':').append(block.getProperties()).append('\n');
 		}
 		sb.append("World time: ").append(world.getWorldTime()).append('\n');
-		TileEntity toDump = world.getTileEntity(x, y, z);
+		TileEntity toDump = world.getTileEntity(pos);
 		if (toDump == null) {
-			sb.append("No tile entity at ").append(Log.name(world)).append(" x,y,z").append(x).append(',').append(y).append(',').append(z).append('\n');
+			sb.append("No tile entity at ").append(Log.name(world)).append(" ").append(Log.toString(pos)).append('\n');
 			return tf;
 		}
 		dump(tf, toDump, maxLen);

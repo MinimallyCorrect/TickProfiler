@@ -2,13 +2,6 @@ package nallar.tickprofiler.minecraft;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.event.FMLServerStartingEvent;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.TickEvent;
 import nallar.tickprofiler.Log;
 import nallar.tickprofiler.minecraft.commands.Command;
 import nallar.tickprofiler.minecraft.commands.DumpCommand;
@@ -33,6 +26,13 @@ import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 import java.io.*;
 import java.lang.reflect.*;
@@ -138,7 +138,7 @@ public class TickProfiler {
 			if (usedItem != null) {
 				Item usedItemType = usedItem.getItem();
 				if (usedItemType == Items.clock && (!requireOpForDumpCommand || entityPlayer.canCommandSenderUseCommand(4, "dump"))) {
-					Command.sendChat(entityPlayer, DumpCommand.dump(new TableFormatter(entityPlayer), entityPlayer.worldObj, event.x, event.y, event.z, 35).toString());
+					Command.sendChat(entityPlayer, DumpCommand.dump(new TableFormatter(entityPlayer), entityPlayer.worldObj, event.pos, 35).toString());
 					event.setCanceled(true);
 				}
 			}

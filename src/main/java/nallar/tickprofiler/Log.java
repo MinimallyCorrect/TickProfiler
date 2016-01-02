@@ -1,6 +1,8 @@
 package nallar.tickprofiler;
 
+import lombok.val;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -46,7 +48,7 @@ public class Log {
 		if (world.provider == null) {
 			return "Broken world with null world.provider";
 		}
-		return world.provider.getDimensionName() + '/' + world.provider.dimensionId;
+		return world.provider.getDimensionName() + '/' + world.provider.getDimensionId();
 	}
 
 	public static String classString(Object o) {
@@ -61,6 +63,10 @@ public class Log {
 		if (o instanceof World) {
 			return name((World) o);
 		}
+		if (o instanceof BlockPos) {
+			val pos = (BlockPos) o;
+			return "{" + pos.getX() + ',' + pos.getY() + ',' + pos.getZ() + '}';
+		}
 		String cS = classString(o);
 		String s = o.toString();
 		if (!s.startsWith(cS)) {
@@ -68,8 +74,9 @@ public class Log {
 		}
 		if (o instanceof TileEntity) {
 			TileEntity tE = (TileEntity) o;
-			if (!s.contains(" x, y, z: ")) {
-				s += " x, y, z: " + tE.xCoord + ", " + tE.yCoord + ", " + tE.zCoord;
+			val pos = toString(tE.getPos());
+			if (!s.contains(pos)) {
+				s += " " + pos;
 			}
 		}
 		return s;

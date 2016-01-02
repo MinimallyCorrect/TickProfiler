@@ -3,7 +3,7 @@ package nallar.tickprofiler.minecraft.profiling;
 import com.google.common.base.Functions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Ordering;
-import cpw.mods.fml.common.FMLLog;
+import lombok.val;
 import nallar.tickprofiler.Log;
 import nallar.tickprofiler.minecraft.TickProfiler;
 import nallar.tickprofiler.minecraft.commands.ProfileCommand;
@@ -14,12 +14,14 @@ import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ITickable;
 import net.minecraft.util.ReportedException;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraftforge.common.ForgeModContainer;
+import net.minecraftforge.fml.common.FMLLog;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.*;
@@ -184,8 +186,9 @@ public class EntityTickProfiler {
 			start = end;
 			TileEntity tileEntity = iterator.next();
 
-			int x = tileEntity.xCoord;
-			int z = tileEntity.zCoord;
+			val pos = tileEntity.getPos();
+			int x = pos.getX();
+			int z = pos.getZ();
 
 			if (!isActiveChunk(world, x >> 4, z >> 4)) {
 				continue;
@@ -193,15 +196,15 @@ public class EntityTickProfiler {
 
 			if (!tileEntity.isInvalid() && tileEntity.hasWorldObj() && chunkProvider.chunkExists(x >> 4, z >> 4)) {
 				try {
-					tileEntity.updateEntity();
+					((ITickable) tileEntity).update();
 				} catch (Throwable var6) {
 					CrashReport crashReport = CrashReport.makeCrashReport(var6, "Ticking tile entity");
 					CrashReportCategory crashReportCategory = crashReport.makeCategory("Tile entity being ticked");
-					tileEntity.func_145828_a(crashReportCategory);
+					tileEntity.addInfoToCrashReport(crashReportCategory);
 					if (ForgeModContainer.removeErroringTileEntities) {
 						FMLLog.severe(crashReport.getCompleteReport());
 						tileEntity.invalidate();
-						world.setBlockToAir(x, tileEntity.yCoord, z);
+						world.setBlockToAir(pos);
 					} else {
 						throw new ReportedException(crashReport);
 					}
@@ -211,11 +214,11 @@ public class EntityTickProfiler {
 			if (tileEntity.isInvalid()) {
 				iterator.remove();
 
-				if (chunkProvider.chunkExists(tileEntity.xCoord >> 4, tileEntity.zCoord >> 4)) {
-					Chunk chunk = world.getChunkFromChunkCoords(tileEntity.xCoord >> 4, tileEntity.zCoord >> 4);
+				if (chunkProvider.chunkExists(x >> 4, z >> 4)) {
+					Chunk chunk = world.getChunkFromChunkCoords(x >> 4, z >> 4);
 
 					if (chunk != null) {
-						chunk.removeTileEntity(tileEntity.xCoord & 15, tileEntity.yCoord, tileEntity.zCoord & 15);
+						chunk.removeTileEntity(pos);
 					}
 				}
 			}
@@ -338,8 +341,8 @@ public class EntityTickProfiler {
 				z = ((Entity) o).chunkCoordZ;
 				dimension = getDimension((Entity) o);
 			} else if (o instanceof TileEntity) {
-				x = ((TileEntity) o).xCoord >> 4;
-				z = ((TileEntity) o).zCoord >> 4;
+				x = ((TileEntity) o).getPos().getX() >> 4;
+				z = ((TileEntity) o).getPos().getZ() >> 4;
 				dimension = getDimension((TileEntity) o);
 			} else {
 				throw new RuntimeException("Wrong block: " + o.getClass());
@@ -392,20 +395,20 @@ public class EntityTickProfiler {
 	}
 
 	private static int getDimension(TileEntity o) {
-		if (o.getWorldObj() == null) return -999;
-		WorldProvider worldProvider = o.getWorldObj().provider;
-		return worldProvider == null ? -999 : worldProvider.dimensionId;
+		if (o.getWorld() == null) return -999;
+		WorldProvider worldProvider = o.getWorld().provider;
+		return worldProvider == null ? -999 : worldProvider.getDimensionId();
 	}
 
 	private static int getDimension(Entity o) {
 		if (o.worldObj == null) return -999;
 		WorldProvider worldProvider = o.worldObj.provider;
-		return worldProvider == null ? -999 : worldProvider.dimensionId;
+		return worldProvider == null ? -999 : worldProvider.getDimensionId();
 	}
 
 	private static Object niceName(Object o) {
 		if (o instanceof TileEntity) {
-			return niceName(o.getClass()) + ' ' + ((TileEntity) o).xCoord + ',' + ((TileEntity) o).yCoord + ',' + ((TileEntity) o).zCoord + ':' + getDimension((TileEntity) o);
+			return niceName(o.getClass()) + ' ' + Log.toString(((TileEntity) o).getPos()) + ':' + getDimension((TileEntity) o);
 		} else if (o instanceof Entity) {
 			return niceName(o.getClass()) + ' ' + (int) ((Entity) o).posX + ',' + (int) ((Entity) o).posY + ',' + (int) ((Entity) o).posZ + ':' + getDimension((Entity) o);
 		}
