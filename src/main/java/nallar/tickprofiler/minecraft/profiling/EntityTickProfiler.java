@@ -450,20 +450,14 @@ public class EntityTickProfiler {
 	}
 
 	private AtomicLong getSingleTime(Object o) {
-		AtomicLong t = singleTime.get(o);
-		if (t == null) {
-			synchronized (singleTime) {
-				t = singleTime.get(o);
-				if (t == null) {
-					t = new AtomicLong();
-					singleTime.put(o, t);
-				}
-			}
-		}
-		return t;
+		return this.getTime(o, singleTime);
 	}
 
 	private AtomicLong getTime(Class<?> clazz) {
+		return this.getTime(clazz, time);
+	}
+
+	private <T> AtomicLong getTime(T clazz, HashMap<T, AtomicLong> time) {
 		AtomicLong t = time.get(clazz);
 		if (t == null) {
 			t = time.get(clazz);
