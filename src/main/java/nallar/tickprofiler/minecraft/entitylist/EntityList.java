@@ -9,13 +9,14 @@ import net.minecraft.world.World;
 
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.concurrent.*;
 
 /*
 * Used to override World.loadedTile/EntityList.
 * */
-public abstract class EntityList<T> extends ArrayList<T> {
+public abstract class EntityList<T> implements Queue<T> {
 	private static final ContextAccess contextAccess = ContextAccess.$;
-	protected final ArrayList<T> innerList;
+	protected final Queue<T> innerList;
 	protected final World world;
 	private final Field overridenField;
 
@@ -23,10 +24,10 @@ public abstract class EntityList<T> extends ArrayList<T> {
 		this.overridenField = overriddenField;
 		this.world = world;
 		overriddenField.setAccessible(true);
-		ArrayList<T> worldList = new ArrayList<T>();
+		Queue<T> worldList = new ConcurrentLinkedQueue<T>();
 		try {
-			worldList = (ArrayList<T>) overriddenField.get(world);
-			if (worldList.getClass() != ArrayList.class) {
+			worldList = (Queue<T>) overriddenField.get(world);
+			if (worldList.getClass() != Queue.class) {
 				Log.error("Another mod has replaced an entity list with " + Log.toString(worldList));
 			}
 		} catch (Throwable t) {
@@ -45,16 +46,6 @@ public abstract class EntityList<T> extends ArrayList<T> {
 	}
 
 	public abstract void tick();
-
-	@Override
-	public void trimToSize() {
-		innerList.trimToSize();
-	}
-
-	@Override
-	public void ensureCapacity(final int minCapacity) {
-		innerList.ensureCapacity(minCapacity);
-	}
 
 	@Override
 	public int size() {
@@ -88,18 +79,8 @@ public abstract class EntityList<T> extends ArrayList<T> {
 	}
 
 	@Override
-	public int indexOf(final Object o) {
-		return innerList.indexOf(o);
-	}
-
-	@Override
-	public int lastIndexOf(final Object o) {
-		return innerList.lastIndexOf(o);
-	}
-
-	@Override
 	public Object clone() {
-		return innerList.clone();
+		return new ConcurrentLinkedQueue<T>(innerList);
 	}
 
 	@Override
@@ -113,28 +94,33 @@ public abstract class EntityList<T> extends ArrayList<T> {
 	}
 
 	@Override
-	public T get(final int index) {
-		return innerList.get(index);
-	}
-
-	@Override
-	public T set(final int index, final T element) {
-		return innerList.set(index, element);
-	}
-
-	@Override
 	public boolean add(final T t) {
 		return innerList.add(t);
 	}
 
 	@Override
-	public void add(final int index, final T element) {
-		innerList.add(index, element);
+	public boolean offer(T t) {
+		return innerList.offer(t);
 	}
 
 	@Override
-	public T remove(final int index) {
-		return innerList.remove(index);
+	public T remove() {
+		return innerList.remove();
+	}
+
+	@Override
+	public T poll() {
+		return innerList.poll();
+	}
+
+	@Override
+	public T element() {
+		return innerList.element();
+	}
+
+	@Override
+	public T peek() {
+		return innerList.peek();
 	}
 
 	@Override
@@ -153,11 +139,6 @@ public abstract class EntityList<T> extends ArrayList<T> {
 	}
 
 	@Override
-	public boolean addAll(final int index, final Collection<? extends T> c) {
-		return innerList.addAll(index, c);
-	}
-
-	@Override
 	public boolean removeAll(final Collection<?> c) {
 		return innerList.removeAll(c);
 	}
@@ -168,13 +149,8 @@ public abstract class EntityList<T> extends ArrayList<T> {
 	}
 
 	@Override
-	public ListIterator<T> listIterator(final int index) {
-		return innerList.listIterator(index);
-	}
-
-	@Override
-	public ListIterator<T> listIterator() {
-		return innerList.listIterator();
+	public boolean containsAll(Collection<?> c) {
+		return innerList.containsAll(c);
 	}
 
 	@Override
@@ -188,10 +164,5 @@ public abstract class EntityList<T> extends ArrayList<T> {
 			}
 		}
 		return innerList.iterator();
-	}
-
-	@Override
-	public List<T> subList(final int fromIndex, final int toIndex) {
-		return innerList.subList(fromIndex, toIndex);
 	}
 }

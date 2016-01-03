@@ -116,12 +116,13 @@ public class EntityTickProfiler {
 		return true;
 	}
 
-	public void runEntities(World world, ArrayList<Entity> toTick) {
+	public void runEntities(World world, Queue<Entity> toTick) {
 		long end = System.nanoTime();
 		long start;
 		boolean isGlobal = profilingState == ProfileCommand.ProfilingState.GLOBAL;
-		for (int i = 0; i < toTick.size(); i++) {
-			Entity entity = toTick.get(i);
+		Iterator<Entity> iter = toTick.iterator();
+		while (iter.hasNext()) {
+			Entity entity = iter.next();
 
 			start = end;
 			if (entity.ridingEntity != null) {
@@ -158,11 +159,7 @@ public class EntityTickProfiler {
 					world.getChunkFromChunkCoords(chunkX, chunkZ).removeEntity(entity);
 				}
 
-				if (toTick.size() <= i || toTick.get(i) != entity) {
-					toTick.remove(entity);
-				} else {
-					toTick.remove(i--);
-				}
+				iter.remove();
 
 				world.onEntityRemoved(entity);
 			}
@@ -174,7 +171,7 @@ public class EntityTickProfiler {
 		}
 	}
 
-	public void runTileEntities(World world, ArrayList<TileEntity> toTick) {
+	public void runTileEntities(World world, Iterable<TileEntity> toTick) {
 		IChunkProvider chunkProvider = world.getChunkProvider();
 		Iterator<TileEntity> iterator = toTick.iterator();
 		long end = System.nanoTime();

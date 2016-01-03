@@ -46,7 +46,7 @@ public class TickProfiler {
 	public static long tickTime = 20;
 	public static long lastTickTime;
 	private static final int loadedEntityFieldIndex = 0;
-	private static final int loadedTileEntityFieldIndex = 2;
+	private static final int loadedTileEntityFieldIndex = 1;
 	public boolean requireOpForProfileCommand = true;
 	public boolean requireOpForDumpCommand = true;
 	private int profilingInterval = 0;
@@ -110,14 +110,14 @@ public class TickProfiler {
 			Log.error("World " + Log.name(world) + " seems to be a client world", new Throwable());
 		}
 		try {
-			Field loadedTileEntityField = ReflectUtil.getFields(World.class, List.class)[loadedTileEntityFieldIndex];
+			Field loadedTileEntityField = ReflectUtil.getFields(World.class, Queue.class)[loadedTileEntityFieldIndex];
 			Object loadedTileEntityList = loadedTileEntityField.get(world);
 			if (loadedTileEntityList instanceof EntityList) {
 				((EntityList) loadedTileEntityList).unhook();
 			} else {
 				Log.error("Looks like another mod broke TickProfiler's replacement tile entity list in world: " + Log.name(world));
 			}
-			Field loadedEntityField = ReflectUtil.getFields(World.class, List.class)[loadedEntityFieldIndex];
+			Field loadedEntityField = ReflectUtil.getFields(World.class, Queue.class)[loadedEntityFieldIndex];
 			Object loadedEntityList = loadedEntityField.get(world);
 			if (loadedEntityList instanceof EntityList) {
 				((EntityList) loadedEntityList).unhook();

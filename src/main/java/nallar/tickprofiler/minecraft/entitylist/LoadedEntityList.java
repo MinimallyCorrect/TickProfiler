@@ -5,6 +5,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.world.World;
 
 import java.lang.reflect.*;
+import java.util.*;
 
 public class LoadedEntityList extends EntityList<Entity> {
 	public LoadedEntityList(World world, Field overriddenField) {
