@@ -95,9 +95,9 @@ public class TickProfiler {
 			Log.error("World " + Log.name(world) + " seems to be a client world", new Throwable());
 		}
 		try {
-			Field loadedTileEntityField = ReflectUtil.getFields(World.class, List.class)[loadedTileEntityFieldIndex];
+			Field loadedTileEntityField = ReflectUtil.getFields(World.class, Queue.class)[loadedTileEntityFieldIndex];
 			new LoadedTileEntityList(world, loadedTileEntityField);
-			Field loadedEntityField = ReflectUtil.getFields(World.class, List.class)[loadedEntityFieldIndex];
+			Field loadedEntityField = ReflectUtil.getFields(World.class, Queue.class)[loadedEntityFieldIndex];
 			new LoadedEntityList(world, loadedEntityField);
 			Log.trace("Profiling hooked for world " + Log.name(world));
 		} catch (Exception e) {
