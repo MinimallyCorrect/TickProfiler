@@ -27,7 +27,7 @@ public abstract class EntityList<T> implements Queue<T> {
 		Queue<T> worldList = new ConcurrentLinkedQueue<T>();
 		try {
 			worldList = (Queue<T>) overriddenField.get(world);
-			if (worldList.getClass() != Queue.class) {
+			if (!"kcauldron.wrapper.ProcessingQueue".equals(worldList.getClass().getName())) {
 				Log.error("Another mod has replaced an entity list with " + Log.toString(worldList));
 			}
 		} catch (Throwable t) {
