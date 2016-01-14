@@ -1,4 +1,4 @@
-TickProfiler [![Build Status](http://nallar.me/buildservice/job/TickProfiler-1.8.8/badge/icon)](http://nallar.me/buildservice/job/TickProfiler-1.8.8/)
+TickProfiler [![Build Status](https://nallar.me/buildservice/job/TickProfiler/branch/1.8.9/badge/icon)](https://nallar.me/buildservice/job/TickProfiler/)
 ==========
 A small mod for servers to assist with finding which TileEntities(machines) and Entities are being slow.
 
