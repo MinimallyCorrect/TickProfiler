@@ -26,14 +26,28 @@ dependencies {
     compile 'org.projectlombok:lombok:1.16.6'
 }
 
-version = "1.8.8.${System.env.BUILD_NUMBER}"
+ext.mcVersion = "1.8.8"
+ext.forgeVersion = "11.15.0.1655"
+ext.forgeMappings = "snapshot_20151122"
 group = "nallar.tickprofiler" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "TickProfiler"
 
+def calculateVersion() {
+    def ver = project.mcVersion
+    if (System.env.BUILD_NUMBER != null)
+        return ver + ".jenkins." + System.env.BUILD_NUMBER
+    if (project.hasProperty("release"))
+        return ver + '.' + project.release
+    return ver + ".dev"
+}
+
+
+version = calculateVersion()
+
 minecraft {
-    version = "1.8.8-11.15.0.1655"
+    version = "${project.mcVersion}-${project.forgeVersion}"
     runDir = "run"
-    mappings = "snapshot_20151122"
+    mappings = project.forgeMappings
 }
 
 compileJava {
