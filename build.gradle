@@ -26,9 +26,9 @@ dependencies {
     compile 'org.projectlombok:lombok:1.16.6'
 }
 
-ext.mcVersion = "1.8.8"
-ext.forgeVersion = "11.15.0.1655"
-ext.forgeMappings = "snapshot_20151122"
+ext.mcVersion = "1.8.9"
+ext.forgeVersion = "11.15.0.1698"
+ext.forgeMappings = "stable_20"
 group = "nallar.tickprofiler" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "TickProfiler"
 
