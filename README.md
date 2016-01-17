@@ -3,7 +3,7 @@ TickProfiler [![Build Status](http://nallar.me/buildservice/job/TickProfiler/bad
 A small mod for servers to assist with finding which TileEntities(machines) and Entities are being slow.
 
 Copyright &copy; 2012, nallar <rallan.pcl+tp@gmail.com>
-TickProfiler is licensed under the [N Open License, Version 1][License]
+TickProfiler is licensed under the MIT license
 
 Download
 -----
