@@ -78,7 +78,7 @@ public class ProfileCommand extends Command {
 		sendChat(commandSender, "Profiling for " + time + " seconds in " + (world == null ? "all worlds " : Log.name(world)) + (location ? " at " + x + ',' + z : ""));
 	}
 
-	public static enum ProfilingState {
+	public enum ProfilingState {
 		NONE,
 		GLOBAL,
 		CHUNK
