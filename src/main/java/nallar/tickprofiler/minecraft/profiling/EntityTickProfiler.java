@@ -3,23 +3,16 @@ package nallar.tickprofiler.minecraft.profiling;
 import com.google.common.base.Functions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Ordering;
-import cpw.mods.fml.common.FMLLog;
 import nallar.tickprofiler.Log;
 import nallar.tickprofiler.minecraft.TickProfiler;
 import nallar.tickprofiler.minecraft.commands.ProfileCommand;
 import nallar.tickprofiler.util.CollectionsUtil;
 import nallar.tickprofiler.util.TableFormatter;
 import nallar.tickprofiler.util.stringfillers.StringFiller;
-import net.minecraft.crash.CrashReport;
-import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ReportedException;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldProvider;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.IChunkProvider;
-import net.minecraftforge.common.ForgeModContainer;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.*;
@@ -45,7 +38,7 @@ public class EntityTickProfiler {
 	private int lastCX = Integer.MIN_VALUE;
 	private int lastCZ = Integer.MIN_VALUE;
 	private boolean cachedActive = false;
-	public static final EntityTickProfiler ENTITY_TICK_PROFILER = new EntityTickProfiler();
+	public static final EntityTickProfiler INSTANCE = new EntityTickProfiler();
 	public static ProfileCommand.ProfilingState profilingState = ProfileCommand.ProfilingState.NONE;
 	private final HashMap<Class<?>, AtomicInteger> invocationCount = new HashMap<Class<?>, AtomicInteger>();
 	private final HashMap<Class<?>, AtomicLong> time = new HashMap<Class<?>, AtomicLong>();
@@ -116,114 +109,30 @@ public class EntityTickProfiler {
 		return true;
 	}
 
-	public void runEntities(World world, ArrayList<Entity> toTick) {
-		long end = System.nanoTime();
-		long start;
-		boolean isGlobal = profilingState == ProfileCommand.ProfilingState.GLOBAL;
-		for (int i = 0; i < toTick.size(); i++) {
-			Entity entity = toTick.get(i);
+	public void profileEntity(World w, Entity entity) {
+		final boolean profile = profilingState == ProfileCommand.ProfilingState.ENTITIES || (entity.chunkCoordX == chunkX && entity.chunkCoordZ == chunkZ);
 
-			start = end;
-			if (entity.ridingEntity != null) {
-				if (!entity.ridingEntity.isDead && entity.ridingEntity.riddenByEntity == entity) {
-					continue;
-				}
-
-				entity.ridingEntity.riddenByEntity = null;
-				entity.ridingEntity = null;
-			}
-
-			if (!entity.isDead) {
-				try {
-					world.updateEntity(entity);
-				} catch (Throwable var8) {
-					CrashReport crashReport = CrashReport.makeCrashReport(var8, "Ticking entity");
-					CrashReportCategory crashReportCategory = crashReport.makeCategory("Entity being ticked");
-					entity.addEntityCrashInfo(crashReportCategory);
-
-					if (ForgeModContainer.removeErroringEntities) {
-						FMLLog.severe(crashReport.getCompleteReport());
-						world.removeEntity(entity);
-					} else {
-						throw new ReportedException(crashReport);
-					}
-				}
-			}
-
-			if (entity.isDead) {
-				int chunkX = entity.chunkCoordX;
-				int chunkZ = entity.chunkCoordZ;
-
-				if (entity.addedToChunk && world.getChunkProvider().chunkExists(chunkX, chunkZ)) {
-					world.getChunkFromChunkCoords(chunkX, chunkZ).removeEntity(entity);
-				}
-
-				if (toTick.size() <= i || toTick.get(i) != entity) {
-					toTick.remove(entity);
-				} else {
-					toTick.remove(i--);
-				}
-
-				world.onEntityRemoved(entity);
-			}
-			end = System.nanoTime();
-
-			if (isGlobal || (entity.chunkCoordX == chunkX && entity.chunkCoordZ == chunkZ)) {
-				record(entity, end - start);
-			}
+		if (!profile) {
+			w.updateEntity(entity);
+			return;
 		}
+
+		long start = System.nanoTime();
+		w.updateEntity(entity);
+		record(entity, System.nanoTime() - start);
 	}
 
-	public void runTileEntities(World world, ArrayList<TileEntity> toTick) {
-		IChunkProvider chunkProvider = world.getChunkProvider();
-		Iterator<TileEntity> iterator = toTick.iterator();
-		long end = System.nanoTime();
-		long start;
-		boolean isGlobal = profilingState == ProfileCommand.ProfilingState.GLOBAL;
-		while (iterator.hasNext()) {
-			start = end;
-			TileEntity tileEntity = iterator.next();
+	public void profileTileEntity(TileEntity tileEntity) {
+		final boolean profile = profilingState == ProfileCommand.ProfilingState.ENTITIES || (tileEntity.xCoord << 4 == chunkX && tileEntity.zCoord << 4 == chunkZ);
 
-			int x = tileEntity.xCoord;
-			int z = tileEntity.zCoord;
-
-			if (!isActiveChunk(world, x >> 4, z >> 4)) {
-				continue;
-			}
-
-			if (!tileEntity.isInvalid() && tileEntity.hasWorldObj() && chunkProvider.chunkExists(x >> 4, z >> 4)) {
-				try {
-					tileEntity.updateEntity();
-				} catch (Throwable var6) {
-					CrashReport crashReport = CrashReport.makeCrashReport(var6, "Ticking tile entity");
-					CrashReportCategory crashReportCategory = crashReport.makeCategory("Tile entity being ticked");
-					tileEntity.func_145828_a(crashReportCategory);
-					if (ForgeModContainer.removeErroringTileEntities) {
-						FMLLog.severe(crashReport.getCompleteReport());
-						tileEntity.invalidate();
-						world.setBlockToAir(x, tileEntity.yCoord, z);
-					} else {
-						throw new ReportedException(crashReport);
-					}
-				}
-			}
-
-			if (tileEntity.isInvalid()) {
-				iterator.remove();
-
-				if (chunkProvider.chunkExists(tileEntity.xCoord >> 4, tileEntity.zCoord >> 4)) {
-					Chunk chunk = world.getChunkFromChunkCoords(tileEntity.xCoord >> 4, tileEntity.zCoord >> 4);
-
-					if (chunk != null) {
-						chunk.removeTileEntity(tileEntity.xCoord & 15, tileEntity.yCoord, tileEntity.zCoord & 15);
-					}
-				}
-			}
-			end = System.nanoTime();
-			if (isGlobal || (x >> 4 == chunkX && z >> 4 == chunkZ)) {
-				record(tileEntity, end - start);
-			}
+		if (!profile) {
+			tileEntity.updateEntity();
+			return;
 		}
+
+		long start = System.nanoTime();
+		tileEntity.updateEntity();
+		record(tileEntity, System.nanoTime() - start);
 	}
 
 	public void record(Object o, long time) {

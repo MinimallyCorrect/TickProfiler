@@ -16,6 +16,7 @@ buildscript {
 }
 
 apply plugin: 'forge'
+apply plugin: 'idea'
 
 configurations {
     bundledLibs
@@ -24,14 +25,19 @@ configurations {
     }
 }
 
+repositories {
+    maven { url = 'http://repo.nallar.me/' }
+}
+
 dependencies {
 //    compile 'com.github.stephenc.high-scale-lib:high-scale-lib:1.1.4'
+    bundledLibs 'me.nallar:ModPatcher:1.7.10-SNAPSHOT'
     bundledLibs 'org.codehaus.jackson:jackson-core-lgpl:1.9.13'
     bundledLibs 'org.codehaus.jackson:jackson-mapper-lgpl:1.9.13'
 }
 
-version = "1.8.8.${System.env.BUILD_NUMBER}"
-sourceCompatibility = JavaVersion.VERSION_1_6
+sourceCompatibility = JavaVersion.VERSION_1_7
+targetCompatibility = JavaVersion.VERSION_1_7
 version = "1.7.10.${System.env.BUILD_NUMBER}"
 ext.mcVersion = "1.7.10"
 ext.forgeVersion = "10.13.0.1208"
@@ -53,15 +59,9 @@ version = calculateVersion()
 minecraft {
     version = "${project.mcVersion}-${project.forgeVersion}"
     runDir = "run"
-}
 
-compileJava {
-    // Kills the warnings about using the sun.* classes
-    options.compilerArgs << '-XDignore.symbol.file'
-    // Show warnings for deprecation and bad generics use
-    options.compilerArgs << "-Xlint:deprecation"
-    options.fork = true
-    options.forkOptions.executable = 'javac'
+    replace "@MOD_VERSION@", project.version
+    replace "@MC_VERSION@", version
 }
 
 processResources {
@@ -85,4 +85,6 @@ jar {
     from(configurations.bundledLibs.collect { it.isDirectory() ? it : zipTree(it) }) {
         exclude "META-INF/**"
     }
+
+    manifest.mainAttributes("FMLCorePlugin": "nallar.tickprofiler.minecraft.CoreMod", "FMLCorePluginContainsFMLMod": "YasPlease")
 }
