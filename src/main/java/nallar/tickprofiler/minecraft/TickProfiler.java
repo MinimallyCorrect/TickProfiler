@@ -1,18 +1,15 @@
 package nallar.tickprofiler.minecraft;
 
 import com.google.common.base.Charsets;
+import com.google.common.collect.MapMaker;
 import com.google.common.io.Files;
 import nallar.tickprofiler.Log;
 import nallar.tickprofiler.minecraft.commands.Command;
 import nallar.tickprofiler.minecraft.commands.DumpCommand;
 import nallar.tickprofiler.minecraft.commands.ProfileCommand;
 import nallar.tickprofiler.minecraft.commands.TPSCommand;
-import nallar.tickprofiler.minecraft.entitylist.EntityList;
-import nallar.tickprofiler.minecraft.entitylist.LoadedEntityList;
-import nallar.tickprofiler.minecraft.entitylist.LoadedTileEntityList;
 import nallar.tickprofiler.minecraft.profiling.EntityTickProfiler;
 import nallar.tickprofiler.reporting.Metrics;
-import nallar.tickprofiler.util.ReflectUtil;
 import nallar.tickprofiler.util.TableFormatter;
 import nallar.tickprofiler.util.VersionUtil;
 import net.minecraft.command.ServerCommandManager;
@@ -35,7 +32,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 import java.io.*;
-import java.lang.reflect.*;
 import java.util.*;
 
 @SuppressWarnings("WeakerAccess")
@@ -43,10 +39,9 @@ import java.util.*;
 public class TickProfiler {
 	@Mod.Instance("TickProfiler")
 	public static TickProfiler instance;
-	public static long tickTime = 20;
+	public static long tickTime = 20; // Initialise with non-zero value to avoid divide-by-zero errors calculating TPS
 	public static long lastTickTime;
-	private static final int loadedEntityFieldIndex = 0;
-	private static final int loadedTileEntityFieldIndex = 2;
+	private static final Set<World> profilingWorlds = Collections.newSetFromMap(new MapMaker().weakKeys().<World, Boolean>makeMap());
 	public boolean requireOpForProfileCommand = true;
 	public boolean requireOpForDumpCommand = true;
 	private int profilingInterval = 0;
@@ -55,6 +50,10 @@ public class TickProfiler {
 
 	static {
 		new Metrics("TickProfiler", VersionUtil.versionNumber());
+	}
+
+	public static boolean shouldProfile(World w) {
+		return profilingWorlds.contains(w);
 	}
 
 	@Mod.EventHandler
@@ -94,39 +93,15 @@ public class TickProfiler {
 		if (world.isRemote) {
 			Log.error("World " + Log.name(world) + " seems to be a client world", new Throwable());
 		}
-		try {
-			Field loadedTileEntityField = ReflectUtil.getFields(World.class, List.class)[loadedTileEntityFieldIndex];
-			new LoadedTileEntityList(world, loadedTileEntityField);
-			Field loadedEntityField = ReflectUtil.getFields(World.class, List.class)[loadedEntityFieldIndex];
-			new LoadedEntityList(world, loadedEntityField);
-			Log.trace("Profiling hooked for world " + Log.name(world));
-		} catch (Exception e) {
-			Log.error("Failed to initialise profiling for world " + Log.name(world), e);
-		}
+		profilingWorlds.add(world);
 	}
 
 	public synchronized void unhookProfiler(World world) {
 		if (world.isRemote) {
 			Log.error("World " + Log.name(world) + " seems to be a client world", new Throwable());
 		}
-		try {
-			Field loadedTileEntityField = ReflectUtil.getFields(World.class, List.class)[loadedTileEntityFieldIndex];
-			Object loadedTileEntityList = loadedTileEntityField.get(world);
-			if (loadedTileEntityList instanceof EntityList) {
-				((EntityList) loadedTileEntityList).unhook();
-			} else {
-				Log.error("Looks like another mod broke TickProfiler's replacement tile entity list in world: " + Log.name(world));
-			}
-			Field loadedEntityField = ReflectUtil.getFields(World.class, List.class)[loadedEntityFieldIndex];
-			Object loadedEntityList = loadedEntityField.get(world);
-			if (loadedEntityList instanceof EntityList) {
-				((EntityList) loadedEntityList).unhook();
-			} else {
-				Log.error("Looks like another mod broke TickProfiler's replacement entity list in world: " + Log.name(world));
-			}
-			Log.trace("Profiling unhooked for world " + Log.name(world));
-		} catch (Exception e) {
-			Log.error("Failed to unload TickProfiler for world " + Log.name(world), e);
+		if (!profilingWorlds.remove(world)) {
+			throw new IllegalStateException("Not already profiling");
 		}
 	}
 
@@ -166,7 +141,7 @@ public class TickProfiler {
 			long thisTickTime = time - lastTickTime;
 			lastTickTime = time;
 			tickTime = (tickTime * 19 + thisTickTime) / 20;
-			final EntityTickProfiler entityTickProfiler = EntityTickProfiler.ENTITY_TICK_PROFILER;
+			final EntityTickProfiler entityTickProfiler = EntityTickProfiler.INSTANCE;
 			entityTickProfiler.tick();
 			int profilingInterval = this.profilingInterval;
 			if (profilingInterval <= 0 || counter++ % (profilingInterval * 60 * 20) != 0) {
@@ -187,7 +162,7 @@ public class TickProfiler {
 						Log.error("Failed to save periodic profiling data to " + profilingFile, t);
 					}
 				}
-			}, ProfileCommand.ProfilingState.GLOBAL, 10, Arrays.<World>asList(DimensionManager.getWorlds()));
+			}, ProfileCommand.ProfilingState.ENTITIES, 10, Arrays.<World>asList(DimensionManager.getWorlds()));
 		}
 	}
 }

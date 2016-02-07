@@ -11,19 +11,13 @@ buildscript {
     }
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'idea'
 
 configurations {
     bundledLibs
     compile {
         extendsFrom bundledLibs
     }
-}
-
-dependencies {
-//    compile 'com.github.stephenc.high-scale-lib:high-scale-lib:1.1.4'
-    bundledLibs 'org.codehaus.jackson:jackson-core-lgpl:1.9.13'
-    bundledLibs 'org.codehaus.jackson:jackson-mapper-lgpl:1.9.13'
-    compile 'org.projectlombok:lombok:1.16.6'
 }
 
 ext.mcVersion = "1.8.9"
@@ -44,19 +38,30 @@ def calculateVersion() {
 
 version = calculateVersion()
 
+repositories {
+    maven { url = 'http://repo.nallar.me/' }
+}
+
+dependencies {
+    bundledLibs 'org.codehaus.jackson:jackson-core-lgpl:1.9.13'
+    bundledLibs 'org.codehaus.jackson:jackson-mapper-lgpl:1.9.13'
+    bundledLibs 'me.nallar:ModPatcher:1.8.9-SNAPSHOT:api'
+    compile 'org.projectlombok:lombok:1.16.6'
+}
+
+tasks.withType(JavaCompile) {
+    sourceCompatibility = 7
+    targetCompatibility = 7
+    options.with {
+        encoding = 'UTF-8'
+        compilerArgs << "-Xlint:all" << '-Xlint:-path' << '-Xlint:-processing'
+    }
+}
+
 minecraft {
     version = "${project.mcVersion}-${project.forgeVersion}"
     runDir = "run"
     mappings = project.forgeMappings
-}
-
-compileJava {
-    // Kills the warnings about using the sun.* classes
-    options.compilerArgs << '-XDignore.symbol.file'
-    // Show warnings for deprecation and bad generics use
-    options.compilerArgs << "-Xlint:deprecation"
-    options.fork = true
-    options.forkOptions.executable = 'javac'
 }
 
 processResources {
@@ -64,20 +69,18 @@ processResources {
     inputs.property "version", project.version
     inputs.property "mcversion", project.minecraft.version
 
-    // replace stuff in mcmod.info, nothing else
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-
-        // replace version and mcversion
-        expand 'version': project.version, 'mcversion': project.minecraft.version
+    filesMatching("mcmod.info") {
+        expand 'version': project.version, 'mcversion': project.minecraft.version, 'name': project.projectName
     }
-
-    // copy everything else, thats not the mcmod.info
-    from(sourceSets.main.resources.srcDirs) { exclude 'mcmod.info' }
+    filesMatching("modpatcher.version") {
+        expand 'version': project.version
+    }
 }
 
 jar {
     from(configurations.bundledLibs.collect { it.isDirectory() ? it : zipTree(it) }) {
         exclude "META-INF/**"
     }
+
+    manifest.mainAttributes("FMLCorePlugin": "nallar.tickprofiler.minecraft.CoreMod", "FMLCorePluginContainsFMLMod": "YasPlease")
 }

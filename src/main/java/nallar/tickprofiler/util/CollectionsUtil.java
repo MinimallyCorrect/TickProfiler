@@ -1,6 +1,8 @@
 package nallar.tickprofiler.util;
 
 import com.google.common.base.Function;
+import com.google.common.base.Functions;
+import com.google.common.collect.Ordering;
 import nallar.tickprofiler.Log;
 
 import java.io.*;
@@ -16,7 +18,7 @@ public enum CollectionsUtil {
 	}
 
 	public static List<?> newList(List<?> input, Function<Object, ?> function) {
-		List<Object> newList = new ArrayList<Object>(input.size());
+		List<Object> newList = new ArrayList<>(input.size());
 		for (Object o : input) {
 			newList.add(function.apply(o));
 		}
@@ -27,18 +29,18 @@ public enum CollectionsUtil {
 		if (input == null || input.isEmpty()) {
 			return Collections.emptyList();
 		}
-		return new ArrayList<String>(Arrays.asList(input.split(delimiter)));
+		return new ArrayList<>(Arrays.asList(input.split(delimiter)));
 	}
 
 	public static <T> List<T> toObjects(Iterable<String> stringIterable, Class<T> type) {
-		Constructor<?> constructor;
+		Constructor<T> constructor;
 		try {
 			constructor = type.getConstructor(String.class);
 		} catch (NoSuchMethodException e) {
 			Log.error("Failed to convert string list to " + type, e);
 			return Collections.emptyList();
 		}
-		List<Object> objects = new ArrayList<Object>();
+		List<T> objects = new ArrayList<>();
 		for (String s : stringIterable) {
 			try {
 				objects.add(constructor.newInstance(s));
@@ -46,7 +48,7 @@ public enum CollectionsUtil {
 				Log.error("Failed to convert string list to " + type + " with string " + s, e);
 			}
 		}
-		return (List<T>) objects;
+		return objects;
 	}
 
 	public static String join(Iterable<File> iterable) {
@@ -80,6 +82,11 @@ public enum CollectionsUtil {
 			notFirst = true;
 		}
 		return stringBuilder.toString();
+	}
+
+	public static <T> List<T> sortedKeys(Map<T, ? extends Comparable<?>> map, int elements) {
+		List<T> list = Ordering.natural().reverse().onResultOf(Functions.forMap(map)).immutableSortedCopy(map.keySet());
+		return list.size() > elements ? list.subList(0, elements) : list;
 	}
 
 	@SuppressWarnings("unchecked")

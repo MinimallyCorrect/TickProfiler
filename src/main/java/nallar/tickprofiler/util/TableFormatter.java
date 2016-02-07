@@ -7,10 +7,11 @@ import net.minecraft.entity.Entity;
 import java.util.*;
 
 public class TableFormatter {
+	private static final int POW10[] = {1, 10, 100, 1000, 10000, 100000, 1000000};
 	public final StringFiller stringFiller;
 	public final StringBuilder sb = new StringBuilder();
-	private final List<String> currentHeadings = new ArrayList<String>();
-	private final List<String> currentData = new ArrayList<String>();
+	private final List<String> currentHeadings = new ArrayList<>();
+	private final List<String> currentData = new ArrayList<>();
 	public String splitter = " | ";
 	public String headingSplitter = " | ";
 	public String headingColour = "";
@@ -31,6 +32,29 @@ public class TableFormatter {
 
 	public TableFormatter(StringFiller stringFiller) {
 		this.stringFiller = stringFiller;
+	}
+
+	/*
+	 * http://stackoverflow.com/a/10554128/250076
+	 */
+	public static String formatDoubleWithPrecision(double val, int precision) {
+		if (Double.isInfinite(val) || Double.isNaN(val)) {
+			return Double.toString(val);
+		}
+		StringBuilder sb = new StringBuilder();
+		if (val < 0) {
+			sb.append('-');
+			val = -val;
+		}
+		int exp = POW10[precision];
+		long lval = (long) (val * exp + 0.5);
+		sb.append(lval / exp).append('.');
+		long fval = lval % exp;
+		for (int p = precision - 1; p > 0 && fval < POW10[p]; p--) {
+			sb.append('0');
+		}
+		sb.append(fval);
+		return sb.toString();
 	}
 
 	public TableFormatter heading(String text) {
@@ -77,13 +101,13 @@ public class TableFormatter {
 		rowIndex = 0;
 		ArrayList<Map<String, String>> table = null;
 		if (recordTables) {
-			table = new ArrayList<Map<String, String>>();
+			table = new ArrayList<>();
 			tables.add(table);
 		}
 		HashMap<String, String> entry = null;
 		for (String data : currentData) {
 			if (rowIndex % rowCount == 0 && table != null) {
-				entry = new HashMap<String, String>();
+				entry = new HashMap<>();
 				table.add(entry);
 			}
 			sb.append(cSplit).append(rowColour).append(stringFiller.fill(data, rowLengths[rowIndex % rowCount]));
@@ -113,31 +137,6 @@ public class TableFormatter {
 		return rowIndex;
 	}
 
-	private static final int POW10[] = {1, 10, 100, 1000, 10000, 100000, 1000000};
-
-	/*
-	 * http://stackoverflow.com/a/10554128/250076
-	 */
-	public static String formatDoubleWithPrecision(double val, int precision) {
-		if (Double.isInfinite(val) || Double.isNaN(val)) {
-			return Double.toString(val);
-		}
-		StringBuilder sb = new StringBuilder();
-		if (val < 0) {
-			sb.append('-');
-			val = -val;
-		}
-		int exp = POW10[precision];
-		long lval = (long) (val * exp + 0.5);
-		sb.append(lval / exp).append('.');
-		long fval = lval % exp;
-		for (int p = precision - 1; p > 0 && fval < POW10[p]; p--) {
-			sb.append('0');
-		}
-		sb.append(fval);
-		return sb.toString();
-	}
-
 	@Override
 	public String toString() {
 		return sb.toString();
@@ -145,7 +144,7 @@ public class TableFormatter {
 
 	public void recordTables() {
 		recordTables = true;
-		tables = new ArrayList<List<Map<String, String>>>();
+		tables = new ArrayList<>();
 	}
 
 	public List getTables() {
