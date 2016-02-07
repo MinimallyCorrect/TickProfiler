@@ -275,9 +275,7 @@ public class Metrics {
 	public void tick(TickEvent.ServerTickEvent tick) {
 		if (tick.phase != TickEvent.Phase.END) return;
 
-		int tickCount = this.tickCount++;
-
-		if (tickCount % (PING_INTERVAL * 1200) != 0) return;
+		if (tickCount++ % (PING_INTERVAL * 1200) != 0) return;
 
 		if (thrd == null) {
 			thrd = new Thread(new Runnable() {
