@@ -1,6 +1,8 @@
 package nallar.tickprofiler.util;
 
 import com.google.common.base.Function;
+import com.google.common.base.Functions;
+import com.google.common.collect.Ordering;
 import nallar.tickprofiler.Log;
 
 import java.io.*;
@@ -80,6 +82,11 @@ public enum CollectionsUtil {
 			notFirst = true;
 		}
 		return stringBuilder.toString();
+	}
+
+	public static <T> List<T> sortedKeys(Map<T, ? extends Comparable<?>> map, int elements) {
+		List<T> list = Ordering.natural().reverse().onResultOf(Functions.forMap(map)).immutableSortedCopy(map.keySet());
+		return list.size() > elements ? list.subList(0, elements) : list;
 	}
 
 	@SuppressWarnings("unchecked")

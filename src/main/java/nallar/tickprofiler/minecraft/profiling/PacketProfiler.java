@@ -13,11 +13,11 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 
 public class PacketProfiler {
-	private static boolean profiling = false;
 	private static final Map<String, AtomicInteger> size = new ConcurrentHashMap<>();
 	private static final Map<String, AtomicInteger> count = new ConcurrentHashMap<>();
+	private static boolean profiling = false;
 
-	public static synchronized boolean startProfiling(final ICommandSender commandSender, final int time) {
+	public static synchronized boolean profile(final ICommandSender commandSender, final int time) {
 		if (profiling) {
 			Command.sendChat(commandSender, "Someone else is already profiling packets.");
 			return false;
@@ -52,11 +52,11 @@ public class PacketProfiler {
 	}
 
 	private static TableFormatter writeStats(final TableFormatter tf, int elements) {
-		Map<String, Integer> count = new HashMap<String, Integer>();
+		Map<String, Integer> count = new HashMap<>();
 		for (Map.Entry<String, AtomicInteger> entry : PacketProfiler.count.entrySet()) {
 			count.put(entry.getKey(), entry.getValue().get());
 		}
-		Map<String, Integer> size = new HashMap<String, Integer>();
+		Map<String, Integer> size = new HashMap<>();
 		for (Map.Entry<String, AtomicInteger> entry : PacketProfiler.size.entrySet()) {
 			size.put(entry.getKey(), entry.getValue().get());
 		}
