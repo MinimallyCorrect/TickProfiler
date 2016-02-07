@@ -39,6 +39,9 @@ public class ProfileCommand extends Command {
 		Integer z = null;
 		ProfilingState type;
 		try {
+			if (arguments.isEmpty())
+				throw new UsageException();
+
 			type = ProfilingState.get(arguments.get(0));
 			if (type == null)
 				throw new RuntimeException();
