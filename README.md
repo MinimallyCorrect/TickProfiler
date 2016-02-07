@@ -37,13 +37,7 @@ Please follow the above conventions if you want your pull requests accepted.
 Donations
 ----------------------------------
 
-![QR Code](http://i.imgur.com/U2ftDFQ.png)
-
-[1BUjvwxxGH23Fkj7vdGtbrgLEF91u8npQu](bitcoin:1BUjvwxxGH23Fkj7vdGtbrgLEF91u8npQu)
-
-![](http://ansrv.com/png?s=http://blockexplorer.com/q/getreceivedbyaddress/1BUjvwxxGH23Fkj7vdGtbrgLEF91u8npQu&amp;c=000000&amp;b=FFFFFF&amp;size=5)
-
-Alternatively, you can donate via paypal to rossallan3+pp@googlemail.com
+Paypal: [Donate](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=PTWH8MH8Y4WH8)
 
 Contributors
 ----------------------------------
