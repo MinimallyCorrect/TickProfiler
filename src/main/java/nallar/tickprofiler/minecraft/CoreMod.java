@@ -6,6 +6,7 @@ import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import java.util.*;
 
 
+@IFMLLoadingPlugin.MCVersion("@MC_VERSION@")
 @IFMLLoadingPlugin.SortingIndex(1001)
 public class CoreMod implements IFMLLoadingPlugin {
 	@Override
