@@ -44,7 +44,7 @@ public class ProfileCommand extends Command {
 
 			type = ProfilingState.get(arguments.get(0));
 			if (type == null)
-				throw new RuntimeException();
+				throw new UsageException();
 
 			if (type == ProfilingState.CHUNK_ENTITIES && arguments.size() > 2) {
 				x = Integer.valueOf(arguments.remove(1));
