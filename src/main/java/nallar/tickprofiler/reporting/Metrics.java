@@ -123,20 +123,18 @@ public class Metrics {
 		configuration = new Configuration(getConfigFile());
 
 		// Get values, and add some defaults, if needed
-		configuration.get(Configuration.CATEGORY_GENERAL, "opt-out", false,
-				"Set to true to disable all reporting");
-		guid = configuration.get(Configuration.CATEGORY_GENERAL, "guid", UUID
-				.randomUUID().toString(), "Server unique ID").getString();
-		debug = configuration.get(Configuration.CATEGORY_GENERAL, "debug",
-				false, "Set to true for verbose debug").getBoolean(false);
+		configuration.get(Configuration.CATEGORY_GENERAL, "opt-out", false, "Set to true to disable all reporting");
+		guid = configuration.get(Configuration.CATEGORY_GENERAL, "guid", UUID.randomUUID().toString(), "Server unique ID").getString();
+		debug = configuration.get(Configuration.CATEGORY_GENERAL, "debug", false, "Set to true for verbose debug").getBoolean(false);
 		configuration.save();
+
 		if (!isOptOut()) {
 			Graph graph = createGraph("Perf");
 			graph.addPlotter(new TileEntityPlotter());
 			graph.addPlotter(new EntityPlotter());
 			graph.addPlotter(new ChunkPlotter());
 			if (start()) {
-				Log.info("Started TickProfiler metrics reporting. This can be disabled in PluginMetrics.cfg");
+				Log.info("Started TickProfiler mcstats.org metrics reporting. This can be disabled in PluginMetrics.cfg");
 			}
 		}
 	}
@@ -277,23 +275,9 @@ public class Metrics {
 	public void tick(TickEvent.ServerTickEvent tick) {
 		if (tick.phase != TickEvent.Phase.END) return;
 
-		// Disable Task, if it is running and the server owner decided
-		// to opt-out
-		if (isOptOut()) {
-			// Tell all plotters to stop gathering information.
-			for (Graph graph : graphs) {
-				graph.onOptOut();
-			}
+		int tickCount = this.tickCount++;
 
-			FMLCommonHandler.instance().bus().unregister(this);
-			return;
-		}
-
-		tickCount++;
-
-		if (tickCount % (firstPost ? 100 : PING_INTERVAL * 1200) != 0) return;
-
-		tickCount = 0;
+		if (tickCount % (PING_INTERVAL * 1200) != 0) return;
 
 		if (thrd == null) {
 			thrd = new Thread(new Runnable() {
@@ -338,7 +322,6 @@ public class Metrics {
 	 */
 	public boolean isOptOut() {
 		// Reload the metrics file
-		configuration.load();
 		return configuration.get(Configuration.CATEGORY_GENERAL, "opt-out",
 				false).getBoolean(false);
 	}
