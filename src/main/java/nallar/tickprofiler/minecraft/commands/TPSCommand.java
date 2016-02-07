@@ -14,7 +14,42 @@ import java.util.*;
 import java.util.concurrent.*;
 
 public class TPSCommand extends Command {
+	private static final int tpsWidth = 40;
 	public static String name = "tps";
+
+	private static String getTPSString(boolean withColour) {
+		double targetTPS = 20;
+		double tps = TimeUnit.SECONDS.toNanos(1) / (double) TickProfiler.tickTime;
+		if (tps > 20) {
+			tps = 20;
+		}
+		double difference = Math.abs(targetTPS - tps);
+		int charsFirst = (int) Math.round((tps / targetTPS) * tpsWidth);
+		int charsAfter = tpsWidth - charsFirst;
+		return " " +
+				TableFormatter.formatDoubleWithPrecision(tps, 2) +
+				" TPS [ " +
+				(withColour ? getColourForDifference(difference, targetTPS) : "") +
+				Strings.repeat("#", charsFirst) +
+				Strings.repeat("~", charsAfter) +
+				(withColour ? ChatFormat.RESET : "") +
+				" ] ";
+	}
+
+	private static String getColourForDifference(double difference, double targetTPS) {
+		switch ((int) (difference / (targetTPS / 4))) {
+			case 0:
+				return ChatFormat.GREEN.toString();
+			case 1:
+				return ChatFormat.YELLOW.toString();
+			case 2:
+				return ChatFormat.RED.toString();
+			case 3:
+				return ChatFormat.RED.toString() + ChatFormat.BOLD;
+			default:
+				return ChatFormat.MAGIC.toString();
+		}
+	}
 
 	@Override
 	public String getCommandName() {
@@ -62,44 +97,5 @@ public class TPSCommand extends Command {
 		tf.finishTable();
 		tf.sb.append('\n').append(getTPSString(commandSender instanceof EntityPlayer));
 		sendChat(commandSender, tf.toString());
-	}
-
-	private static final int tpsWidth = 40;
-
-	private static String getTPSString(boolean withColour) {
-		double targetTPS = 20;
-		double tps = TimeUnit.SECONDS.toNanos(1) / (double) TickProfiler.tickTime;
-		if (tps > 20) {
-			tps = 20;
-		}
-		double difference = Math.abs(targetTPS - tps);
-		int charsFirst = (int) Math.round((tps / targetTPS) * tpsWidth);
-		int charsAfter = tpsWidth - charsFirst;
-		StringBuilder sb = new StringBuilder();
-		sb
-				.append(' ')
-				.append(TableFormatter.formatDoubleWithPrecision(tps, 2))
-				.append(" TPS [ ")
-				.append(withColour ? getColourForDifference(difference, targetTPS) : "")
-				.append(Strings.repeat("#", charsFirst))
-				.append(Strings.repeat("~", charsAfter))
-				.append(withColour ? ChatFormat.RESET : "")
-				.append(" ] ");
-		return sb.toString();
-	}
-
-	private static String getColourForDifference(double difference, double targetTPS) {
-		switch ((int) (difference / (targetTPS / 4))) {
-			case 0:
-				return ChatFormat.GREEN.toString();
-			case 1:
-				return ChatFormat.YELLOW.toString();
-			case 2:
-				return ChatFormat.RED.toString();
-			case 3:
-				return ChatFormat.RED.toString() + ChatFormat.BOLD;
-			default:
-				return ChatFormat.MAGIC.toString();
-		}
 	}
 }

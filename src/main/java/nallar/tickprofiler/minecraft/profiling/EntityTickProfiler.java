@@ -21,7 +21,23 @@ import java.util.*;
 import java.util.concurrent.atomic.*;
 
 public class EntityTickProfiler {
+	public static final EntityTickProfiler INSTANCE = new EntityTickProfiler();
 	private static final Method isActiveChunk = getIsActiveChunkMethod();
+	public static ProfileCommand.ProfilingState profilingState = ProfileCommand.ProfilingState.NONE;
+	private final HashMap<Class<?>, AtomicInteger> invocationCount = new HashMap<>();
+	private final HashMap<Class<?>, AtomicLong> time = new HashMap<>();
+	private final HashMap<Object, AtomicLong> singleTime = new HashMap<>();
+	private final HashMap<Object, AtomicLong> singleInvocationCount = new HashMap<>();
+	private final AtomicLong totalTime = new AtomicLong();
+	private int lastCX = Integer.MIN_VALUE;
+	private int lastCZ = Integer.MIN_VALUE;
+	private boolean cachedActive = false;
+	private int ticks;
+	private volatile int chunkX;
+	private volatile int chunkZ;
+	private volatile long startTime;
+	private EntityTickProfiler() {
+	}
 
 	private static Method getIsActiveChunkMethod() {
 		Class<World> clazz = World.class;
@@ -33,24 +49,6 @@ public class EntityTickProfiler {
 			Log.warn("Did not find Cauldron isActiveChunk method, assuming vanilla entity ticking.");
 		}
 		return null;
-	}
-
-	private int lastCX = Integer.MIN_VALUE;
-	private int lastCZ = Integer.MIN_VALUE;
-	private boolean cachedActive = false;
-	public static final EntityTickProfiler INSTANCE = new EntityTickProfiler();
-	public static ProfileCommand.ProfilingState profilingState = ProfileCommand.ProfilingState.NONE;
-	private final HashMap<Class<?>, AtomicInteger> invocationCount = new HashMap<Class<?>, AtomicInteger>();
-	private final HashMap<Class<?>, AtomicLong> time = new HashMap<Class<?>, AtomicLong>();
-	private final HashMap<Object, AtomicLong> singleTime = new HashMap<Object, AtomicLong>();
-	private final HashMap<Object, AtomicLong> singleInvocationCount = new HashMap<Object, AtomicLong>();
-	private int ticks;
-	private final AtomicLong totalTime = new AtomicLong();
-	private volatile int chunkX;
-	private volatile int chunkZ;
-	private volatile long startTime;
-
-	private EntityTickProfiler() {
 	}
 
 	public static synchronized boolean startProfiling(ProfileCommand.ProfilingState profilingState_) {
@@ -65,6 +63,45 @@ public class EntityTickProfiler {
 		profilingState = ProfileCommand.ProfilingState.NONE;
 	}
 
+	private static <T> List<T> sortedKeys(Map<T, ? extends Comparable<?>> map, int elements) {
+		List<T> list = Ordering.natural().reverse().onResultOf(Functions.forMap(map)).immutableSortedCopy(map.keySet());
+		return list.size() > elements ? list.subList(0, elements) : list;
+	}
+
+	private static int getDimension(TileEntity o) {
+		if (o.getWorldObj() == null) return -999;
+		WorldProvider worldProvider = o.getWorldObj().provider;
+		return worldProvider == null ? -999 : worldProvider.dimensionId;
+	}
+
+	private static int getDimension(Entity o) {
+		if (o.worldObj == null) return -999;
+		WorldProvider worldProvider = o.worldObj.provider;
+		return worldProvider == null ? -999 : worldProvider.dimensionId;
+	}
+
+	private static Object niceName(Object o) {
+		if (o instanceof TileEntity) {
+			return niceName(o.getClass()) + ' ' + ((TileEntity) o).xCoord + ',' + ((TileEntity) o).yCoord + ',' + ((TileEntity) o).zCoord + ':' + getDimension((TileEntity) o);
+		} else if (o instanceof Entity) {
+			return niceName(o.getClass()) + ' ' + (int) ((Entity) o).posX + ',' + (int) ((Entity) o).posY + ',' + (int) ((Entity) o).posZ + ':' + getDimension((Entity) o);
+		}
+		return o.toString().substring(0, 48);
+	}
+
+	private static String niceName(Class<?> clazz) {
+		String name = clazz.getName();
+		if (name.contains(".")) {
+			String cName = name.substring(name.lastIndexOf('.') + 1);
+			String pName = name.substring(0, name.lastIndexOf('.'));
+			if (pName.contains(".")) {
+				pName = pName.substring(pName.lastIndexOf('.') + 1);
+			}
+			return (cName.length() < 15 ? pName + '.' : "") + cName;
+		}
+		return name;
+	}
+
 	public void setLocation(final int x, final int z) {
 		chunkX = x;
 		chunkZ = z;
@@ -74,7 +111,7 @@ public class EntityTickProfiler {
 		if (time <= 0) {
 			throw new IllegalArgumentException("time must be > 0");
 		}
-		final Collection<World> worlds = new ArrayList<World>(worlds_);
+		final Collection<World> worlds = new ArrayList<>(worlds_);
 		synchronized (EntityTickProfiler.class) {
 			if (!startProfiling(state)) {
 				return false;
@@ -168,6 +205,7 @@ public class EntityTickProfiler {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public void writeJSONData(File file) throws IOException {
 		TableFormatter tf = new TableFormatter(StringFiller.FIXED_WIDTH);
 		tf.recordTables();
@@ -182,11 +220,6 @@ public class EntityTickProfiler {
 		objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, tables);
 	}
 
-	private static <T> List<T> sortedKeys(Map<T, ? extends Comparable<?>> map, int elements) {
-		List<T> list = Ordering.natural().reverse().onResultOf(Functions.forMap(map)).immutableSortedCopy(map.keySet());
-		return list.size() > elements ? list.subList(0, elements) : list;
-	}
-
 	public TableFormatter writeStringData(TableFormatter tf) {
 		return writeStringData(tf, 5);
 	}
@@ -199,13 +232,13 @@ public class EntityTickProfiler {
 	}
 
 	public TableFormatter writeData(TableFormatter tf, int elements) {
-		Map<Class<?>, Long> time = new HashMap<Class<?>, Long>();
+		Map<Class<?>, Long> time = new HashMap<>();
 		synchronized (this.time) {
 			for (Map.Entry<Class<?>, AtomicLong> entry : this.time.entrySet()) {
 				time.put(entry.getKey(), entry.getValue().get());
 			}
 		}
-		Map<Object, Long> singleTime = new HashMap<Object, Long>();
+		Map<Object, Long> singleTime = new HashMap<>();
 		synchronized (this.singleTime) {
 			for (Map.Entry<Object, AtomicLong> entry : this.singleTime.entrySet()) {
 				singleTime.put(entry.getKey(), entry.getValue().get());
@@ -282,7 +315,7 @@ public class EntityTickProfiler {
 		}
 		tf.finishTable();
 		tf.sb.append('\n');
-		Map<Class<?>, Long> timePerTick = new HashMap<Class<?>, Long>();
+		Map<Class<?>, Long> timePerTick = new HashMap<>();
 		for (Map.Entry<Class<?>, AtomicLong> entry : this.time.entrySet()) {
 			timePerTick.put(entry.getKey(), entry.getValue().get() / invocationCount.get(entry.getKey()).get());
 		}
@@ -298,40 +331,6 @@ public class EntityTickProfiler {
 		}
 		tf.finishTable();
 		return tf;
-	}
-
-	private static int getDimension(TileEntity o) {
-		if (o.getWorldObj() == null) return -999;
-		WorldProvider worldProvider = o.getWorldObj().provider;
-		return worldProvider == null ? -999 : worldProvider.dimensionId;
-	}
-
-	private static int getDimension(Entity o) {
-		if (o.worldObj == null) return -999;
-		WorldProvider worldProvider = o.worldObj.provider;
-		return worldProvider == null ? -999 : worldProvider.dimensionId;
-	}
-
-	private static Object niceName(Object o) {
-		if (o instanceof TileEntity) {
-			return niceName(o.getClass()) + ' ' + ((TileEntity) o).xCoord + ',' + ((TileEntity) o).yCoord + ',' + ((TileEntity) o).zCoord + ':' + getDimension((TileEntity) o);
-		} else if (o instanceof Entity) {
-			return niceName(o.getClass()) + ' ' + (int) ((Entity) o).posX + ',' + (int) ((Entity) o).posY + ',' + (int) ((Entity) o).posZ + ':' + getDimension((Entity) o);
-		}
-		return o.toString().substring(0, 48);
-	}
-
-	private static String niceName(Class<?> clazz) {
-		String name = clazz.getName();
-		if (name.contains(".")) {
-			String cName = name.substring(name.lastIndexOf('.') + 1);
-			String pName = name.substring(0, name.lastIndexOf('.'));
-			if (pName.contains(".")) {
-				pName = pName.substring(pName.lastIndexOf('.') + 1);
-			}
-			return (cName.length() < 15 ? pName + '.' : "") + cName;
-		}
-		return name;
 	}
 
 	private AtomicLong getSingleInvocationCount(Object o) {
@@ -366,6 +365,7 @@ public class EntityTickProfiler {
 		return this.getTime(clazz, time);
 	}
 
+	@SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
 	private <T> AtomicLong getTime(T clazz, HashMap<T, AtomicLong> time) {
 		AtomicLong t = time.get(clazz);
 		if (t == null) {
@@ -400,19 +400,6 @@ public class EntityTickProfiler {
 		}
 	}
 
-	private class ComparableLongHolder implements Comparable<ComparableLongHolder> {
-		public long value;
-
-		ComparableLongHolder() {
-		}
-
-		@Override
-		public int compareTo(final ComparableLongHolder comparableLongHolder) {
-			long otherValue = comparableLongHolder.value;
-			return (value < otherValue) ? -1 : ((value == otherValue) ? 0 : 1);
-		}
-	}
-
 	private static final class ChunkCoords {
 		public final int chunkXPos;
 		public final int chunkZPos;
@@ -432,6 +419,19 @@ public class EntityTickProfiler {
 		@Override
 		public int hashCode() {
 			return (chunkXPos << 16) ^ (chunkZPos << 4) ^ dimension;
+		}
+	}
+
+	private class ComparableLongHolder implements Comparable<ComparableLongHolder> {
+		public long value;
+
+		ComparableLongHolder() {
+		}
+
+		@Override
+		public int compareTo(final ComparableLongHolder comparableLongHolder) {
+			long otherValue = comparableLongHolder.value;
+			return (value < otherValue) ? -1 : ((value == otherValue) ? 0 : 1);
 		}
 	}
 }

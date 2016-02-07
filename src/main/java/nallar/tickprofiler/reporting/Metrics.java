@@ -106,6 +106,9 @@ public class Metrics {
 	 * Debug mode
 	 */
 	private final boolean debug;
+	int tickCount;
+	private Thread thrd = null;
+	private boolean firstPost = true;
 
 	public Metrics(final String modname, final String modversion) {
 		if ((modname == null) || (modversion == null)) {
@@ -136,6 +139,64 @@ public class Metrics {
 				Log.info("Started TickProfiler metrics reporting. This can be disabled in PluginMetrics.cfg");
 			}
 		}
+	}
+
+	/**
+	 * Gets the File object of the config file that should be used to store data
+	 * such as the GUID and opt-out status
+	 *
+	 * @return the File object for the config file
+	 */
+	public static File getConfigFile() {
+		return new File(Loader.instance().getConfigDir(), "PluginMetrics.cfg");
+	}
+
+	/**
+	 * Check if mineshafter is present. If it is, we need to bypass it to send
+	 * POST requests
+	 *
+	 * @return true if mineshafter is installed on the server
+	 */
+	private static boolean isMineshafterPresent() {
+		try {
+			Class.forName("mineshafter.MineServer");
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
+	/**
+	 * <p>
+	 * Encode a key/value data pair to be used in a HTTP post request. This
+	 * INCLUDES a & so the first key/value pair MUST be included manually, e.g:
+	 * </p>
+	 * <code>
+	 * StringBuffer data = new StringBuffer();
+	 * data.append(encode("guid")).append('=').append(encode(guid));
+	 * encodeDataPair(data, "version", description.getVersion());
+	 * </code>
+	 *
+	 * @param buffer the stringbuilder to append the data pair onto
+	 * @param key    the key value
+	 * @param value  the value
+	 */
+	private static void encodeDataPair(final StringBuilder buffer,
+									   final String key, final String value)
+			throws UnsupportedEncodingException {
+		buffer.append('&').append(encode(key)).append('=')
+				.append(encode(value));
+	}
+
+	/**
+	 * Encode text as UTF-8
+	 *
+	 * @param text the text to encode
+	 * @return the encoded text, as UTF-8
+	 */
+	private static String encode(final String text)
+			throws UnsupportedEncodingException {
+		return URLEncoder.encode(text, "UTF-8");
 	}
 
 	/**
@@ -211,10 +272,6 @@ public class Metrics {
 
 		return true;
 	}
-
-	private Thread thrd = null;
-	private boolean firstPost = true;
-	int tickCount;
 
 	@SubscribeEvent
 	public void tick(TickEvent.ServerTickEvent tick) {
@@ -318,16 +375,6 @@ public class Metrics {
 	}
 
 	/**
-	 * Gets the File object of the config file that should be used to store data
-	 * such as the GUID and opt-out status
-	 *
-	 * @return the File object for the config file
-	 */
-	public static File getConfigFile() {
-		return new File(Loader.instance().getConfigDir(), "PluginMetrics.cfg");
-	}
-
-	/**
 	 * Generic method that posts a plugin to the metrics website
 	 */
 	private void postPlugin(final boolean isPing) throws IOException {
@@ -427,21 +474,15 @@ public class Metrics {
 		connection.setDoOutput(true);
 
 		// Write the data
-		final OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
-		try {
+		try (OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream())) {
 			writer.write(data.toString());
 			writer.flush();
-		} finally {
-			writer.close();
 		}
 
 		// Now read the response
 		final String response;
-		final BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-		try {
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
 			response = reader.readLine();
-		} finally {
-			reader.close();
 		}
 
 		if (response == null || response.startsWith("ERR")) {
@@ -461,54 +502,6 @@ public class Metrics {
 	}
 
 	/**
-	 * Check if mineshafter is present. If it is, we need to bypass it to send
-	 * POST requests
-	 *
-	 * @return true if mineshafter is installed on the server
-	 */
-	private static boolean isMineshafterPresent() {
-		try {
-			Class.forName("mineshafter.MineServer");
-			return true;
-		} catch (Exception e) {
-			return false;
-		}
-	}
-
-	/**
-	 * <p>
-	 * Encode a key/value data pair to be used in a HTTP post request. This
-	 * INCLUDES a & so the first key/value pair MUST be included manually, e.g:
-	 * </p>
-	 * <code>
-	 * StringBuffer data = new StringBuffer();
-	 * data.append(encode("guid")).append('=').append(encode(guid));
-	 * encodeDataPair(data, "version", description.getVersion());
-	 * </code>
-	 *
-	 * @param buffer the stringbuilder to append the data pair onto
-	 * @param key    the key value
-	 * @param value  the value
-	 */
-	private static void encodeDataPair(final StringBuilder buffer,
-									   final String key, final String value)
-			throws UnsupportedEncodingException {
-		buffer.append('&').append(encode(key)).append('=')
-				.append(encode(value));
-	}
-
-	/**
-	 * Encode text as UTF-8
-	 *
-	 * @param text the text to encode
-	 * @return the encoded text, as UTF-8
-	 */
-	private static String encode(final String text)
-			throws UnsupportedEncodingException {
-		return URLEncoder.encode(text, "UTF-8");
-	}
-
-	/**
 	 * Represents a custom graph on the website
 	 */
 	public static class Graph {
@@ -520,7 +513,7 @@ public class Metrics {
 		/**
 		 * The set of plotters that are contained within this graph
 		 */
-		private final Set<Plotter> plotters = new LinkedHashSet<Plotter>();
+		private final Set<Plotter> plotters = new LinkedHashSet<>();
 
 		Graph(final String name) {
 			this.name = name;
