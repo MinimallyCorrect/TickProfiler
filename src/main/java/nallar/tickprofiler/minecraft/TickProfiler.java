@@ -9,6 +9,7 @@ import nallar.tickprofiler.minecraft.commands.DumpCommand;
 import nallar.tickprofiler.minecraft.commands.ProfileCommand;
 import nallar.tickprofiler.minecraft.commands.TPSCommand;
 import nallar.tickprofiler.minecraft.profiling.EntityTickProfiler;
+import nallar.tickprofiler.minecraft.profiling.LagSpikeProfiler;
 import nallar.tickprofiler.reporting.Metrics;
 import nallar.tickprofiler.util.TableFormatter;
 import nallar.tickprofiler.util.VersionUtil;
@@ -31,26 +32,29 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Set;
 
 @SuppressWarnings("WeakerAccess")
 @Mod(modid = "TickProfiler", name = "TickProfiler", acceptableRemoteVersions = "*")
 public class TickProfiler {
+	private static final Set<World> profilingWorlds = Collections.newSetFromMap(new MapMaker().weakKeys().<World, Boolean>makeMap());
 	@Mod.Instance("TickProfiler")
 	public static TickProfiler instance;
 	public static long tickTime = 20; // Initialise with non-zero value to avoid divide-by-zero errors calculating TPS
 	public static long lastTickTime;
-	private static final Set<World> profilingWorlds = Collections.newSetFromMap(new MapMaker().weakKeys().<World, Boolean>makeMap());
+
+	static {
+		new Metrics("TickProfiler", VersionUtil.versionNumber());
+	}
+
 	public boolean requireOpForProfileCommand = true;
 	public boolean requireOpForDumpCommand = true;
 	private int profilingInterval = 0;
 	private String profilingFileName = "world/computer/<computer id>/profile.txt";
 	private boolean profilingJson = false;
-
-	static {
-		new Metrics("TickProfiler", VersionUtil.versionNumber());
-	}
 
 	public static boolean shouldProfile(World w) {
 		return profilingWorlds.contains(w);
@@ -140,6 +144,7 @@ public class TickProfiler {
 			long time = System.nanoTime();
 			long thisTickTime = time - lastTickTime;
 			lastTickTime = time;
+			LagSpikeProfiler.tick(time);
 			tickTime = (tickTime * 19 + thisTickTime) / 20;
 			final EntityTickProfiler entityTickProfiler = EntityTickProfiler.INSTANCE;
 			entityTickProfiler.tick();
