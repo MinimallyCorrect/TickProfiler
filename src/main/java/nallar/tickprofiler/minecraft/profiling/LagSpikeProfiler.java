@@ -199,6 +199,8 @@ public class LagSpikeProfiler {
                 }
                 synchronized (LagSpikeProfiler.class) {
                     inProgress = false;
+                    if (commandSender != null)
+                        Command.sendChat(commandSender, "Lag spike profiling finished.");
                 }
             }
         });
