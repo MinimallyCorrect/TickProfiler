@@ -1,9 +1,7 @@
 package nallar.tickprofiler.minecraft.profiling;
 
 import com.google.common.base.Functions;
-import com.google.common.base.Throwables;
 import com.google.common.collect.Ordering;
-import nallar.tickprofiler.Log;
 import nallar.tickprofiler.minecraft.TickProfiler;
 import nallar.tickprofiler.minecraft.commands.ProfileCommand;
 import nallar.tickprofiler.util.CollectionsUtil;
@@ -17,14 +15,14 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldProvider;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import java.io.*;
-import java.lang.reflect.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.atomic.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class EntityTickProfiler {
 	public static final EntityTickProfiler INSTANCE = new EntityTickProfiler();
-	private static final Method isActiveChunk = getIsActiveChunkMethod();
 	public static ProfileCommand.ProfilingState profilingState = ProfileCommand.ProfilingState.NONE;
 	private final HashMap<Class<?>, AtomicInteger> invocationCount = new HashMap<>();
 	private final HashMap<Class<?>, AtomicLong> time = new HashMap<>();
@@ -40,18 +38,6 @@ public class EntityTickProfiler {
 	private volatile long startTime;
 
 	private EntityTickProfiler() {
-	}
-
-	private static Method getIsActiveChunkMethod() {
-		Class<World> clazz = World.class;
-		try {
-			Method method = clazz.getDeclaredMethod("isActiveChunk", int.class, int.class);
-			Log.info("Found Cauldron isActiveChunk method " + method);
-			return method;
-		} catch (NoSuchMethodException e) {
-			Log.warn("Did not find Cauldron isActiveChunk method, assuming vanilla entity ticking.");
-		}
-		return null;
 	}
 
 	public static synchronized boolean startProfiling(ProfileCommand.ProfilingState profilingState_) {
@@ -380,26 +366,6 @@ public class EntityTickProfiler {
 			}
 		}
 		return t;
-	}
-
-	private boolean isActiveChunk(World world, int chunkX, int chunkZ) {
-		if (isActiveChunk == null) {
-			return true;
-		}
-
-		if (lastCX == chunkX && lastCZ == chunkZ) {
-			return cachedActive;
-		}
-
-		try {
-			boolean result = (Boolean) isActiveChunk.invoke(world, chunkX, chunkZ);
-			cachedActive = result;
-			lastCX = chunkX;
-			lastCZ = chunkZ;
-			return result;
-		} catch (Throwable t) {
-			throw Throwables.propagate(t);
-		}
 	}
 
 	private static final class ChunkCoords {
