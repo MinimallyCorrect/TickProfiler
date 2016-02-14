@@ -193,13 +193,17 @@ public class LagSpikeProfiler {
         Thread detectorThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                while (!stopping && checkForLagSpikes()) {
-                    trySleep(sleepTime);
-                }
-                synchronized (LagSpikeProfiler.class) {
-                    inProgress = false;
-                    if (commandSender != null)
-                        Command.sendChat(commandSender, "Lag spike profiling finished.");
+                try {
+                    while (!stopping && checkForLagSpikes()) {
+                        trySleep(sleepTime);
+                    }
+                    synchronized (LagSpikeProfiler.class) {
+                        inProgress = false;
+                        if (commandSender != null)
+                            Command.sendChat(commandSender, "Lag spike profiling finished.");
+                    }
+                } catch (Throwable t) {
+                    Log.error("Error detecting lag spikes", t);
                 }
             }
         });
