@@ -189,7 +189,7 @@ public class LagSpikeProfiler {
     }
 
     private void start() {
-        final int sleepTime = Math.max(1000, (lagSpikeMillis * 1000) / 6);
+        final int sleepTime = Math.max(1000, lagSpikeMillis / 6);
         Thread detectorThread = new Thread(new Runnable() {
             @Override
             public void run() {
