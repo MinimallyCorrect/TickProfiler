@@ -193,7 +193,6 @@ public class LagSpikeProfiler {
         Thread detectorThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                trySleep(60000);
                 while (!stopping && checkForLagSpikes()) {
                     trySleep(sleepTime);
                 }
