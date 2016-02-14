@@ -2,10 +2,7 @@ package nallar.tickprofiler.minecraft.commands;
 
 import nallar.tickprofiler.Log;
 import nallar.tickprofiler.minecraft.TickProfiler;
-import nallar.tickprofiler.minecraft.profiling.ContentionProfiler;
-import nallar.tickprofiler.minecraft.profiling.EntityTickProfiler;
-import nallar.tickprofiler.minecraft.profiling.PacketProfiler;
-import nallar.tickprofiler.minecraft.profiling.UtilisationProfiler;
+import nallar.tickprofiler.minecraft.profiling.*;
 import nallar.tickprofiler.util.TableFormatter;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.Entity;
@@ -68,6 +65,8 @@ public class ProfileCommand extends Command {
 						resolution = Integer.valueOf(arguments.get(2));
 					}
 					return ContentionProfiler.profile(commandSender, time_, resolution);
+				case LAG_SPIKE_DETECTOR:
+					return LagSpikeProfiler.profile(commandSender, time_);
 			}
 
 			if (arguments.size() > 2) {
@@ -84,10 +83,7 @@ public class ProfileCommand extends Command {
 				z = entity.chunkCoordZ;
 			}
 		} catch (UsageException e) {
-			sendChat(commandSender, "Usage: /profile [e/p/u/l/(c [chunkX] [chunk z])] timeInSeconds dimensionID\n" +
-					"example - profile for 30 seconds in chunk 8,1 in all worlds: /profile c 8 1\n" +
-					"example - profile for 10 seconds in dimension 4: /profile e 10 4\n" +
-					"example - profile packets: /profile p");
+			sendChat(commandSender, getCommandUsage(commandSender));
 			return true;
 		}
 
@@ -117,7 +113,10 @@ public class ProfileCommand extends Command {
 
 	@Override
 	public String getCommandUsage(ICommandSender icommandsender) {
-		return "Usage: /profile [e/(c [chunk x] [chunk z])] [time=30] [dimensionid=all]";
+		return "Usage: /profile [e/p/u/l/s/(c [chunkX] [chunk z])] timeInSeconds dimensionID\n" +
+				"example - profile for 30 seconds in chunk 8,1 in all worlds: /profile c 8 1\n" +
+				"example - profile for 10 seconds in dimension 4: /profile e 10 4\n" +
+				"example - profile packets: /profile p";
 	}
 
 	public enum ProfilingState {
@@ -126,7 +125,8 @@ public class ProfileCommand extends Command {
 		CHUNK_ENTITIES("c", 30),
 		PACKETS("p", 30),
 		UTILISATION("u", 240),
-		LOCK_CONTENTION("l", 240);
+		LOCK_CONTENTION("l", 240),
+		LAG_SPIKE_DETECTOR("s", 600);
 
 		static final Map<String, ProfilingState> states = new HashMap<>();
 
