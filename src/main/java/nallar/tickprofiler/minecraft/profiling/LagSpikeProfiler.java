@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 public class LagSpikeProfiler {
     private static final StackTraceElement[] EMPTY_STACK_TRACE = new StackTraceElement[0];
     private static final int lagSpikeMillis = 200;
-    private static final long lagSpikeNanoSeconds = TimeUnit.SECONDS.toNanos(lagSpikeMillis);
+    private static final long lagSpikeNanoSeconds = TimeUnit.MILLISECONDS.toNanos(lagSpikeMillis);
     private static boolean inProgress;
     private static volatile long lastTickTime = 0;
     private final ICommandSender commandSender;
@@ -189,7 +189,7 @@ public class LagSpikeProfiler {
     }
 
     private void start() {
-        final int sleepTime = Math.max(1000, lagSpikeMillis / 6);
+        final int sleepTime = 1 + Math.min(1000, lagSpikeMillis / 6);
         Thread detectorThread = new Thread(new Runnable() {
             @Override
             public void run() {
