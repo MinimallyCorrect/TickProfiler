@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 
 public class LagSpikeProfiler {
     private static final StackTraceElement[] EMPTY_STACK_TRACE = new StackTraceElement[0];
-    private static final int deadLockMillis = 500;
+    private static final int deadLockMillis = 400;
     private static final long deadLockNanoSeconds = TimeUnit.SECONDS.toNanos(deadLockMillis);
     private static boolean inProgress;
     private static volatile long lastTickTime = 0;
