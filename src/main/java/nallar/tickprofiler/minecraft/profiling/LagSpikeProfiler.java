@@ -13,12 +13,13 @@ import net.minecraft.server.dedicated.DedicatedServer;
 
 import java.lang.management.*;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 public class LagSpikeProfiler {
     private static final StackTraceElement[] EMPTY_STACK_TRACE = new StackTraceElement[0];
     private static final int lagSpikeMillis = 200;
     private static final long lagSpikeNanoSeconds = TimeUnit.MILLISECONDS.toNanos(lagSpikeMillis);
+    public static boolean ALL_THREADS = Boolean.parseBoolean(System.getProperty("TickProfiler.allThreads", "false"));
     private static boolean inProgress;
     private static volatile long lastTickTime = 0;
     private final ICommandSender commandSender;
@@ -77,8 +78,13 @@ public class LagSpikeProfiler {
             }
         });
 
-        ThreadInfo[] t = threadMXBean.dumpAllThreads(true, true);
+        boolean allThreads = ALL_THREADS;
+
+        ThreadInfo[] t = threadMXBean.dumpAllThreads(allThreads, allThreads);
         for (ThreadInfo thread : t) {
+            if (!allThreads && !includeThread(thread))
+                continue;
+
             String info = toString(thread, false);
             if (info != null) {
                 threads.getUnchecked(info).add(thread);
@@ -105,6 +111,10 @@ public class LagSpikeProfiler {
         }
 
         return sortedThreads;
+    }
+
+    private static boolean includeThread(ThreadInfo thread) {
+        return thread.getThreadName().toLowerCase().startsWith("server thread");
     }
 
     private static void trySleep(long millis) {
