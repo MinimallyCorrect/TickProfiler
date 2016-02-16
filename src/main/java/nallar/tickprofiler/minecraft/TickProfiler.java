@@ -32,10 +32,8 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Set;
+import java.io.*;
+import java.util.*;
 
 @SuppressWarnings("WeakerAccess")
 @Mod(modid = "TickProfiler", name = "TickProfiler", acceptableRemoteVersions = "*")

@@ -27,13 +27,13 @@ public class TPSCommand extends Command {
 		int charsFirst = (int) Math.round((tps / targetTPS) * tpsWidth);
 		int charsAfter = tpsWidth - charsFirst;
 		return " " +
-				TableFormatter.formatDoubleWithPrecision(tps, 2) +
-				" TPS [ " +
-				(withColour ? getColourForDifference(difference, targetTPS) : "") +
-				Strings.repeat("#", charsFirst) +
-				Strings.repeat("~", charsAfter) +
-				(withColour ? ChatFormat.RESET : "") +
-				" ] ";
+			TableFormatter.formatDoubleWithPrecision(tps, 2) +
+			" TPS [ " +
+			(withColour ? getColourForDifference(difference, targetTPS) : "") +
+			Strings.repeat("#", charsFirst) +
+			Strings.repeat("~", charsAfter) +
+			(withColour ? ChatFormat.RESET : "") +
+			" ] ";
 	}
 
 	private static String getColourForDifference(double difference, double targetTPS) {
@@ -68,11 +68,11 @@ public class TPSCommand extends Command {
 		int tileEntities = 0;
 		int chunks = 0;
 		tf
-				.heading("")
-				.heading("E")
-				.heading("TE")
-				.heading("C")
-				.heading("");
+			.heading("")
+			.heading("E")
+			.heading("TE")
+			.heading("C")
+			.heading("");
 		for (World world : MinecraftServer.getServer().worldServers) {
 			int worldEntities = world.loadedEntityList.size();
 			int worldTileEntities = world.loadedTileEntityList.size();
@@ -81,19 +81,19 @@ public class TPSCommand extends Command {
 			tileEntities += worldTileEntities;
 			chunks += worldChunks;
 			tf
-					.row(Log.name(world))
-					.row(worldEntities)
-					.row(worldTileEntities)
-					.row(worldChunks)
-					.row("")
+				.row(Log.name(world))
+				.row(worldEntities)
+				.row(worldTileEntities)
+				.row(worldChunks)
+				.row("")
 			;
 		}
 		tf
-				.row(MinecraftServer.getServer().getConfigurationManager().getCurrentPlayerCount() + " Players")
-				.row(entities)
-				.row(tileEntities)
-				.row(chunks)
-				.row(TableFormatter.formatDoubleWithPrecision((TickProfiler.tickTime * 100D) / 50000000, 2) + '%');
+			.row(MinecraftServer.getServer().getConfigurationManager().getCurrentPlayerCount() + " Players")
+			.row(entities)
+			.row(tileEntities)
+			.row(chunks)
+			.row(TableFormatter.formatDoubleWithPrecision((TickProfiler.tickTime * 100D) / 50000000, 2) + '%');
 		tf.finishTable();
 		tf.sb.append('\n').append(getTPSString(commandSender instanceof EntityPlayer));
 		sendChat(commandSender, tf.toString());

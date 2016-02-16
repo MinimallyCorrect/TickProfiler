@@ -2,6 +2,8 @@
 # and leave all files detected as binary untouched.
 * text=auto eol=lf
 
+*.bat text eol=crlf
+
 #
 # The above will handle all files NOT found below
 #
@@ -36,5 +38,3 @@
 *.png           binary
 *.so            binary
 *.war           binary
-*.obj -crlf
-*.obj -text

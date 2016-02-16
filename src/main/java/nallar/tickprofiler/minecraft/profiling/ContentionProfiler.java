@@ -61,32 +61,32 @@ public class ContentionProfiler {
 	public void dump(final TableFormatter tf, int entries) {
 		float ticks = this.ticks;
 		tf
-				.heading("Monitor")
-				.heading("Wasted Cores");
+			.heading("Monitor")
+			.heading("Wasted Cores");
 		for (String key : CollectionsUtil.sortedKeys(monitorMap, entries)) {
 			tf
-					.row(key)
-					.row(monitorMap.get(key).value / ticks);
+				.row(key)
+				.row(monitorMap.get(key).value / ticks);
 		}
 		tf.finishTable();
 		tf.sb.append('\n');
 		tf
-				.heading("Wait")
-				.heading("Wasted Cores");
+			.heading("Wait")
+			.heading("Wasted Cores");
 		for (String key : CollectionsUtil.sortedKeys(waitingMap, entries)) {
 			tf
-					.row(key)
-					.row(waitingMap.get(key).value / ticks);
+				.row(key)
+				.row(waitingMap.get(key).value / ticks);
 		}
 		tf.finishTable();
 		tf.sb.append('\n');
 		tf
-				.heading("Stack")
-				.heading("Wasted Cores");
+			.heading("Stack")
+			.heading("Wasted Cores");
 		for (String key : CollectionsUtil.sortedKeys(traceMap, entries)) {
 			tf
-					.row(key)
-					.row(traceMap.get(key).value / ticks);
+				.row(key)
+				.row(traceMap.get(key).value / ticks);
 		}
 		tf.finishTable();
 	}

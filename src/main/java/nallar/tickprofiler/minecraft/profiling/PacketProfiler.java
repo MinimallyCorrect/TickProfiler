@@ -62,28 +62,28 @@ public class PacketProfiler {
 		}
 
 		tf
-				.heading("Packet")
-				.heading("Count")
-				.heading("Size");
+			.heading("Packet")
+			.heading("Count")
+			.heading("Size");
 		final List<String> sortedIdsByCount = sortedKeys(count, elements);
 		for (String id : sortedIdsByCount) {
 			tf
-					.row(humanReadableName(id))
-					.row(count.get(id))
-					.row(humanReadableByteCount(size.get(id)));
+				.row(humanReadableName(id))
+				.row(count.get(id))
+				.row(humanReadableByteCount(size.get(id)));
 		}
 		tf.finishTable();
 		tf.sb.append('\n');
 		tf
-				.heading("Packet")
-				.heading("Count")
-				.heading("Size");
+			.heading("Packet")
+			.heading("Count")
+			.heading("Size");
 		final List<String> sortedIdsBySize = sortedKeys(size, elements);
 		for (String id : sortedIdsBySize) {
 			tf
-					.row(humanReadableName(id))
-					.row(count.get(id))
-					.row(humanReadableByteCount(size.get(id)));
+				.row(humanReadableName(id))
+				.row(count.get(id))
+				.row(humanReadableByteCount(size.get(id)));
 		}
 		tf.finishTable();
 		return tf;

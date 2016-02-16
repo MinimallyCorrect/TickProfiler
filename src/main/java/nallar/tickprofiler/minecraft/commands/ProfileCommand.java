@@ -107,16 +107,16 @@ public class ProfileCommand extends Command {
 			entityTickProfiler.setLocation(x, z);
 		}
 		sendChat(commandSender, "Profiling for " + time + " seconds in " + (world == null ? "all worlds " : Log.name(world))
-				+ (type == ProfilingState.CHUNK_ENTITIES ? " at " + x + ',' + z : ""));
+			+ (type == ProfilingState.CHUNK_ENTITIES ? " at " + x + ',' + z : ""));
 		return true;
 	}
 
 	@Override
 	public String getCommandUsage(ICommandSender icommandsender) {
 		return "Usage: /profile [e/p/u/l/s/(c [chunkX] [chunk z])] timeInSeconds dimensionID\n" +
-				"example - profile for 30 seconds in chunk 8,1 in all worlds: /profile c 8 1\n" +
-				"example - profile for 10 seconds in dimension 4: /profile e 10 4\n" +
-				"example - profile packets: /profile p";
+			"example - profile for 30 seconds in chunk 8,1 in all worlds: /profile c 8 1\n" +
+			"example - profile for 10 seconds in dimension 4: /profile e 10 4\n" +
+			"example - profile packets: /profile p";
 	}
 
 	public enum ProfilingState {

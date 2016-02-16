@@ -18,6 +18,49 @@ import java.util.*;
 public class DumpCommand extends Command {
 	public static String name = "dump";
 
+	public static TableFormatter dump(TableFormatter tf, World world, BlockPos pos, int maxLen) {
+		@SuppressWarnings("MismatchedQueryAndUpdateOfStringBuilder")
+		StringBuilder sb = tf.sb;
+		IBlockState block = world.getBlockState(pos);
+		if (block == null || block.getBlock() == Blocks.air) {
+			sb.append("No block at ").append(Log.name(world)).append(" ").append(Log.toString(pos)).append('\n');
+		} else {
+			sb.append(block.getBlock()).append(':').append(block.getProperties()).append('\n');
+		}
+		sb.append("World time: ").append(world.getWorldTime()).append('\n');
+		TileEntity toDump = world.getTileEntity(pos);
+		if (toDump == null) {
+			sb.append("No tile entity at ").append(Log.name(world)).append(" ").append(Log.toString(pos)).append('\n');
+			return tf;
+		}
+		dump(tf, toDump, maxLen);
+		return tf;
+	}
+
+	private static void dump(TableFormatter tf, Object toDump, int maxLen) {
+		tf.sb.append(toDump.getClass().getName()).append('\n');
+		tf
+			.heading("Field")
+			.heading("Value");
+		Class<?> clazz = toDump.getClass();
+		do {
+			for (Field field : clazz.getDeclaredFields()) {
+				if ((field.getModifiers() & Modifier.STATIC) == Modifier.STATIC) {
+					continue;
+				}
+				field.setAccessible(true);
+				tf.row(field.getName());
+				try {
+					String value = String.valueOf(field.get(toDump));
+					tf.row(value.substring(0, Math.min(value.length(), maxLen)));
+				} catch (IllegalAccessException e) {
+					tf.row(e.getMessage());
+				}
+			}
+		} while ((clazz = clazz.getSuperclass()) != Object.class);
+		tf.finishTable();
+	}
+
 	@Override
 	public String getCommandName() {
 		return name;
@@ -49,53 +92,9 @@ public class DumpCommand extends Command {
 		}
 		if (world == null) {
 			sendChat(commandSender, "Usage: /dump x y z [world=currentworld]");
-		}
-		else {
-			sendChat(commandSender, dump(new TableFormatter(commandSender), world, new BlockPos(x, y, z), commandSender instanceof Entity ? 35 : 70).toString());
-		}	
-	}
-
-	public static TableFormatter dump(TableFormatter tf, World world, BlockPos pos, int maxLen) {
-		@SuppressWarnings("MismatchedQueryAndUpdateOfStringBuilder")
-		StringBuilder sb = tf.sb;
-		IBlockState block = world.getBlockState(pos);
-		if (block == null || block.getBlock() == Blocks.air) {
-			sb.append("No block at ").append(Log.name(world)).append(" ").append(Log.toString(pos)).append('\n');
 		} else {
-			sb.append(block.getBlock()).append(':').append(block.getProperties()).append('\n');
+			sendChat(commandSender, dump(new TableFormatter(commandSender), world, new BlockPos(x, y, z), commandSender instanceof Entity ? 35 : 70).toString());
 		}
-		sb.append("World time: ").append(world.getWorldTime()).append('\n');
-		TileEntity toDump = world.getTileEntity(pos);
-		if (toDump == null) {
-			sb.append("No tile entity at ").append(Log.name(world)).append(" ").append(Log.toString(pos)).append('\n');
-			return tf;
-		}
-		dump(tf, toDump, maxLen);
-		return tf;
-	}
-
-	private static void dump(TableFormatter tf, Object toDump, int maxLen) {
-		tf.sb.append(toDump.getClass().getName()).append('\n');
-		tf
-				.heading("Field")
-				.heading("Value");
-		Class<?> clazz = toDump.getClass();
-		do {
-			for (Field field : clazz.getDeclaredFields()) {
-				if ((field.getModifiers() & Modifier.STATIC) == Modifier.STATIC) {
-					continue;
-				}
-				field.setAccessible(true);
-				tf.row(field.getName());
-				try {
-					String value = String.valueOf(field.get(toDump));
-					tf.row(value.substring(0, Math.min(value.length(), maxLen)));
-				} catch (IllegalAccessException e) {
-					tf.row(e.getMessage());
-				}
-			}
-		} while ((clazz = clazz.getSuperclass()) != Object.class);
-		tf.finishTable();
 	}
 
 	@Override
