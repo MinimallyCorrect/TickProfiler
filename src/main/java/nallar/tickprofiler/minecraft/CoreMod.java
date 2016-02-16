@@ -1,6 +1,5 @@
 package nallar.tickprofiler.minecraft;
 
-import cpw.mods.fml.relauncher.CoreModManager;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
 import me.nallar.modpatcher.ModPatcher;
 

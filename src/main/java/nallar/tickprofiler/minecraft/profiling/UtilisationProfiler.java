@@ -47,12 +47,12 @@ public class UtilisationProfiler {
 	public void dump(final TableFormatter tf, int entries) {
 		double seconds = TimeUnit.SECONDS.toNanos(this.seconds);
 		tf
-				.heading("Thread")
-				.heading("Used CPU Time (%)");
+			.heading("Thread")
+			.heading("Used CPU Time (%)");
 		for (String key : CollectionsUtil.sortedKeys(monitorMap, entries)) {
 			tf
-					.row(key)
-					.row((100d * monitorMap.get(key)) / seconds);
+				.row(key)
+				.row((100d * monitorMap.get(key)) / seconds);
 		}
 		tf.finishTable();
 	}

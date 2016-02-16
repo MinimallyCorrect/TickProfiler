@@ -148,9 +148,9 @@ class ChatStringFiller extends StringFiller {
 		}
 
 		return result.toString()
-				.replace("\u278A", ChatFormat.DARK_GRAY + "`" + ChatFormat.RESET)
-				.replace("\u278B", ChatFormat.DARK_GRAY + String.valueOf(ChatFormat.BOLD) + '`' + ChatFormat.RESET)
-				.replace("\u278C", ChatFormat.DARK_GRAY + String.valueOf(ChatFormat.BOLD) + ' ' + ChatFormat.RESET);
+			.replace("\u278A", ChatFormat.DARK_GRAY + "`" + ChatFormat.RESET)
+			.replace("\u278B", ChatFormat.DARK_GRAY + String.valueOf(ChatFormat.BOLD) + '`' + ChatFormat.RESET)
+			.replace("\u278C", ChatFormat.DARK_GRAY + String.valueOf(ChatFormat.BOLD) + ' ' + ChatFormat.RESET);
 	}
 
 	@Override

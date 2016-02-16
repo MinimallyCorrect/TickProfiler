@@ -13,11 +13,9 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldProvider;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.*;
 
 public class EntityTickProfiler {
 	public static final EntityTickProfiler INSTANCE = new EntityTickProfiler();
@@ -34,6 +32,7 @@ public class EntityTickProfiler {
 	private volatile int chunkX;
 	private volatile int chunkZ;
 	private volatile long startTime;
+
 	private EntityTickProfiler() {
 	}
 
@@ -201,7 +200,7 @@ public class EntityTickProfiler {
 		long timeProfiled = System.currentTimeMillis() - startTime;
 		float tps = ticks * 1000f / timeProfiled;
 		tables.add(0, CollectionsUtil.map(
-				"TPS", tps
+			"TPS", tps
 		));
 		objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, tables);
 	}
@@ -232,15 +231,15 @@ public class EntityTickProfiler {
 		}
 		double totalTime = this.totalTime.get();
 		tf
-				.heading("Single Entity")
-				.heading("Time/Tick")
-				.heading("%");
+			.heading("Single Entity")
+			.heading("Time/Tick")
+			.heading("%");
 		final List<Object> sortedSingleKeysByTime = sortedKeys(singleTime, elements);
 		for (Object o : sortedSingleKeysByTime) {
 			tf
-					.row(niceName(o))
-					.row(singleTime.get(o) / (1000000d * singleInvocationCount.get(o).get()))
-					.row((singleTime.get(o) / totalTime) * 100);
+				.row(niceName(o))
+				.row(singleTime.get(o) / (1000000d * singleInvocationCount.get(o).get()))
+				.row((singleTime.get(o) / totalTime) * 100);
 		}
 		tf.finishTable();
 		tf.sb.append('\n');
@@ -277,27 +276,27 @@ public class EntityTickProfiler {
 			}
 		}
 		tf
-				.heading("Chunk")
-				.heading("Time/Tick")
-				.heading("%");
+			.heading("Chunk")
+			.heading("Time/Tick")
+			.heading("%");
 		for (ChunkCoords chunkCoords : sortedKeys(chunkTimeMap, elements)) {
 			long chunkTime = chunkTimeMap.get(chunkCoords).value;
 			tf
-					.row(chunkCoords.dimension + ": " + chunkCoords.chunkXPos + ", " + chunkCoords.chunkZPos)
-					.row(chunkTime / (1000000d * ticks))
-					.row((chunkTime / totalTime) * 100);
+				.row(chunkCoords.dimension + ": " + chunkCoords.chunkXPos + ", " + chunkCoords.chunkZPos)
+				.row(chunkTime / (1000000d * ticks))
+				.row((chunkTime / totalTime) * 100);
 		}
 		tf.finishTable();
 		tf.sb.append('\n');
 		tf
-				.heading("All Entities of Type")
-				.heading("Time/Tick")
-				.heading("%");
+			.heading("All Entities of Type")
+			.heading("Time/Tick")
+			.heading("%");
 		for (Class c : sortedKeys(time, elements)) {
 			tf
-					.row(niceName(c))
-					.row(time.get(c) / (1000000d * ticks))
-					.row((time.get(c) / totalTime) * 100);
+				.row(niceName(c))
+				.row(time.get(c) / (1000000d * ticks))
+				.row((time.get(c) / totalTime) * 100);
 		}
 		tf.finishTable();
 		tf.sb.append('\n');
@@ -306,14 +305,14 @@ public class EntityTickProfiler {
 			timePerTick.put(entry.getKey(), entry.getValue().get() / invocationCount.get(entry.getKey()).get());
 		}
 		tf
-				.heading("Average Entity of Type")
-				.heading("Time/tick")
-				.heading("Calls");
+			.heading("Average Entity of Type")
+			.heading("Time/tick")
+			.heading("Calls");
 		for (Class c : sortedKeys(timePerTick, elements)) {
 			tf
-					.row(niceName(c))
-					.row(timePerTick.get(c) / 1000000d)
-					.row(invocationCount.get(c));
+				.row(niceName(c))
+				.row(timePerTick.get(c) / 1000000d)
+				.row(invocationCount.get(c));
 		}
 		tf.finishTable();
 		return tf;

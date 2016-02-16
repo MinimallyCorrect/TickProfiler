@@ -88,7 +88,7 @@ public class Metrics {
 	 * All of the custom graphs to submit to metrics
 	 */
 	private final Set<Graph> graphs = Collections
-			.synchronizedSet(new HashSet<Graph>());
+		.synchronizedSet(new HashSet<Graph>());
 	/**
 	 * The default graph, used for addCustomData when you don't want a specific
 	 * graph
@@ -113,7 +113,7 @@ public class Metrics {
 	public Metrics(final String modname, final String modversion) {
 		if ((modname == null) || (modversion == null)) {
 			throw new IllegalArgumentException(
-					"modname and modversion cannot be null");
+				"modname and modversion cannot be null");
 		}
 
 		this.modname = modname;
@@ -181,9 +181,9 @@ public class Metrics {
 	 */
 	private static void encodeDataPair(final StringBuilder buffer,
 									   final String key, final String value)
-			throws UnsupportedEncodingException {
+		throws UnsupportedEncodingException {
 		buffer.append('&').append(encode(key)).append('=')
-				.append(encode(value));
+			.append(encode(value));
 	}
 
 	/**
@@ -193,7 +193,7 @@ public class Metrics {
 	 * @return the encoded text, as UTF-8
 	 */
 	private static String encode(final String text)
-			throws UnsupportedEncodingException {
+		throws UnsupportedEncodingException {
 		return URLEncoder.encode(text, "UTF-8");
 	}
 
@@ -295,7 +295,7 @@ public class Metrics {
 					} catch (IOException e) {
 						if (debug) {
 							FMLLog.info("[Metrics] Exception - %s",
-									e.getMessage());
+								e.getMessage());
 						}
 					} finally {
 						thrd = null;
@@ -321,7 +321,7 @@ public class Metrics {
 	public boolean isOptOut() {
 		// Reload the metrics file
 		return configuration.get(Configuration.CATEGORY_GENERAL, "opt-out",
-				false).getBoolean(false);
+			false).getBoolean(false);
 	}
 
 	/**
@@ -369,7 +369,7 @@ public class Metrics {
 		// enabled
 		String pluginVersion = modversion;
 		String serverVersion = MinecraftServer.getServer().getServerModName() + " (MC: "
-				+ MinecraftServer.getServer().getMinecraftVersion() + ')';
+			+ MinecraftServer.getServer().getMinecraftVersion() + ')';
 		int playersOnline = MinecraftServer.getServer().getCurrentPlayerCount();
 
 		// END server software specific section -- all code below does not use
@@ -423,8 +423,8 @@ public class Metrics {
 					// Legacy (R4) submitters use the format Custom%s, or
 					// CustomPLOTTERNAME
 					final String key = String.format("C%s%s%s%s",
-							CUSTOM_DATA_SEPARATOR, graph.getName(),
-							CUSTOM_DATA_SEPARATOR, plotter.getColumnName());
+						CUSTOM_DATA_SEPARATOR, graph.getName(),
+						CUSTOM_DATA_SEPARATOR, plotter.getColumnName());
 
 					// The value to send, which for the foreseeable future is
 					// just the string
@@ -439,7 +439,7 @@ public class Metrics {
 
 		// Create the url
 		URL url = new URL(BASE_URL
-				+ String.format(REPORT_URL, encode(pluginName)));
+			+ String.format(REPORT_URL, encode(pluginName)));
 
 		// Connect to the website
 		URLConnection connection;
@@ -624,7 +624,7 @@ public class Metrics {
 
 			final Plotter plotter = (Plotter) object;
 			return plotter.name.equals(name)
-					&& plotter.getValue() == getValue();
+				&& plotter.getValue() == getValue();
 		}
 	}
 

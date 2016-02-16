@@ -18,6 +18,51 @@ import java.util.*;
 public class DumpCommand extends Command {
 	public static String name = "dump";
 
+	public static TableFormatter dump(TableFormatter tf, World world, int x, int y, int z, int maxLen) {
+		@SuppressWarnings("MismatchedQueryAndUpdateOfStringBuilder")
+		StringBuilder sb = tf.sb;
+		Block block = world.getBlock(x, y, z);
+		if (block == Blocks.air) {
+			sb.append("No block at ").append(Log.name(world)).append(" x,y,z").append(x).append(',').append(y).append(',').append(z).append('\n');
+		} else {
+			int metaData = world.getBlockMetadata(x, y, z);
+			BlockInfo blockInfo = new BlockInfo(block, metaData);
+			sb.append(blockInfo.name).append(':').append(metaData).append('\n');
+		}
+		sb.append("World time: ").append(world.getWorldTime()).append('\n');
+		TileEntity toDump = world.getTileEntity(x, y, z);
+		if (toDump == null) {
+			sb.append("No tile entity at ").append(Log.name(world)).append(" x,y,z").append(x).append(',').append(y).append(',').append(z).append('\n');
+			return tf;
+		}
+		dump(tf, toDump, maxLen);
+		return tf;
+	}
+
+	private static void dump(TableFormatter tf, Object toDump, int maxLen) {
+		tf.sb.append(toDump.getClass().getName()).append('\n');
+		tf
+			.heading("Field")
+			.heading("Value");
+		Class<?> clazz = toDump.getClass();
+		do {
+			for (Field field : clazz.getDeclaredFields()) {
+				if ((field.getModifiers() & Modifier.STATIC) == Modifier.STATIC) {
+					continue;
+				}
+				field.setAccessible(true);
+				tf.row(field.getName());
+				try {
+					String value = String.valueOf(field.get(toDump));
+					tf.row(value.substring(0, Math.min(value.length(), maxLen)));
+				} catch (IllegalAccessException e) {
+					tf.row(e.getMessage());
+				}
+			}
+		} while ((clazz = clazz.getSuperclass()) != Object.class);
+		tf.finishTable();
+	}
+
 	@Override
 	public String getCommandName() {
 		return name;
@@ -49,55 +94,9 @@ public class DumpCommand extends Command {
 		}
 		if (world == null) {
 			sendChat(commandSender, "Usage: /dump x y z [world=currentworld]");
-		}
-		else {
-			sendChat(commandSender, dump(new TableFormatter(commandSender), world, x, y, z, commandSender instanceof Entity ? 35 : 70).toString());
-		}	
-	}
-
-	public static TableFormatter dump(TableFormatter tf, World world, int x, int y, int z, int maxLen) {
-		@SuppressWarnings("MismatchedQueryAndUpdateOfStringBuilder")
-		StringBuilder sb = tf.sb;
-		Block block = world.getBlock(x, y, z);
-		if (block == Blocks.air) {
-			sb.append("No block at ").append(Log.name(world)).append(" x,y,z").append(x).append(',').append(y).append(',').append(z).append('\n');
 		} else {
-			int metaData = world.getBlockMetadata(x, y, z);
-			BlockInfo blockInfo = new BlockInfo(block, metaData);
-			sb.append(blockInfo.name).append(':').append(metaData).append('\n');
+			sendChat(commandSender, dump(new TableFormatter(commandSender), world, x, y, z, commandSender instanceof Entity ? 35 : 70).toString());
 		}
-		sb.append("World time: ").append(world.getWorldTime()).append('\n');
-		TileEntity toDump = world.getTileEntity(x, y, z);
-		if (toDump == null) {
-			sb.append("No tile entity at ").append(Log.name(world)).append(" x,y,z").append(x).append(',').append(y).append(',').append(z).append('\n');
-			return tf;
-		}
-		dump(tf, toDump, maxLen);
-		return tf;
-	}
-
-	private static void dump(TableFormatter tf, Object toDump, int maxLen) {
-		tf.sb.append(toDump.getClass().getName()).append('\n');
-		tf
-				.heading("Field")
-				.heading("Value");
-		Class<?> clazz = toDump.getClass();
-		do {
-			for (Field field : clazz.getDeclaredFields()) {
-				if ((field.getModifiers() & Modifier.STATIC) == Modifier.STATIC) {
-					continue;
-				}
-				field.setAccessible(true);
-				tf.row(field.getName());
-				try {
-					String value = String.valueOf(field.get(toDump));
-					tf.row(value.substring(0, Math.min(value.length(), maxLen)));
-				} catch (IllegalAccessException e) {
-					tf.row(e.getMessage());
-				}
-			}
-		} while ((clazz = clazz.getSuperclass()) != Object.class);
-		tf.finishTable();
 	}
 
 	@Override

@@ -32,10 +32,8 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Set;
+import java.io.*;
+import java.util.*;
 
 @SuppressWarnings("WeakerAccess")
 @Mod(modid = "TickProfiler", name = "TickProfiler", acceptableRemoteVersions = "*")

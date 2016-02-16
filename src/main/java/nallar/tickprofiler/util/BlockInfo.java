@@ -16,8 +16,8 @@ public class BlockInfo {
 		Item item = block == null ? null : Item.getItemFromBlock(block);
 		ItemStack itemType = item == null ? null : new ItemStack(item, 1, meta);
 		String name = itemType == null ?
-				(block == null ? "unknown" : block.getLocalizedName()) :
-				item.getUnlocalizedName(itemType);
+			(block == null ? "unknown" : block.getLocalizedName()) :
+			item.getUnlocalizedName(itemType);
 		String preTranslateName = "item." + name;
 		String localizedName = StatCollector.translateToLocal(preTranslateName);
 		//noinspection StringEquality
