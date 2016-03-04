@@ -9,6 +9,10 @@ import java.util.*;
 @IFMLLoadingPlugin.MCVersion("@MC_VERSION@")
 @IFMLLoadingPlugin.SortingIndex(1001)
 public class CoreMod implements IFMLLoadingPlugin {
+	static {
+		ModPatcher.requireVersion("1.8.9.59");
+	}
+
 	@Override
 	public String[] getASMTransformerClass() {
 		return new String[0];
