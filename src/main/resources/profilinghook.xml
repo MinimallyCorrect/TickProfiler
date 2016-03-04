@@ -6,8 +6,8 @@
 				code="if (nallar.tickprofiler.minecraft.TickProfiler.shouldProfile(this)) { updateEntities_withProfiling(); return; }">
 				updateEntities
 			</insertCodeBefore>
-			<replaceMethodCall method="^method:TileEntity/updateEntity^"
-							   code="nallar.tickprofiler.minecraft.profiling.EntityTickProfiler.INSTANCE.profileTileEntity($0);">
+			<replaceMethodCall method="^method:ITickable/update^"
+							   code="nallar.tickprofiler.minecraft.profiling.EntityTickProfiler.INSTANCE.profileTickable($0);">
 				updateEntities_withProfiling
 			</replaceMethodCall>
 			<replaceMethodCall method="^method:World/updateEntity^"
