@@ -15,6 +15,7 @@
 				updateEntities_withProfiling
 			</replaceMethodCall>
 		</class>
+		<!-- TODO: update packet profiling for 1.8.9
 		<class id="net.minecraft.util.MessageSerializer">
 			<replaceMethodCall method="^method:Packet/writePacketData^"
 							   code="$_ = $0.^method:Packet/writePacketData^($1); nallar.tickprofiler.minecraft.profiling.PacketProfiler.record($0, $1);">
@@ -24,5 +25,6 @@
 				scheduleOutboundPacket
 			</insertCodeBefore>
 		</class>
+		-->
 	</minecraft>
 </patchGroups>
