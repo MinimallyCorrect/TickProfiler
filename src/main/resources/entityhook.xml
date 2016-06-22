@@ -1,0 +1,19 @@
+<patchGroups>
+	<minecraft>
+		<class id="net.minecraft.world.World">
+			<clone to="updateEntities_withProfiling">updateEntities</clone>
+			<insertCodeBefore
+				code="if (nallar.tickprofiler.minecraft.TickProfiler.shouldProfile(this)) { updateEntities_withProfiling(); return; }">
+				updateEntities
+			</insertCodeBefore>
+			<replaceMethodCall method="^method:ITickable/update^"
+							   code="nallar.tickprofiler.minecraft.profiling.EntityTickProfiler.INSTANCE.profileTickable($0);">
+				updateEntities_withProfiling
+			</replaceMethodCall>
+			<replaceMethodCall method="^method:World/updateEntity^"
+							   code="nallar.tickprofiler.minecraft.profiling.EntityTickProfiler.INSTANCE.profileEntity(this, $1);">
+				updateEntities_withProfiling
+			</replaceMethodCall>
+		</class>
+	</minecraft>
+</patchGroups>

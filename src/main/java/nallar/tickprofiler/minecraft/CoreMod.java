@@ -10,7 +10,7 @@ import java.util.*;
 @IFMLLoadingPlugin.SortingIndex(1001)
 public class CoreMod implements IFMLLoadingPlugin {
 	static {
-		ModPatcher.requireVersion("1.8.9.64");
+		ModPatcher.requireVersion("1.8.9.81");
 	}
 
 	@Override
@@ -28,9 +28,29 @@ public class CoreMod implements IFMLLoadingPlugin {
 		return ModPatcher.getSetupClass();
 	}
 
+	private Boolean spongePresent;
+
+	private boolean isSpongePresent() {
+		if (spongePresent == null) {
+			try {
+				Class.forName("org.spongepowered.asm.mixin.MixinEnvironment", false, CoreMod.class.getClassLoader());
+				spongePresent = true;
+			} catch (ClassNotFoundException e) {
+				spongePresent = false;
+			}
+		}
+
+		return spongePresent;
+	}
+
 	@Override
 	public void injectData(Map<String, Object> data) {
-		ModPatcher.loadPatches(CoreMod.class.getResourceAsStream("/profilinghook.xml"));
+		if (isSpongePresent())
+			ModPatcher.loadPatches(CoreMod.class.getResourceAsStream("/entityhook_sponge.xml"));
+		else
+			ModPatcher.loadPatches(CoreMod.class.getResourceAsStream("/entityhook.xml"));
+		// TODO: Not implemented
+		// ModPatcher.loadPatches(CoreMod.class.getResourceAsStream("/packethook.xml"));
 	}
 
 	@Override

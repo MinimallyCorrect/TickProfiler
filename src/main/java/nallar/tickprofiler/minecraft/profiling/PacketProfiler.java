@@ -96,7 +96,7 @@ public class PacketProfiler {
 		return name;
 	}
 
-	// called from profilinghook.xml
+	// called from packethook.xml
 	public static void record(final Packet packet, PacketBuffer buffer) {
 		if (!profiling) {
 			return;

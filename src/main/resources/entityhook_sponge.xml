@@ -1,6 +1,6 @@
 <patchGroups>
 	<minecraft>
-		<class id="net.minecraft.world.World">
+		<class id="net.minecraft.world.WorldServer">
 			<clone to="updateEntities_withProfiling">updateEntities</clone>
 			<insertCodeBefore
 				code="if (nallar.tickprofiler.minecraft.TickProfiler.shouldProfile(this)) { updateEntities_withProfiling(); return; }">
@@ -15,16 +15,5 @@
 				updateEntities_withProfiling
 			</replaceMethodCall>
 		</class>
-		<!-- TODO: update packet profiling for 1.8.9
-		<class id="net.minecraft.util.MessageSerializer">
-			<replaceMethodCall method="^method:Packet/writePacketData^"
-							   code="$_ = $0.^method:Packet/writePacketData^($1); nallar.tickprofiler.minecraft.profiling.PacketProfiler.record($0, $1);">
-				encode
-			</replaceMethodCall>
-			<insertCodeBefore code="nallar.tickprofiler.minecraft.TickProfiler.handlePacket($1);">
-				scheduleOutboundPacket
-			</insertCodeBefore>
-		</class>
-		-->
 	</minecraft>
 </patchGroups>
