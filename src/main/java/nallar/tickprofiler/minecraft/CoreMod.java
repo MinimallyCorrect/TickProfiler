@@ -1,6 +1,7 @@
 package nallar.tickprofiler.minecraft;
 
 import me.nallar.modpatcher.ModPatcher;
+import nallar.tickprofiler.Log;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 
 import java.util.*;
@@ -45,6 +46,8 @@ public class CoreMod implements IFMLLoadingPlugin {
 
 	@Override
 	public void injectData(Map<String, Object> data) {
+		Log.info("TickProfiler v@MOD_VERSION@ coremod loading. Sponge present: " + isSpongePresent());
+
 		if (isSpongePresent())
 			ModPatcher.loadPatches(CoreMod.class.getResourceAsStream("/entityhook_sponge.xml"));
 		else
