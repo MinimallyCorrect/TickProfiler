@@ -122,7 +122,7 @@ public class EntityTickProfiler {
 	}
 
 	private boolean shouldProfilePos(BlockPos pos) {
-		return pos.getX() << 4 == chunkX && pos.getZ() << 4 == chunkZ;
+		return pos.getX() >> 4 == chunkX && pos.getZ() >> 4 == chunkZ;
 	}
 
 	public void record(Object o, long time) {
