@@ -145,7 +145,7 @@ public class EntityTickProfiler {
 	}
 
 	public void profileTileEntity(TileEntity tileEntity) {
-		final boolean profile = profilingState == ProfileCommand.ProfilingState.ENTITIES || (tileEntity.xCoord << 4 == chunkX && tileEntity.zCoord << 4 == chunkZ);
+		final boolean profile = profilingState == ProfileCommand.ProfilingState.ENTITIES || (tileEntity.xCoord >> 4 == chunkX && tileEntity.zCoord >> 4 == chunkZ);
 
 		if (!profile) {
 			tileEntity.updateEntity();
