@@ -8,7 +8,7 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 
@@ -22,7 +22,7 @@ public class DumpCommand extends Command {
 		@SuppressWarnings("MismatchedQueryAndUpdateOfStringBuilder")
 		StringBuilder sb = tf.sb;
 		IBlockState block = world.getBlockState(pos);
-		if (block == null || block.getBlock() == Blocks.air) {
+		if (block == null || block.getBlock() == Blocks.AIR) {
 			sb.append("No block at ").append(Log.name(world)).append(" ").append(Log.toString(pos)).append('\n');
 		} else {
 			sb.append(block.getBlock()).append(':').append(block.getProperties()).append('\n');

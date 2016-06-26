@@ -7,7 +7,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT'
+		classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
     }
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
@@ -20,9 +20,9 @@ configurations {
     }
 }
 
-ext.mcVersion = "1.8.9"
-ext.forgeVersion = "11.15.0.1698"
-ext.forgeMappings = "stable_20"
+ext.mcVersion = "1.10"
+ext.forgeVersion = "12.18.0.1996-1.10.0"
+ext.forgeMappings = "snapshot_20160518"
 group = "nallar.tickprofiler" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "TickProfiler"
 
@@ -90,4 +90,15 @@ jar {
     }
 
     manifest.mainAttributes("FMLCorePlugin": "nallar.tickprofiler.minecraft.CoreMod", "FMLCorePluginContainsFMLMod": "YasPlease")
+}
+
+wrapper {
+	gradleVersion = "2.14"
+	def jvmOpts = "-Xmx2G"
+	inputs.property("jvmOpts", jvmOpts)
+	doLast {
+		def optsEnvVar = "DEFAULT_JVM_OPTS"
+		scriptFile.write scriptFile.text.replace("$optsEnvVar=\"\"", "$optsEnvVar=\"$jvmOpts\"")
+		batchScript.write batchScript.text.replace("set $optsEnvVar=", "set $optsEnvVar=$jvmOpts")
+	}
 }

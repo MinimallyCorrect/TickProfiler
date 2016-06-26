@@ -108,16 +108,14 @@ public class TickProfiler {
 	}
 
 	@SubscribeEvent
-	public void onPlayerInteract(PlayerInteractEvent event) {
-		if (event.action == PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK) {
-			EntityPlayer entityPlayer = event.entityPlayer;
-			ItemStack usedItem = entityPlayer.getCurrentEquippedItem();
-			if (usedItem != null) {
-				Item usedItemType = usedItem.getItem();
-				if (usedItemType == Items.clock && (!requireOpForDumpCommand || entityPlayer.canCommandSenderUseCommand(4, "dump"))) {
-					Command.sendChat(entityPlayer, DumpCommand.dump(new TableFormatter(entityPlayer), entityPlayer.worldObj, event.pos, 35).toString());
-					event.setCanceled(true);
-				}
+	public void onPlayerInteract(PlayerInteractEvent.RightClickBlock event) {
+		EntityPlayer entityPlayer = event.getEntityPlayer();
+		ItemStack usedItem = entityPlayer.getActiveItemStack();
+		if (usedItem != null) {
+			Item usedItemType = usedItem.getItem();
+			if (usedItemType == Items.CLOCK && (!requireOpForDumpCommand || entityPlayer.canCommandSenderUseCommand(4, "dump"))) {
+				Command.sendChat(entityPlayer, DumpCommand.dump(new TableFormatter(entityPlayer), entityPlayer.worldObj, event.getPos(), 35).toString());
+				event.setCanceled(true);
 			}
 		}
 	}
@@ -154,7 +152,7 @@ public class TickProfiler {
 				@Override
 				public void run() {
 					try {
-						TableFormatter tf = new TableFormatter(MinecraftServer.getServer());
+						TableFormatter tf = new TableFormatter(FMLCommonHandler.instance().getMinecraftServerInstance());
 						tf.tableSeparator = "\n";
 						if (json) {
 							entityTickProfiler.writeJSONData(profilingFile);

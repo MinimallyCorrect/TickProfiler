@@ -2,7 +2,7 @@ package nallar.tickprofiler;
 
 import lombok.val;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -48,7 +48,7 @@ public class Log {
 		if (world.provider == null) {
 			return "Broken world with null world.provider";
 		}
-		return world.provider.getDimensionName() + '/' + world.provider.getDimensionId();
+		return world.provider.getDimensionType().getName() + '/' + world.provider.getDimension();
 	}
 
 	public static String classString(Object o) {

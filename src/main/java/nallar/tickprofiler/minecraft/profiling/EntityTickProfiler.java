@@ -10,8 +10,8 @@ import nallar.tickprofiler.util.TableFormatter;
 import nallar.tickprofiler.util.stringfillers.StringFiller;
 import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.ITickable;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldProvider;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -289,13 +289,13 @@ public class EntityTickProfiler {
 	private static int getDimension(TileEntity o) {
 		if (o.getWorld() == null) return -999;
 		WorldProvider worldProvider = o.getWorld().provider;
-		return worldProvider == null ? -999 : worldProvider.getDimensionId();
+		return worldProvider == null ? -999 : worldProvider.getDimension();
 	}
 
 	private static int getDimension(Entity o) {
 		if (o.worldObj == null) return -999;
 		WorldProvider worldProvider = o.worldObj.provider;
-		return worldProvider == null ? -999 : worldProvider.getDimensionId();
+		return worldProvider == null ? -999 : worldProvider.getDimension();
 	}
 
 	private static Object niceName(Object o) {

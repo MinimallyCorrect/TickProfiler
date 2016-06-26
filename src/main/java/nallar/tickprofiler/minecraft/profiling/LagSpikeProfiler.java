@@ -10,6 +10,7 @@ import nallar.tickprofiler.util.CollectionsUtil;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dedicated.DedicatedServer;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 
 import java.lang.management.*;
 import java.util.*;
@@ -240,7 +241,7 @@ public class LagSpikeProfiler {
 		if (detected)
 			return true;
 
-		final MinecraftServer minecraftServer = MinecraftServer.getServer();
+		final MinecraftServer minecraftServer = FMLCommonHandler.instance().getMinecraftServerInstance();
 		if (!minecraftServer.isServerRunning() || minecraftServer.isServerStopped()) {
 			return false;
 		}

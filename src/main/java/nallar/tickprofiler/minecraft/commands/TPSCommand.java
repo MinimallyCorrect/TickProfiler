@@ -1,6 +1,7 @@
 package nallar.tickprofiler.minecraft.commands;
 
 import com.google.common.base.Strings;
+import lombok.val;
 import nallar.tickprofiler.Log;
 import nallar.tickprofiler.minecraft.TickProfiler;
 import nallar.tickprofiler.util.ChatFormat;
@@ -9,6 +10,8 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
+import net.minecraft.world.gen.ChunkProviderServer;
+import net.minecraftforge.common.DimensionManager;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -63,6 +66,9 @@ public class TPSCommand extends Command {
 
 	@Override
 	public void processCommand(ICommandSender commandSender, List<String> arguments) {
+		val server = commandSender.getServer();
+		if (server == null)
+			throw new RuntimeException("Could not get server instance from commandSender " + commandSender);
 		TableFormatter tf = new TableFormatter(commandSender);
 		int entities = 0;
 		int tileEntities = 0;
@@ -73,10 +79,13 @@ public class TPSCommand extends Command {
 			.heading("TE")
 			.heading("C")
 			.heading("");
-		for (World world : MinecraftServer.getServer().worldServers) {
+		for (World world : server.worldServers) {
 			int worldEntities = world.loadedEntityList.size();
 			int worldTileEntities = world.loadedTileEntityList.size();
-			int worldChunks = world.getChunkProvider().getLoadedChunkCount();
+			int worldChunks = 0;
+			val provider = world.getChunkProvider();
+			if (provider instanceof ChunkProviderServer)
+				worldChunks = ((ChunkProviderServer) world.getChunkProvider()).getLoadedChunkCount();
 			entities += worldEntities;
 			tileEntities += worldTileEntities;
 			chunks += worldChunks;
@@ -89,7 +98,7 @@ public class TPSCommand extends Command {
 			;
 		}
 		tf
-			.row(MinecraftServer.getServer().getConfigurationManager().getCurrentPlayerCount() + " Players")
+			.row(server.getPlayerList().getCurrentPlayerCount() + " Players")
 			.row(entities)
 			.row(tileEntities)
 			.row(chunks)
