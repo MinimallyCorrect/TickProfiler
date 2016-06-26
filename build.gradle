@@ -49,7 +49,7 @@ configurations.all {
 dependencies {
     bundledLibs 'org.codehaus.jackson:jackson-core-lgpl:1.9.13'
     bundledLibs 'org.codehaus.jackson:jackson-mapper-lgpl:1.9.13'
-    bundledLibs 'me.nallar:ModPatcher:1.8.9-SNAPSHOT:api'
+	bundledLibs 'me.nallar:ModPatcher:1.10-SNAPSHOT:api'
     compile 'org.projectlombok:lombok:1.16.6'
 }
 
