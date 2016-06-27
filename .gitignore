@@ -47,10 +47,12 @@ MANIFEST.MF
 *.iml
 .idea
 build
+classes/
 out/
 dist
 nbproject
 build.number
+*.hprof
 
 # Forge+MCP downloads #
 ##################
