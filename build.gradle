@@ -21,7 +21,7 @@ configurations {
 }
 
 ext.mcVersion = "1.10"
-ext.runMcVersion = mcVersion
+ext.runMcVersion = "1.9.4"
 ext.forgeVersion = "12.18.0.1996-1.10.0"
 ext.forgeMappings = "snapshot_20160518"
 group = "nallar.tickprofiler" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
