@@ -36,7 +36,7 @@ import java.io.*;
 import java.util.*;
 
 @SuppressWarnings("WeakerAccess")
-@Mod(modid = "TickProfiler", name = "TickProfiler", acceptableRemoteVersions = "*", version = "@MOD_VERSION@")
+@Mod(modid = "TickProfiler", name = "TickProfiler", acceptableRemoteVersions = "*", version = "@MOD_VERSION@", acceptedMinecraftVersions = "[@MC_VERSION@]")
 public class TickProfiler {
 	private static final Set<World> profilingWorlds = Collections.newSetFromMap(new MapMaker().weakKeys().<World, Boolean>makeMap());
 	@Mod.Instance("TickProfiler")
