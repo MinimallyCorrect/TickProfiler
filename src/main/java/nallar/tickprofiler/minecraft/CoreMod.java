@@ -48,10 +48,7 @@ public class CoreMod implements IFMLLoadingPlugin {
 	public void injectData(Map<String, Object> data) {
 		Log.info("TickProfiler v@MOD_VERSION@ coremod loading. Sponge present: " + isSpongePresent());
 
-		if (isSpongePresent())
-			ModPatcher.loadPatches(CoreMod.class.getResourceAsStream("/entityhook_sponge.xml"));
-		else
-			ModPatcher.loadPatches(CoreMod.class.getResourceAsStream("/entityhook.xml"));
+		ModPatcher.loadPatches(CoreMod.class.getResourceAsStream("/entityhook.xml"));
 		// TODO: Not implemented
 		// ModPatcher.loadPatches(CoreMod.class.getResourceAsStream("/packethook.xml"));
 	}
