@@ -20,9 +20,9 @@ configurations {
     }
 }
 
-ext.mcVersion = "1.10"
+ext.mcVersion = "1.10.2"
 ext.runMcVersion = "1.10.2"
-ext.forgeVersion = "12.18.0.1996-1.10.0"
+ext.forgeVersion = "12.18.1.2076"
 ext.forgeMappings = "snapshot_20160518"
 group = "nallar.tickprofiler" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "TickProfiler"
@@ -50,7 +50,7 @@ configurations.all {
 dependencies {
     bundledLibs 'org.codehaus.jackson:jackson-core-lgpl:1.9.13'
     bundledLibs 'org.codehaus.jackson:jackson-mapper-lgpl:1.9.13'
-	bundledLibs 'me.nallar:ModPatcher:1.10-SNAPSHOT:api'
+	bundledLibs "me.nallar:ModPatcher:$mcVersion-SNAPSHOT:api"
     compile 'org.projectlombok:lombok:1.16.6'
 }
 

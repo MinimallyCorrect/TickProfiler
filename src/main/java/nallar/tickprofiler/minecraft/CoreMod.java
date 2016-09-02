@@ -11,7 +11,7 @@ import java.util.*;
 @IFMLLoadingPlugin.SortingIndex(1001)
 public class CoreMod implements IFMLLoadingPlugin {
 	static {
-		ModPatcher.requireVersion("1.10.1");
+		ModPatcher.requireVersion("1.10.2.1");
 	}
 
 	@Override
