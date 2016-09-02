@@ -40,7 +40,7 @@ def calculateVersion() {
 version = calculateVersion()
 
 repositories {
-    maven { url = 'http://repo.nallar.me/' }
+	maven { url = 'https://repo.nallar.me/' }
 }
 
 configurations.all {
