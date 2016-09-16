@@ -1,23 +1,23 @@
 buildscript {
-    repositories {
-        jcenter()
-        maven {
-            name = "forge"
-            url = "http://files.minecraftforge.net/maven"
-        }
-    }
-    dependencies {
+	repositories {
+		jcenter()
+		maven {
+			name = "forge"
+			url = "http://files.minecraftforge.net/maven"
+		}
+	}
+	dependencies {
 		classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
-    }
+	}
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'idea'
 
 configurations {
-    bundledLibs
-    compile {
-        extendsFrom bundledLibs
-    }
+	bundledLibs
+	compile {
+		extendsFrom bundledLibs
+	}
 }
 
 ext.mcVersion = "1.10.2"
@@ -29,11 +29,11 @@ archivesBaseName = "TickProfiler"
 
 def calculateVersion() {
 	def ver = project.runMcVersion
-    if (System.env.BUILD_NUMBER != null)
-        return ver + ".jenkins." + System.env.BUILD_NUMBER
-    if (project.hasProperty("release"))
-        return ver + '.' + project.release
-    return ver + ".dev"
+	if (System.env.BUILD_NUMBER != null)
+		return ver + ".jenkins." + System.env.BUILD_NUMBER
+	if (project.hasProperty("release"))
+		return ver + '.' + project.release
+	return ver + ".dev"
 }
 
 
@@ -44,12 +44,12 @@ repositories {
 }
 
 configurations.all {
-    resolutionStrategy.cacheChangingModulesFor 10, 'seconds'
+	resolutionStrategy.cacheChangingModulesFor 10, 'seconds'
 }
 
 dependencies {
-    bundledLibs 'org.codehaus.jackson:jackson-core-lgpl:1.9.13'
-    bundledLibs 'org.codehaus.jackson:jackson-mapper-lgpl:1.9.13'
+	bundledLibs 'org.codehaus.jackson:jackson-core-lgpl:1.9.13'
+	bundledLibs 'org.codehaus.jackson:jackson-mapper-lgpl:1.9.13'
 	bundledLibs "me.nallar:ModPatcher:$mcVersion-SNAPSHOT:api"
 	compile 'org.projectlombok:lombok:1.16.10'
 }
@@ -57,40 +57,40 @@ dependencies {
 tasks.withType(JavaCompile) {
 	sourceCompatibility = 8
 	targetCompatibility = 8
-    options.with {
-        encoding = 'UTF-8'
+	options.with {
+		encoding = 'UTF-8'
 		compilerArgs << "-Xlint:all" << '-Xlint:-path' << '-Xlint:-processing' << '-Xlint:-rawtypes' << '-Xlint:-serial'
-    }
+	}
 }
 
 minecraft {
-    version = "${project.mcVersion}-${project.forgeVersion}"
-    runDir = "run"
-    mappings = project.forgeMappings
+	version = "${project.mcVersion}-${project.forgeVersion}"
+	runDir = "run"
+	mappings = project.forgeMappings
 
-    replace "@MOD_VERSION@", project.version
+	replace "@MOD_VERSION@", project.version
 	replace "@MC_VERSION@", runMcVersion
 }
 
 processResources {
-    // this will ensure that this task is redone when the versions change.
-    inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
+	// this will ensure that this task is redone when the versions change.
+	inputs.property "version", project.version
+	inputs.property "mcversion", project.minecraft.version
 
-    filesMatching("mcmod.info") {
+	filesMatching("mcmod.info") {
 		expand 'version': project.version, 'mcversion': runMcVersion
-    }
-    filesMatching("modpatcher.version") {
-        expand 'version': project.version
-    }
+	}
+	filesMatching("modpatcher.version") {
+		expand 'version': project.version
+	}
 }
 
 jar {
-    from(configurations.bundledLibs.collect { it.isDirectory() ? it : zipTree(it) }) {
-        exclude "META-INF/**"
-    }
+	from(configurations.bundledLibs.collect { it.isDirectory() ? it : zipTree(it) }) {
+		exclude "META-INF/**"
+	}
 
-    manifest.mainAttributes("FMLCorePlugin": "nallar.tickprofiler.minecraft.CoreMod", "FMLCorePluginContainsFMLMod": "YasPlease")
+	manifest.mainAttributes("FMLCorePlugin": "nallar.tickprofiler.minecraft.CoreMod", "FMLCorePluginContainsFMLMod": "YasPlease")
 }
 
 wrapper {
