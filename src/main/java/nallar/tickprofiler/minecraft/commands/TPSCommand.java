@@ -8,10 +8,8 @@ import nallar.tickprofiler.util.ChatFormat;
 import nallar.tickprofiler.util.TableFormatter;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.ChunkProviderServer;
-import net.minecraftforge.common.DimensionManager;
 
 import java.util.*;
 import java.util.concurrent.*;

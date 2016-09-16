@@ -18,7 +18,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
@@ -54,6 +53,8 @@ public class TickProfiler {
 	private String profilingFileName = "world/computer/<computer id>/profile.txt";
 	private boolean profilingJson = false;
 
+	// Called from patch code
+	@SuppressWarnings("unused")
 	public static boolean shouldProfile(World w) {
 		return profilingWorlds.contains(w);
 	}
@@ -62,7 +63,7 @@ public class TickProfiler {
 	public void init(FMLInitializationEvent event) {
 		lastTickTime = System.nanoTime();
 		MinecraftForge.EVENT_BUS.register(this);
-		FMLCommonHandler.instance().bus().register(new ProfilingScheduledTickHandler(profilingInterval, new File(".", profilingFileName), profilingJson));
+		MinecraftForge.EVENT_BUS.register(new ProfilingScheduledTickHandler(profilingInterval, new File(".", profilingFileName), profilingJson));
 	}
 
 	@SuppressWarnings("FieldRepeatedlyAccessedInMethod")
@@ -148,22 +149,19 @@ public class TickProfiler {
 			if (profilingInterval <= 0 || counter++ % (profilingInterval * 60 * 20) != 0) {
 				return;
 			}
-			entityTickProfiler.startProfiling(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						TableFormatter tf = new TableFormatter(FMLCommonHandler.instance().getMinecraftServerInstance());
-						tf.tableSeparator = "\n";
-						if (json) {
-							entityTickProfiler.writeJSONData(profilingFile);
-						} else {
-							Files.write(entityTickProfiler.writeStringData(tf, 6).toString(), profilingFile, Charsets.UTF_8);
-						}
-					} catch (Throwable t) {
-						Log.error("Failed to save periodic profiling data to " + profilingFile, t);
+			entityTickProfiler.startProfiling(() -> {
+				try {
+					TableFormatter tf = new TableFormatter(FMLCommonHandler.instance().getMinecraftServerInstance());
+					tf.tableSeparator = "\n";
+					if (json) {
+						entityTickProfiler.writeJSONData(profilingFile);
+					} else {
+						Files.write(entityTickProfiler.writeStringData(tf, 6).toString(), profilingFile, Charsets.UTF_8);
 					}
+				} catch (Throwable t) {
+					Log.error("Failed to save periodic profiling data to " + profilingFile, t);
 				}
-			}, ProfileCommand.ProfilingState.ENTITIES, 10, Arrays.<World>asList(DimensionManager.getWorlds()));
+			}, ProfileCommand.ProfilingState.ENTITIES, 10, Arrays.asList(DimensionManager.getWorlds()));
 		}
 	}
 }

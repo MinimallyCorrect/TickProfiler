@@ -95,12 +95,7 @@ public class ProfileCommand extends Command {
 		}
 		final int time = time_;
 		final EntityTickProfiler entityTickProfiler = EntityTickProfiler.INSTANCE;
-		if (!entityTickProfiler.startProfiling(new Runnable() {
-			@Override
-			public void run() {
-				sendChat(commandSender, entityTickProfiler.writeStringData(new TableFormatter(commandSender)).toString());
-			}
-		}, type, time, worlds)) {
+		if (!entityTickProfiler.startProfiling(() -> sendChat(commandSender, entityTickProfiler.writeStringData(new TableFormatter(commandSender)).toString()), type, time, worlds)) {
 			sendChat(commandSender, "Someone else is currently profiling.");
 		}
 		if (type == ProfilingState.CHUNK_ENTITIES) {

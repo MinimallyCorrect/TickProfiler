@@ -1,6 +1,5 @@
 package nallar.tickprofiler.util;
 
-import com.google.common.base.Function;
 import com.google.common.base.Functions;
 import com.google.common.collect.Ordering;
 import nallar.tickprofiler.Log;
@@ -8,6 +7,8 @@ import nallar.tickprofiler.Log;
 import java.io.*;
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.function.*;
+import java.util.stream.*;
 
 public enum CollectionsUtil {
 	;
@@ -17,12 +18,8 @@ public enum CollectionsUtil {
 		return split(input, defaultDelimiter);
 	}
 
-	public static List<?> newList(List<?> input, Function<Object, ?> function) {
-		List<Object> newList = new ArrayList<>(input.size());
-		for (Object o : input) {
-			newList.add(function.apply(o));
-		}
-		return newList;
+	public static <A, B> List<A> newList(List<B> input, Function<B, A> function) {
+		return input.stream().map(function).collect(Collectors.toList());
 	}
 
 	private static List<String> split(String input, String delimiter) {

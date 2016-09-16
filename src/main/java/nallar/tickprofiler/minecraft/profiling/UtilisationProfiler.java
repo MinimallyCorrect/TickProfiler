@@ -10,6 +10,7 @@ import net.minecraft.server.MinecraftServer;
 import java.lang.management.*;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.stream.*;
 
 public class UtilisationProfiler {
 	private final int seconds;
@@ -22,25 +23,19 @@ public class UtilisationProfiler {
 	public static boolean profile(final ICommandSender commandSender, int seconds) {
 		Command.sendChat(commandSender, "Performing utilisation profiling for " + seconds + " seconds.");
 		final UtilisationProfiler contentionProfiler = new UtilisationProfiler(seconds);
-		contentionProfiler.run(new Runnable() {
-			@Override
-			public void run() {
-				TableFormatter tf = new TableFormatter(commandSender);
-				contentionProfiler.dump(tf, commandSender instanceof MinecraftServer ? 15 : 6);
-				Command.sendChat(commandSender, tf.toString());
-			}
+		contentionProfiler.run(() -> {
+			TableFormatter tf = new TableFormatter(commandSender);
+			contentionProfiler.dump(tf, commandSender instanceof MinecraftServer ? 15 : 6);
+			Command.sendChat(commandSender, tf.toString());
 		});
 		return true;
 	}
 
 	public void run(final Runnable completed) {
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				profile();
-				completed.run();
-				monitorMap.clear();
-			}
+		new Thread(() -> {
+			profile();
+			completed.run();
+			monitorMap.clear();
 		}, "Contention Profiler").start();
 	}
 
@@ -62,10 +57,7 @@ public class UtilisationProfiler {
 		try {
 			threadMXBean.setThreadCpuTimeEnabled(true);
 
-			List<Long> threads = new ArrayList<>();
-			for (Thread thread : Thread.getAllStackTraces().keySet()) {
-				threads.add(thread.getId());
-			}
+			List<Long> threads = Thread.getAllStackTraces().keySet().stream().map(Thread::getId).collect(Collectors.toList());
 
 			Thread.sleep(TimeUnit.SECONDS.toMillis(seconds));
 

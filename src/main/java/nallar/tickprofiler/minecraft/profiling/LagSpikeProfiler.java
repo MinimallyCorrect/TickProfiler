@@ -1,9 +1,9 @@
 package nallar.tickprofiler.minecraft.profiling;
 
-import com.google.common.base.Function;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import lombok.val;
 import nallar.tickprofiler.Log;
 import nallar.tickprofiler.minecraft.commands.Command;
 import nallar.tickprofiler.util.CollectionsUtil;
@@ -20,15 +20,14 @@ public class LagSpikeProfiler {
 	private static final StackTraceElement[] EMPTY_STACK_TRACE = new StackTraceElement[0];
 	private static final int lagSpikeMillis = 200;
 	private static final long lagSpikeNanoSeconds = TimeUnit.MILLISECONDS.toNanos(lagSpikeMillis);
-	public static boolean ALL_THREADS = Boolean.parseBoolean(System.getProperty("TickProfiler.allThreads", "false"));
+	private static final boolean ALL_THREADS = Boolean.parseBoolean(System.getProperty("TickProfiler.allThreads", "false"));
 	private static boolean inProgress;
 	private static volatile long lastTickTime = 0;
 	private final ICommandSender commandSender;
 	private final long stopTime;
 	private boolean detected;
-	private boolean stopping;
 
-	public LagSpikeProfiler(ICommandSender commandSender, int time_) {
+	private LagSpikeProfiler(ICommandSender commandSender, int time_) {
 		this.commandSender = commandSender;
 		stopTime = System.nanoTime() + TimeUnit.SECONDS.toNanos(time_);
 	}
@@ -44,12 +43,6 @@ public class LagSpikeProfiler {
 		Command.sendChat(commandSender, "Started lag spike detection for " + time_ + " seconds.");
 		new LagSpikeProfiler(commandSender, time_).start();
 		return true;
-	}
-
-	public static long tick() {
-		long nanoTime = System.nanoTime();
-		tick(nanoTime);
-		return nanoTime;
 	}
 
 	public static void tick(long nanoTime) {
@@ -101,14 +94,11 @@ public class LagSpikeProfiler {
 					lowest = threadInfo;
 				}
 			}
-			List threadNameList = CollectionsUtil.newList(threadInfoList, new Function<Object, Object>() {
-				@Override
-				public Object apply(final Object input) {
-					return ((ThreadInfo) input).getThreadName();
-				}
-			});
+			val threadNameList = CollectionsUtil.newList(threadInfoList, ThreadInfo::getThreadName);
 			Collections.sort(threadNameList);
-			sortedThreads.put(lowest.getThreadName(), '"' + CollectionsUtil.join(threadNameList, "\", \"") + "\" " + entry.getKey());
+			if (lowest != null) {
+				sortedThreads.put(lowest.getThreadName(), '"' + CollectionsUtil.join(threadNameList, "\", \"") + "\" " + entry.getKey());
+			}
 		}
 
 		return sortedThreads;
@@ -201,32 +191,25 @@ public class LagSpikeProfiler {
 
 	private void start() {
 		final int sleepTime = 1 + Math.min(1000, lagSpikeMillis / 6);
-		Thread detectorThread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					while (!stopping && checkForLagSpikes()) {
-						trySleep(sleepTime);
-					}
-					synchronized (LagSpikeProfiler.class) {
-						inProgress = false;
-						if (commandSender != null)
-							Command.sendChat(commandSender, "Lag spike profiling finished.");
-					}
-				} catch (Throwable t) {
-					Log.error("Error detecting lag spikes", t);
+		Thread detectorThread = new Thread(() -> {
+			try {
+				while (checkForLagSpikes()) {
+					trySleep(sleepTime);
 				}
+				synchronized (LagSpikeProfiler.class) {
+					inProgress = false;
+					if (commandSender != null)
+						Command.sendChat(commandSender, "Lag spike profiling finished.");
+				}
+			} catch (Throwable t) {
+				Log.error("Error detecting lag spikes", t);
 			}
 		});
 		detectorThread.setName("Lag Spike Detector");
 		detectorThread.start();
 	}
 
-	public void stop() {
-		stopping = true;
-	}
-
-	boolean checkForLagSpikes() {
+	private boolean checkForLagSpikes() {
 		long time = System.nanoTime();
 
 		if (time > stopTime)

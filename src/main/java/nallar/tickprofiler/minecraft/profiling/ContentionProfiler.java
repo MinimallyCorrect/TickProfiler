@@ -10,6 +10,7 @@ import net.minecraft.server.MinecraftServer;
 
 import java.lang.management.*;
 import java.util.*;
+import java.util.stream.*;
 
 public class ContentionProfiler {
 	private final int seconds;
@@ -28,13 +29,10 @@ public class ContentionProfiler {
 	public static boolean profile(final ICommandSender commandSender, int seconds, int resolution) {
 		Command.sendChat(commandSender, "Performing lock contention profiling for " + seconds + " seconds.");
 		final ContentionProfiler contentionProfiler = new ContentionProfiler(seconds, resolution);
-		contentionProfiler.run(new Runnable() {
-			@Override
-			public void run() {
-				TableFormatter tf = new TableFormatter(commandSender);
-				contentionProfiler.dump(tf, commandSender instanceof MinecraftServer ? 15 : 6);
-				Command.sendChat(commandSender, tf.toString());
-			}
+		contentionProfiler.run(() -> {
+			TableFormatter tf = new TableFormatter(commandSender);
+			contentionProfiler.dump(tf, commandSender instanceof MinecraftServer ? 15 : 6);
+			Command.sendChat(commandSender, tf.toString());
 		});
 		return true;
 	}
@@ -49,12 +47,9 @@ public class ContentionProfiler {
 
 	public void run(final Runnable completed) {
 		final int ticks = seconds * 1000 / resolution;
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				profile(ticks);
-				completed.run();
-			}
+		new Thread(() -> {
+			profile(ticks);
+			completed.run();
 		}, "Contention Profiler").start();
 	}
 
@@ -92,11 +87,8 @@ public class ContentionProfiler {
 	}
 
 	private void profile(int ticks) {
-		List<Long> threads = new ArrayList<>();
-		for (Thread thread : Thread.getAllStackTraces().keySet()) {
-			// TODO
-			threads.add(thread.getId());
-		}
+		List<Long> threads = Thread.getAllStackTraces().keySet().stream().map(Thread::getId).collect(Collectors.toList());
+		// TODO
 		this.threads = Longs.toArray(threads);
 		while (ticks-- > 0) {
 			long r = resolution - tick();

@@ -1,7 +1,5 @@
 package nallar.tickprofiler.minecraft.profiling;
 
-import com.google.common.base.Functions;
-import com.google.common.collect.Ordering;
 import nallar.tickprofiler.Log;
 import nallar.tickprofiler.minecraft.TickProfiler;
 import nallar.tickprofiler.minecraft.commands.ProfileCommand;
@@ -70,22 +68,19 @@ public class EntityTickProfiler {
 			}
 		}
 
-		Runnable profilingRunnable = new Runnable() {
-			@Override
-			public void run() {
-				try {
-					Thread.sleep(1000 * time);
-				} catch (InterruptedException ignored) {
-				}
+		Runnable profilingRunnable = () -> {
+			try {
+				Thread.sleep(1000 * time);
+			} catch (InterruptedException ignored) {
+			}
 
-				synchronized (EntityTickProfiler.class) {
-					endProfiling();
-					for (World world_ : worlds) {
-						TickProfiler.instance.unhookProfiler(world_);
-					}
-					runnable.run();
-					clear();
+			synchronized (EntityTickProfiler.class) {
+				endProfiling();
+				for (World world_ : worlds) {
+					TickProfiler.instance.unhookProfiler(world_);
 				}
+				runnable.run();
+				clear();
 			}
 		};
 		Thread profilingThread = new Thread(profilingRunnable);
@@ -287,6 +282,7 @@ public class EntityTickProfiler {
 	}
 
 	private static int getDimension(TileEntity o) {
+		//noinspection ConstantConditions
 		if (o.getWorld() == null) return -999;
 		WorldProvider worldProvider = o.getWorld().provider;
 		return worldProvider == null ? -999 : worldProvider.getDimension();

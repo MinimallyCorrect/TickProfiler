@@ -22,6 +22,7 @@ public class DumpCommand extends Command {
 		@SuppressWarnings("MismatchedQueryAndUpdateOfStringBuilder")
 		StringBuilder sb = tf.sb;
 		IBlockState block = world.getBlockState(pos);
+		//noinspection ConstantConditions
 		if (block == null || block.getBlock() == Blocks.AIR) {
 			sb.append("No block at ").append(Log.name(world)).append(" ").append(Log.toString(pos)).append('\n');
 		} else {

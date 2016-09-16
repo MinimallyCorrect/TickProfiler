@@ -28,18 +28,21 @@
  */
 package nallar.tickprofiler.reporting;
 
+import lombok.NonNull;
+import lombok.SneakyThrows;
 import lombok.val;
 import nallar.tickprofiler.Log;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.ChunkProviderServer;
 import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import org.apache.logging.log4j.Level;
 
 import java.io.*;
 import java.net.*;
@@ -92,11 +95,6 @@ public class Metrics {
 	private final Set<Graph> graphs = Collections
 		.synchronizedSet(new HashSet<Graph>());
 	/**
-	 * The default graph, used for addCustomData when you don't want a specific
-	 * graph
-	 */
-	private final Graph defaultGraph = new Graph("Default");
-	/**
 	 * The metrics configuration file
 	 */
 	private final Configuration configuration;
@@ -108,16 +106,11 @@ public class Metrics {
 	 * Debug mode
 	 */
 	private final boolean debug;
-	int tickCount;
+	private int tickCount;
 	private Thread thrd = null;
 	private boolean firstPost = true;
 
-	public Metrics(final String modname, final String modversion) {
-		if ((modname == null) || (modversion == null)) {
-			throw new IllegalArgumentException(
-				"modname and modversion cannot be null");
-		}
-
+	public Metrics(@NonNull final String modname, @NonNull final String modversion) {
 		this.modname = modname;
 		this.modversion = modversion;
 
@@ -147,7 +140,7 @@ public class Metrics {
 	 *
 	 * @return the File object for the config file
 	 */
-	public static File getConfigFile() {
+	private static File getConfigFile() {
 		return new File(Loader.instance().getConfigDir(), "PluginMetrics.cfg");
 	}
 
@@ -181,11 +174,8 @@ public class Metrics {
 	 * @param key    the key value
 	 * @param value  the value
 	 */
-	private static void encodeDataPair(final StringBuilder buffer,
-									   final String key, final String value)
-		throws UnsupportedEncodingException {
-		buffer.append('&').append(encode(key)).append('=')
-			.append(encode(value));
+	private static void encodeDataPair(final StringBuilder buffer, final String key, final String value) {
+		buffer.append('&').append(encode(key)).append('=').append(encode(value));
 	}
 
 	/**
@@ -194,8 +184,8 @@ public class Metrics {
 	 * @param text the text to encode
 	 * @return the encoded text, as UTF-8
 	 */
-	private static String encode(final String text)
-		throws UnsupportedEncodingException {
+	@SneakyThrows
+	private static String encode(final String text) {
 		return URLEncoder.encode(text, "UTF-8");
 	}
 
@@ -208,18 +198,9 @@ public class Metrics {
 	 * @return Graph object created. Will never return NULL under normal
 	 * circumstances unless bad parameters are given
 	 */
-	public Graph createGraph(final String name) {
-		if (name == null) {
-			throw new IllegalArgumentException("Graph name cannot be null");
-		}
-
-		// Construct the graph object
-		final Graph graph = new Graph(name);
-
-		// Now we can add our graph
-		graphs.add(graph);
-
-		// and return back
+	private Graph createGraph(@NonNull final String name) {
+		val graph = new Graph(name);
+		addGraph(graph);
 		return graph;
 	}
 
@@ -229,29 +210,8 @@ public class Metrics {
 	 *
 	 * @param graph The name of the graph
 	 */
-	public void addGraph(final Graph graph) {
-		if (graph == null) {
-			throw new IllegalArgumentException("Graph cannot be null");
-		}
-
+	private void addGraph(@NonNull final Graph graph) {
 		graphs.add(graph);
-	}
-
-	/**
-	 * Adds a custom data plotter to the default graph
-	 *
-	 * @param plotter The plotter to use to plot custom data
-	 */
-	public void addCustomData(final Plotter plotter) {
-		if (plotter == null) {
-			throw new IllegalArgumentException("Plotter cannot be null");
-		}
-
-		// Add the plotter to the graph o/
-		defaultGraph.addPlotter(plotter);
-
-		// Ensure the default graph is included in the submitted graphs
-		graphs.add(defaultGraph);
 	}
 
 	/**
@@ -262,13 +222,13 @@ public class Metrics {
 	 *
 	 * @return True if statistics measuring is running, otherwise false.
 	 */
-	public boolean start() {
+	private boolean start() {
 		// Did we opt out?
 		if (isOptOut()) {
 			return false;
 		}
 
-		FMLCommonHandler.instance().bus().register(this);
+		MinecraftForge.EVENT_BUS.register(this);
 
 		return true;
 	}
@@ -280,28 +240,26 @@ public class Metrics {
 		if (tickCount++ % (PING_INTERVAL * 1200) != 0) return;
 
 		if (thrd == null) {
-			thrd = new Thread(new Runnable() {
-				public void run() {
-					try {
-						// We use the inverse of firstPost because if it
-						// is the first time we are posting,
-						// it is not a interval ping, so it evaluates to
-						// FALSE
-						// Each time thereafter it will evaluate to
-						// TRUE, i.e PING!
-						postPlugin(!firstPost);
-						// After the first post we set firstPost to
-						// false
-						// Each post thereafter will be a ping
-						firstPost = false;
-					} catch (IOException e) {
-						if (debug) {
-							FMLLog.info("[Metrics] Exception - %s",
-								e.getMessage());
-						}
-					} finally {
-						thrd = null;
+			thrd = new Thread(() -> {
+				try {
+					// We use the inverse of firstPost because if it
+					// is the first time we are posting,
+					// it is not a interval ping, so it evaluates to
+					// FALSE
+					// Each time thereafter it will evaluate to
+					// TRUE, i.e PING!
+					postPlugin(!firstPost);
+					// After the first post we set firstPost to
+					// false
+					// Each post thereafter will be a ping
+					firstPost = false;
+				} catch (Throwable t) {
+					//noinspection ConstantConditions
+					if (debug || !(t instanceof IOException)) {
+						FMLLog.log(Level.WARN, t, "[Metrics] Exception");
 					}
+				} finally {
+					thrd = null;
 				}
 			});
 			thrd.start();
@@ -309,67 +267,23 @@ public class Metrics {
 	}
 
 	/**
-	 * Stop processing
-	 */
-	public void stop() {
-		FMLCommonHandler.instance().bus().unregister(this);
-	}
-
-	/**
 	 * Has the server owner denied plugin metrics?
 	 *
 	 * @return true if metrics should be opted out of it
 	 */
-	public boolean isOptOut() {
+	private boolean isOptOut() {
 		// Reload the metrics file
 		return configuration.get(Configuration.CATEGORY_GENERAL, "opt-out",
 			false).getBoolean(false);
 	}
 
 	/**
-	 * Enables metrics for the server by setting "opt-out" to false in the
-	 * config file and starting the metrics task.
-	 *
-	 * @throws java.io.IOException
-	 */
-	public void enable() throws IOException {
-		// Check if the server owner has already set opt-out, if not, set it.
-		if (isOptOut()) {
-			configuration.getCategory(Configuration.CATEGORY_GENERAL).get("opt-out").set(false);
-			configuration.save();
-		}
-		// Enable Task, if it is not running
-		FMLCommonHandler.instance().bus().register(this);
-	}
-
-	/**
-	 * Disables metrics for the server by setting "opt-out" to true in the
-	 * config file and canceling the metrics task.
-	 *
-	 * @throws java.io.IOException
-	 */
-	public void disable() throws IOException {
-		// Check if the server owner has already set opt-out, if not, set it.
-		if (!isOptOut()) {
-			configuration.getCategory(Configuration.CATEGORY_GENERAL).get("opt-out").set(true);
-			configuration.save();
-		}
-		FMLCommonHandler.instance().bus().unregister(this);
-	}
-
-	/**
 	 * Generic method that posts a plugin to the metrics website
 	 */
-	private void postPlugin(final boolean isPing) throws IOException {
+	@SneakyThrows
+	private void postPlugin(final boolean isPing) {
 		// Server software specific section
-		String pluginName = modname;
 		boolean onlineMode = FMLCommonHandler.instance().getMinecraftServerInstance().isServerInOnlineMode(); // TRUE
-		// if
-		// online
-		// mode
-		// is
-		// enabled
-		String pluginVersion = modversion;
 		String serverVersion = FMLCommonHandler.instance().getMinecraftServerInstance().getServerModName() + " (MC: "
 			+ FMLCommonHandler.instance().getMinecraftServerInstance().getMinecraftVersion() + ')';
 		int playersOnline = FMLCommonHandler.instance().getMinecraftServerInstance().getCurrentPlayerCount();
@@ -383,7 +297,7 @@ public class Metrics {
 		// The plugin's description file containg all of the plugin data such as
 		// name, version, author, etc
 		data.append(encode("guid")).append('=').append(encode(guid));
-		encodeDataPair(data, "version", pluginVersion);
+		encodeDataPair(data, "version", modversion);
 		encodeDataPair(data, "server", serverVersion);
 		encodeDataPair(data, "players", Integer.toString(playersOnline));
 		encodeDataPair(data, "revision", String.valueOf(REVISION));
@@ -416,7 +330,6 @@ public class Metrics {
 		// also lock everything
 		// inside of the graph (e.g plotters)
 		synchronized (graphs) {
-
 			for (final Graph graph : graphs) {
 				for (Plotter plotter : graph.getPlotters()) {
 					// The key name to send to the metrics server
@@ -440,8 +353,7 @@ public class Metrics {
 		}
 
 		// Create the url
-		URL url = new URL(BASE_URL
-			+ String.format(REPORT_URL, encode(pluginName)));
+		URL url = new URL(BASE_URL + String.format(REPORT_URL, encode(modname)));
 
 		// Connect to the website
 		URLConnection connection;
@@ -470,24 +382,13 @@ public class Metrics {
 
 		if (response == null || response.startsWith("ERR")) {
 			throw new IOException(response); // Throw the exception
-		} else {
-			// Is this the first update this hour?
-			if (response.contains("OK This is your first update this hour")) {
-				synchronized (graphs) {
-					for (final Graph graph : graphs) {
-						for (Plotter plotter : graph.getPlotters()) {
-							plotter.reset();
-						}
-					}
-				}
-			}
 		}
 	}
 
 	/**
 	 * Represents a custom graph on the website
 	 */
-	public static class Graph {
+	private static class Graph {
 		/**
 		 * The graph's name, alphanumeric and spaces only :) If it does not
 		 * comply to the above when submitted, it is rejected
@@ -516,17 +417,8 @@ public class Metrics {
 		 *
 		 * @param plotter the plotter to add to the graph
 		 */
-		public void addPlotter(final Plotter plotter) {
+		void addPlotter(final Plotter plotter) {
 			plotters.add(plotter);
-		}
-
-		/**
-		 * Remove a plotter from the graph
-		 *
-		 * @param plotter the plotter to remove from the graph
-		 */
-		public void removePlotter(final Plotter plotter) {
-			plotters.remove(plotter);
 		}
 
 		/**
@@ -534,7 +426,7 @@ public class Metrics {
 		 *
 		 * @return an unmodifiable {@link java.util.Set} of the plotter objects
 		 */
-		public Set<Plotter> getPlotters() {
+		Set<Plotter> getPlotters() {
 			return Collections.unmodifiableSet(plotters);
 		}
 
@@ -552,30 +444,16 @@ public class Metrics {
 			final Graph graph = (Graph) object;
 			return graph.name.equals(name);
 		}
-
-		/**
-		 * Called when the server owner decides to opt-out of Metrics while the
-		 * server is running.
-		 */
-		protected void onOptOut() {
-		}
 	}
 
 	/**
 	 * Interface used to collect custom data for a plugin
 	 */
-	public abstract static class Plotter {
+	abstract static class Plotter {
 		/**
 		 * The plot's name
 		 */
 		private final String name;
-
-		/**
-		 * Construct a plotter with the default plot name
-		 */
-		public Plotter() {
-			this("Default");
-		}
 
 		/**
 		 * Construct a plotter with a specific plot name
@@ -583,7 +461,7 @@ public class Metrics {
 		 * @param name the name of the plotter to use, which will show up on the
 		 *             website
 		 */
-		public Plotter(final String name) {
+		Plotter(final String name) {
 			this.name = name;
 		}
 
@@ -603,14 +481,8 @@ public class Metrics {
 		 *
 		 * @return the plotted point's column name
 		 */
-		public String getColumnName() {
+		String getColumnName() {
 			return name;
-		}
-
-		/**
-		 * Called after the website graphs have been updated
-		 */
-		public void reset() {
 		}
 
 		@Override
@@ -631,7 +503,7 @@ public class Metrics {
 	}
 
 	private static class TileEntityPlotter extends Plotter {
-		public TileEntityPlotter() {
+		TileEntityPlotter() {
 			super("TileEntities");
 		}
 
@@ -646,7 +518,7 @@ public class Metrics {
 	}
 
 	private static class EntityPlotter extends Plotter {
-		public EntityPlotter() {
+		EntityPlotter() {
 			super("Entities");
 		}
 
@@ -661,7 +533,7 @@ public class Metrics {
 	}
 
 	private static class ChunkPlotter extends Plotter {
-		public ChunkPlotter() {
+		ChunkPlotter() {
 			super("Chunks");
 		}
 

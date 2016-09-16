@@ -97,6 +97,7 @@ public class PacketProfiler {
 	}
 
 	// called from packethook.xml
+	@SuppressWarnings("unused")
 	public static void record(final Packet packet, PacketBuffer buffer) {
 		if (!profiling) {
 			return;

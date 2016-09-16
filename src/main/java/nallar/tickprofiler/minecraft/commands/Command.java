@@ -38,7 +38,7 @@ public abstract class Command extends CommandBase {
 	}
 
 	@Override
-	public final void execute(MinecraftServer server, ICommandSender commandSender, String... argumentsArray) {
+	public final void execute(MinecraftServer server, ICommandSender commandSender, String[] argumentsArray) {
 		processCommand(commandSender, new ArrayList<>(Arrays.asList(argumentsArray)));
 	}
 
