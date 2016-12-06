@@ -97,6 +97,7 @@ public class ProfileCommand extends Command {
 		final EntityTickProfiler entityTickProfiler = EntityTickProfiler.INSTANCE;
 		if (!entityTickProfiler.startProfiling(() -> sendChat(commandSender, entityTickProfiler.writeStringData(new TableFormatter(commandSender)).toString()), type, time, worlds)) {
 			sendChat(commandSender, "Someone else is currently profiling.");
+			return false;
 		}
 		if (type == ProfilingState.CHUNK_ENTITIES) {
 			entityTickProfiler.setLocation(x, z);
