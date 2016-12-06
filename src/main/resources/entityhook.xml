@@ -10,6 +10,10 @@
 							   code="nallar.tickprofiler.minecraft.profiling.EntityTickProfiler.INSTANCE.profileTickable($0);">
 				updateEntities_withProfiling
 			</replaceMethodCall>
+			<replaceMethodCall methodPrefix="redirect$onUpdateTileEntities$"
+							   code="nallar.tickprofiler.minecraft.profiling.EntityTickProfiler.INSTANCE.profileTickable($1);">
+				updateEntities_withProfiling
+			</replaceMethodCall>
 			<replaceMethodCall method="^method:World/updateEntity^"
 							   code="nallar.tickprofiler.minecraft.profiling.EntityTickProfiler.INSTANCE.profileEntity(this, $1);">
 				updateEntities_withProfiling
