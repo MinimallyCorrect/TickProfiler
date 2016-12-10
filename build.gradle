@@ -94,7 +94,7 @@ jar {
 }
 
 wrapper {
-	gradleVersion = "2.14"
+	gradleVersion = "3.2.1"
 	def jvmOpts = "-Xmx2G"
 	inputs.property("jvmOpts", jvmOpts)
 	doLast {
