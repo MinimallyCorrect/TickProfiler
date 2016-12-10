@@ -20,10 +20,10 @@ configurations {
 	}
 }
 
-ext.mcVersion = "1.10.2"
-ext.runMcVersion = "1.10.2"
-ext.forgeVersion = "12.18.1.2076"
-ext.forgeMappings = "snapshot_20160518"
+ext.mcVersion = "1.11"
+ext.runMcVersion = "1.11"
+ext.forgeVersion = "13.19.1.2189"
+ext.forgeMappings = "snapshot_20161111"
 group = "nallar.tickprofiler" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "TickProfiler"
 
