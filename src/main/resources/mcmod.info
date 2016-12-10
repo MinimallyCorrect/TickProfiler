@@ -1,6 +1,6 @@
 [
 {
-	"modid": "TickProfiler",
+	"modid": "tickprofiler",
 	"name": "TickProfiler",
 	"description": "A small mod for servers to assist with finding which TileEntities(machines) and Entities are being slow.",
 	"version": "${version}",
