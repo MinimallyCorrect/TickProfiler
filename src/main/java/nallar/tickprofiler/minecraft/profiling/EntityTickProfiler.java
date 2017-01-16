@@ -289,8 +289,8 @@ public class EntityTickProfiler {
 	}
 
 	private static int getDimension(Entity o) {
-		if (o.worldObj == null) return -999;
-		WorldProvider worldProvider = o.worldObj.provider;
+		if (o.world == null) return -999;
+		WorldProvider worldProvider = o.world.provider;
 		return worldProvider == null ? -999 : worldProvider.getDimension();
 	}
 

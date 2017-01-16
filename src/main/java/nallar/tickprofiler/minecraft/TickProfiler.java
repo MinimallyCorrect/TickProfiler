@@ -112,10 +112,10 @@ public class TickProfiler {
 	public void onPlayerInteract(PlayerInteractEvent.RightClickBlock event) {
 		EntityPlayer entityPlayer = event.getEntityPlayer();
 		ItemStack usedItem = entityPlayer.getActiveItemStack();
-		if (usedItem != null) {
+		if (usedItem != null && usedItem != ItemStack.EMPTY) {
 			Item usedItemType = usedItem.getItem();
-			if (usedItemType == Items.CLOCK && (!requireOpForDumpCommand || entityPlayer.canCommandSenderUseCommand(4, "dump"))) {
-				Command.sendChat(entityPlayer, DumpCommand.dump(new TableFormatter(entityPlayer), entityPlayer.worldObj, event.getPos(), 35).toString());
+			if (usedItemType == Items.CLOCK && (!requireOpForDumpCommand || entityPlayer.canUseCommand(4, "dump"))) {
+				Command.sendChat(entityPlayer, DumpCommand.dump(new TableFormatter(entityPlayer), entityPlayer.world, event.getPos(), 35).toString());
 				event.setCanceled(true);
 			}
 		}

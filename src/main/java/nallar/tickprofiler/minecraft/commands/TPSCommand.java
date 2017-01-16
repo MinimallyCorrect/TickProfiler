@@ -53,12 +53,12 @@ public class TPSCommand extends Command {
 	}
 
 	@Override
-	public String getCommandName() {
+	public String getName() {
 		return name;
 	}
 
 	@Override
-	public String getCommandUsage(ICommandSender commandSender) {
+	public String getUsage(ICommandSender commandSender) {
 		return "Usage: /tps";
 	}
 
@@ -77,13 +77,13 @@ public class TPSCommand extends Command {
 			.heading("TE")
 			.heading("C")
 			.heading("");
-		for (World world : server.worldServers) {
+		for (World world : server.worlds) {
 			int worldEntities = world.loadedEntityList.size();
 			int worldTileEntities = world.loadedTileEntityList.size();
 			int worldChunks = 0;
 			val provider = world.getChunkProvider();
 			if (provider instanceof ChunkProviderServer)
-				worldChunks = ((ChunkProviderServer) world.getChunkProvider()).getLoadedChunkCount();
+				worldChunks = ((ChunkProviderServer) provider).getLoadedChunkCount();
 			entities += worldEntities;
 			tileEntities += worldTileEntities;
 			chunks += worldChunks;

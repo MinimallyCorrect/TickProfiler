@@ -15,7 +15,7 @@ public class ProfileCommand extends Command {
 	public static String name = "profile";
 
 	@Override
-	public String getCommandName() {
+	public String getName() {
 		return name;
 	}
 
@@ -72,7 +72,7 @@ public class ProfileCommand extends Command {
 			if (arguments.size() > 2) {
 				world = DimensionManager.getWorld(Integer.valueOf(arguments.get(2)));
 			} else if (type == ProfilingState.CHUNK_ENTITIES && commandSender instanceof Entity) {
-				world = ((Entity) commandSender).worldObj;
+				world = ((Entity) commandSender).world;
 			}
 			if (type == ProfilingState.CHUNK_ENTITIES && x == null) {
 				if (!(commandSender instanceof Entity)) {
@@ -83,7 +83,7 @@ public class ProfileCommand extends Command {
 				z = entity.chunkCoordZ;
 			}
 		} catch (UsageException e) {
-			sendChat(commandSender, getCommandUsage(commandSender));
+			sendChat(commandSender, getUsage(commandSender));
 			return true;
 		}
 
@@ -108,7 +108,7 @@ public class ProfileCommand extends Command {
 	}
 
 	@Override
-	public String getCommandUsage(ICommandSender icommandsender) {
+	public String getUsage(ICommandSender icommandsender) {
 		return "Usage: /profile [e/p/u/l/s/(c [chunkX] [chunk z])] timeInSeconds dimensionID\n" +
 			"example - profile for 30 seconds in chunk 8,1 in all worlds: /profile c 8 1\n" +
 			"example - profile for 10 seconds in dimension 4: /profile e 10 4\n" +

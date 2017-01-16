@@ -63,7 +63,7 @@ public class DumpCommand extends Command {
 	}
 
 	@Override
-	public String getCommandName() {
+	public String getName() {
 		return name;
 	}
 
@@ -80,7 +80,7 @@ public class DumpCommand extends Command {
 		int z = 0;
 		try {
 			if (commandSender instanceof Entity) {
-				world = ((Entity) commandSender).worldObj;
+				world = ((Entity) commandSender).world;
 			}
 			x = Integer.parseInt(arguments.remove(0));
 			y = Integer.parseInt(arguments.remove(0));
@@ -99,7 +99,7 @@ public class DumpCommand extends Command {
 	}
 
 	@Override
-	public String getCommandUsage(ICommandSender icommandsender) {
+	public String getUsage(ICommandSender icommandsender) {
 		return "Usage: /dump x y z [world=currentworld]";
 	}
 }

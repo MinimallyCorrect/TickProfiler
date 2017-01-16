@@ -24,7 +24,7 @@ public abstract class Command extends CommandBase {
 				sent = message.substring(0, nlIndex);
 				message = message.substring(nlIndex + 1);
 			}
-			commandSender.addChatMessage(new TextComponentString(sent));
+			commandSender.sendMessage(new TextComponentString(sent));
 		}
 	}
 

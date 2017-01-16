@@ -20,10 +20,10 @@ configurations {
 	}
 }
 
-ext.mcVersion = "1.11"
-ext.runMcVersion = "1.11"
-ext.forgeVersion = "13.19.1.2189"
-ext.forgeMappings = "snapshot_20161111"
+ext.mcVersion = "1.11.2"
+ext.runMcVersion = "1.11.2"
+ext.forgeVersion = "13.20.0.2216"
+ext.forgeMappings = "snapshot_20161220"
 group = "nallar.tickprofiler" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "TickProfiler"
 
@@ -94,7 +94,7 @@ jar {
 }
 
 wrapper {
-	gradleVersion = "3.2.1"
+	gradleVersion = "3.3"
 	def jvmOpts = "-Xmx2G"
 	inputs.property("jvmOpts", jvmOpts)
 	doLast {
