@@ -14,8 +14,6 @@ public class CoreMod implements IFMLLoadingPlugin {
 		ModPatcher.requireVersion("1.10.2.31");
 	}
 
-	private Boolean spongePresent;
-
 	@Override
 	public String[] getASMTransformerClass() {
 		return new String[0];
@@ -31,22 +29,9 @@ public class CoreMod implements IFMLLoadingPlugin {
 		return ModPatcher.getSetupClass();
 	}
 
-	private boolean isSpongePresent() {
-		if (spongePresent == null) {
-			try {
-				Class.forName("org.spongepowered.asm.mixin.MixinEnvironment", false, CoreMod.class.getClassLoader());
-				spongePresent = true;
-			} catch (ClassNotFoundException e) {
-				spongePresent = false;
-			}
-		}
-
-		return spongePresent;
-	}
-
 	@Override
 	public void injectData(Map<String, Object> data) {
-		Log.info("TickProfiler v@MOD_VERSION@ coremod loading. Sponge present: " + isSpongePresent());
+		Log.info("TickProfiler v@MOD_VERSION@ coremod injectData called, loading patches");
 
 		ModPatcher.loadPatches(CoreMod.class.getResourceAsStream("/entityhook.xml"));
 		// TODO: Not implemented
