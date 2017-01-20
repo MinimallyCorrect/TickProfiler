@@ -11,8 +11,10 @@ import java.util.*;
 @IFMLLoadingPlugin.SortingIndex(1001)
 public class CoreMod implements IFMLLoadingPlugin {
 	static {
-		ModPatcher.requireVersion("1.11.2.1");
+		ModPatcher.requireVersion("1.11.2.5");
 	}
+
+	private Boolean spongePresent;
 
 	@Override
 	public String[] getASMTransformerClass() {
@@ -28,8 +30,6 @@ public class CoreMod implements IFMLLoadingPlugin {
 	public String getSetupClass() {
 		return ModPatcher.getSetupClass();
 	}
-
-	private Boolean spongePresent;
 
 	private boolean isSpongePresent() {
 		if (spongePresent == null) {
