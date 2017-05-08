@@ -10,9 +10,7 @@ import nallar.tickprofiler.minecraft.commands.ProfileCommand;
 import nallar.tickprofiler.minecraft.commands.TPSCommand;
 import nallar.tickprofiler.minecraft.profiling.EntityTickProfiler;
 import nallar.tickprofiler.minecraft.profiling.LagSpikeProfiler;
-import nallar.tickprofiler.reporting.Metrics;
 import nallar.tickprofiler.util.TableFormatter;
-import nallar.tickprofiler.util.VersionUtil;
 import net.minecraft.command.ServerCommandManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
@@ -42,11 +40,6 @@ public class TickProfiler {
 	public static TickProfiler instance;
 	public static long tickTime = 20; // Initialise with non-zero value to avoid divide-by-zero errors calculating TPS
 	public static long lastTickTime;
-
-	static {
-		new Metrics("TickProfiler", VersionUtil.versionNumber());
-	}
-
 	public boolean requireOpForProfileCommand = true;
 	public boolean requireOpForDumpCommand = true;
 	private int profilingInterval = 0;
