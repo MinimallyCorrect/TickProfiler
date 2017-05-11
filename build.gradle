@@ -15,6 +15,7 @@ apply plugin: 'idea'
 
 configurations {
 	bundledLibs
+	bundledAsFile
 	compile {
 		extendsFrom bundledLibs
 	}
@@ -30,10 +31,10 @@ archivesBaseName = "TickProfiler"
 def calculateVersion() {
 	def ver = project.runMcVersion
 	if (System.env.BUILD_NUMBER != null)
-		return ver + ".jenkins." + System.env.BUILD_NUMBER
+		return ver + "-jenkins." + System.env.BUILD_NUMBER
 	if (project.hasProperty("release"))
-		return ver + '.' + project.release
-	return ver + ".dev"
+		return ver + '-' + project.release
+	return ver + "-dev"
 }
 
 
@@ -51,7 +52,8 @@ dependencies {
 	bundledLibs 'org.codehaus.jackson:jackson-core-lgpl:1.9.13'
 	bundledLibs 'org.codehaus.jackson:jackson-mapper-lgpl:1.9.13'
 	bundledLibs "me.nallar:ModPatcher:$mcVersion-SNAPSHOT:api"
-	compile 'org.projectlombok:lombok:1.16.10'
+	bundledAsFile "me.nallar:ModPatcher:$mcVersion-SNAPSHOT:lib"
+	compile 'org.projectlombok:lombok:1.16.16'
 }
 
 tasks.withType(JavaCompile) {
@@ -89,6 +91,7 @@ jar {
 	from(configurations.bundledLibs.collect { it.isDirectory() ? it : zipTree(it) }) {
 		exclude "META-INF/**"
 	}
+	from(configurations.bundledAsFile.collect { it })
 
 	manifest.mainAttributes("FMLCorePlugin": "nallar.tickprofiler.minecraft.CoreMod", "FMLCorePluginContainsFMLMod": "YasPlease")
 }
