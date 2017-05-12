@@ -5,21 +5,22 @@ buildscript {
 			name = "forge"
 			url = "http://files.minecraftforge.net/maven"
 		}
+		maven {
+			name = "nallar"
+			url = "https://repo.nallar.me/"
+		}
+	}
+	configurations.all {
+		resolutionStrategy.cacheChangingModulesFor 10, 'seconds'
 	}
 	dependencies {
 		classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
+		classpath 'me.nallar.libloader:LibLoaderGradle:0.1-SNAPSHOT'
 	}
 }
+apply plugin: 'me.nallar.libloader.LibLoaderGradle'
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'idea'
-
-configurations {
-	bundledLibs
-	bundledAsFile
-	compile {
-		extendsFrom bundledLibs
-	}
-}
 
 ext.mcVersion = "1.10.2"
 ext.runMcVersion = "1.10.2"
@@ -49,11 +50,10 @@ configurations.all {
 }
 
 dependencies {
-	bundledLibs 'org.codehaus.jackson:jackson-core-lgpl:1.9.13'
-	bundledLibs 'org.codehaus.jackson:jackson-mapper-lgpl:1.9.13'
-	bundledLibs "me.nallar:ModPatcher:$mcVersion-SNAPSHOT:api"
-	bundledAsFile "me.nallar:ModPatcher:$mcVersion-SNAPSHOT:lib"
-	compile 'org.projectlombok:lombok:1.16.16'
+	libLoader 'org.codehaus.jackson:jackson-core-lgpl:1.9.13'
+	libLoader 'org.codehaus.jackson:jackson-mapper-lgpl:1.9.13'
+	libLoader "me.nallar:ModPatcher:$mcVersion-SNAPSHOT"
+	compileOnly 'org.projectlombok:lombok:1.16.16'
 }
 
 tasks.withType(JavaCompile) {
@@ -88,16 +88,11 @@ processResources {
 }
 
 jar {
-	from(configurations.bundledLibs.collect { it.isDirectory() ? it : zipTree(it) }) {
-		exclude "META-INF/**"
-	}
-	from(configurations.bundledAsFile.collect { it })
-
 	manifest.mainAttributes("FMLCorePlugin": "nallar.tickprofiler.minecraft.CoreMod", "FMLCorePluginContainsFMLMod": "YasPlease")
 }
 
 wrapper {
-	gradleVersion = "3.2.1"
+	gradleVersion = "3.5"
 	def jvmOpts = "-Xmx2G"
 	inputs.property("jvmOpts", jvmOpts)
 	doLast {

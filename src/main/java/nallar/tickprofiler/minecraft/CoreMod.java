@@ -1,17 +1,17 @@
 package nallar.tickprofiler.minecraft;
 
+import me.nallar.libloader.LibLoader;
 import me.nallar.modpatcher.api.ModPatcher;
 import nallar.tickprofiler.Log;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 
 import java.util.*;
 
-
 @IFMLLoadingPlugin.MCVersion("@MC_VERSION@")
-@IFMLLoadingPlugin.SortingIndex(1001)
+@IFMLLoadingPlugin.SortingIndex(-1)
 public class CoreMod implements IFMLLoadingPlugin {
 	static {
-		ModPatcher.requireVersion(CoreMod.class.getResource("/ModPatcher-1.10.2-SNAPSHOT-lib.jar"));
+		LibLoader.init();
 	}
 
 	@Override
