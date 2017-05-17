@@ -1,4 +1,4 @@
-package nallar.tickprofiler;
+package org.minimallycorrect.tickprofiler;
 
 import lombok.val;
 import net.minecraft.tileentity.TileEntity;

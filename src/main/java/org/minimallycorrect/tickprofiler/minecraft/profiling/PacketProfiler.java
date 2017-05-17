@@ -1,12 +1,12 @@
-package nallar.tickprofiler.minecraft.profiling;
+package org.minimallycorrect.tickprofiler.minecraft.profiling;
 
 import com.google.common.base.Functions;
 import com.google.common.collect.Ordering;
-import nallar.tickprofiler.minecraft.commands.Command;
-import nallar.tickprofiler.util.TableFormatter;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketBuffer;
+import org.minimallycorrect.tickprofiler.minecraft.commands.Command;
+import org.minimallycorrect.tickprofiler.util.TableFormatter;
 
 import java.util.*;
 import java.util.concurrent.*;

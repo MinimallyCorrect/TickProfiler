@@ -1,16 +1,8 @@
-package nallar.tickprofiler.minecraft;
+package org.minimallycorrect.tickprofiler.minecraft;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.MapMaker;
 import com.google.common.io.Files;
-import nallar.tickprofiler.Log;
-import nallar.tickprofiler.minecraft.commands.Command;
-import nallar.tickprofiler.minecraft.commands.DumpCommand;
-import nallar.tickprofiler.minecraft.commands.ProfileCommand;
-import nallar.tickprofiler.minecraft.commands.TPSCommand;
-import nallar.tickprofiler.minecraft.profiling.EntityTickProfiler;
-import nallar.tickprofiler.minecraft.profiling.LagSpikeProfiler;
-import nallar.tickprofiler.util.TableFormatter;
 import net.minecraft.command.ServerCommandManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
@@ -28,6 +20,14 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import org.minimallycorrect.tickprofiler.Log;
+import org.minimallycorrect.tickprofiler.minecraft.commands.Command;
+import org.minimallycorrect.tickprofiler.minecraft.commands.DumpCommand;
+import org.minimallycorrect.tickprofiler.minecraft.commands.ProfileCommand;
+import org.minimallycorrect.tickprofiler.minecraft.commands.TPSCommand;
+import org.minimallycorrect.tickprofiler.minecraft.profiling.EntityTickProfiler;
+import org.minimallycorrect.tickprofiler.minecraft.profiling.LagSpikeProfiler;
+import org.minimallycorrect.tickprofiler.util.TableFormatter;
 
 import java.io.*;
 import java.util.*;

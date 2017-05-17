@@ -1,8 +1,8 @@
-package nallar.tickprofiler.util;
+package org.minimallycorrect.tickprofiler.util;
 
 import com.google.common.base.Functions;
 import com.google.common.collect.Ordering;
-import nallar.tickprofiler.Log;
+import org.minimallycorrect.tickprofiler.Log;
 
 import java.io.*;
 import java.lang.reflect.*;

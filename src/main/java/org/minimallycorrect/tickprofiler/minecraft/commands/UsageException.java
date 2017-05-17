@@ -1,4 +1,4 @@
-package nallar.tickprofiler.minecraft.commands;
+package org.minimallycorrect.tickprofiler.minecraft.commands;
 
 class UsageException extends RuntimeException {
 	UsageException() {

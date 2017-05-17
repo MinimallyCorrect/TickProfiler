@@ -1,15 +1,15 @@
-package nallar.tickprofiler.minecraft.commands;
+package org.minimallycorrect.tickprofiler.minecraft.commands;
 
 import com.google.common.base.Strings;
 import lombok.val;
-import nallar.tickprofiler.Log;
-import nallar.tickprofiler.minecraft.TickProfiler;
-import nallar.tickprofiler.util.ChatFormat;
-import nallar.tickprofiler.util.TableFormatter;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.ChunkProviderServer;
+import org.minimallycorrect.tickprofiler.Log;
+import org.minimallycorrect.tickprofiler.minecraft.TickProfiler;
+import org.minimallycorrect.tickprofiler.util.ChatFormat;
+import org.minimallycorrect.tickprofiler.util.TableFormatter;
 
 import java.util.*;
 import java.util.concurrent.*;

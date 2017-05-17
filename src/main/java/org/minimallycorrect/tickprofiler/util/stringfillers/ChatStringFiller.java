@@ -1,6 +1,6 @@
-package nallar.tickprofiler.util.stringfillers;
+package org.minimallycorrect.tickprofiler.util.stringfillers;
 
-import nallar.tickprofiler.util.ChatFormat;
+import org.minimallycorrect.tickprofiler.util.ChatFormat;
 
 import java.util.*;
 

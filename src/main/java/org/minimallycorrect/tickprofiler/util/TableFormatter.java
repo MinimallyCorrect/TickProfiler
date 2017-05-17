@@ -1,8 +1,8 @@
-package nallar.tickprofiler.util;
+package org.minimallycorrect.tickprofiler.util;
 
-import nallar.tickprofiler.util.stringfillers.StringFiller;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.Entity;
+import org.minimallycorrect.tickprofiler.util.stringfillers.StringFiller;
 
 import java.util.*;
 
@@ -10,12 +10,12 @@ public class TableFormatter {
 	private static final int POW10[] = {1, 10, 100, 1000, 10000, 100000, 1000000};
 	public final StringFiller stringFiller;
 	public final StringBuilder sb = new StringBuilder();
+	public final String rowColour = "";
 	private final List<String> currentHeadings = new ArrayList<>();
 	private final List<String> currentData = new ArrayList<>();
 	public String splitter = " | ";
 	public String headingSplitter = " | ";
 	public String headingColour = "";
-	public final String rowColour = "";
 	public String tableSeparator = "";
 	private boolean recordTables = false;
 	private ArrayList<List<Map<String, String>>> tables;

@@ -3,10 +3,10 @@
 		<!-- TODO: update packet profiling for 1.8.9
 		<class id="net.minecraft.util.MessageSerializer">
 			<replaceMethodCall method="^method:Packet/writePacketData^"
-							   code="$_ = $0.^method:Packet/writePacketData^($1); nallar.tickprofiler.minecraft.profiling.PacketProfiler.record($0, $1);">
+							   code="$_ = $0.^method:Packet/writePacketData^($PacketProfileriler.record($0, $1);">
 				encode
 			</replaceMethodCall>
-			<insertCodeBefore code="nallar.tickprofiler.minecraft.TickProfiler.handlePacket($1);">
+			<insertCodeBefore coTickProfileriler.handlePacket($1);">
 				scheduleOutboundPacket
 			</insertCodeBefore>
 		</class>
