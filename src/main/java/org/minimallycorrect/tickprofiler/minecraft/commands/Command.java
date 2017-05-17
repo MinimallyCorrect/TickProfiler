@@ -1,10 +1,10 @@
-package nallar.tickprofiler.minecraft.commands;
+package org.minimallycorrect.tickprofiler.minecraft.commands;
 
-import nallar.tickprofiler.Log;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
+import org.minimallycorrect.tickprofiler.Log;
 
 import java.util.*;
 

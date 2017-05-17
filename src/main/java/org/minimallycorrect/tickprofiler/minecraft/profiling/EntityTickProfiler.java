@@ -1,11 +1,5 @@
-package nallar.tickprofiler.minecraft.profiling;
+package org.minimallycorrect.tickprofiler.minecraft.profiling;
 
-import nallar.tickprofiler.Log;
-import nallar.tickprofiler.minecraft.TickProfiler;
-import nallar.tickprofiler.minecraft.commands.ProfileCommand;
-import nallar.tickprofiler.util.CollectionsUtil;
-import nallar.tickprofiler.util.TableFormatter;
-import nallar.tickprofiler.util.stringfillers.StringFiller;
 import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
@@ -13,6 +7,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldProvider;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.minimallycorrect.tickprofiler.Log;
+import org.minimallycorrect.tickprofiler.minecraft.TickProfiler;
+import org.minimallycorrect.tickprofiler.minecraft.commands.ProfileCommand;
+import org.minimallycorrect.tickprofiler.util.CollectionsUtil;
+import org.minimallycorrect.tickprofiler.util.TableFormatter;
+import org.minimallycorrect.tickprofiler.util.stringfillers.StringFiller;
 
 import java.io.*;
 import java.util.*;
@@ -47,6 +47,41 @@ public class EntityTickProfiler {
 
 	public static synchronized void endProfiling() {
 		profilingState = ProfileCommand.ProfilingState.NONE;
+	}
+
+	private static int getDimension(TileEntity o) {
+		//noinspection ConstantConditions
+		if (o.getWorld() == null) return -999;
+		WorldProvider worldProvider = o.getWorld().provider;
+		return worldProvider == null ? -999 : worldProvider.getDimension();
+	}
+
+	private static int getDimension(Entity o) {
+		if (o.worldObj == null) return -999;
+		WorldProvider worldProvider = o.worldObj.provider;
+		return worldProvider == null ? -999 : worldProvider.getDimension();
+	}
+
+	private static Object niceName(Object o) {
+		if (o instanceof TileEntity) {
+			return niceName(o.getClass()) + ' ' + Log.toString(((TileEntity) o).getPos()) + ':' + getDimension((TileEntity) o);
+		} else if (o instanceof Entity) {
+			return niceName(o.getClass()) + ' ' + (int) ((Entity) o).posX + ',' + (int) ((Entity) o).posY + ',' + (int) ((Entity) o).posZ + ':' + getDimension((Entity) o);
+		}
+		return o.toString().substring(0, 48);
+	}
+
+	private static String niceName(Class<?> clazz) {
+		String name = clazz.getName();
+		if (name.contains(".")) {
+			String cName = name.substring(name.lastIndexOf('.') + 1);
+			String pName = name.substring(0, name.lastIndexOf('.'));
+			if (pName.contains(".")) {
+				pName = pName.substring(pName.lastIndexOf('.') + 1);
+			}
+			return (cName.length() < 15 ? pName + '.' : "") + cName;
+		}
+		return name;
 	}
 
 	public void setLocation(final int x, final int z) {
@@ -279,41 +314,6 @@ public class EntityTickProfiler {
 		}
 		tf.finishTable();
 		return tf;
-	}
-
-	private static int getDimension(TileEntity o) {
-		//noinspection ConstantConditions
-		if (o.getWorld() == null) return -999;
-		WorldProvider worldProvider = o.getWorld().provider;
-		return worldProvider == null ? -999 : worldProvider.getDimension();
-	}
-
-	private static int getDimension(Entity o) {
-		if (o.worldObj == null) return -999;
-		WorldProvider worldProvider = o.worldObj.provider;
-		return worldProvider == null ? -999 : worldProvider.getDimension();
-	}
-
-	private static Object niceName(Object o) {
-		if (o instanceof TileEntity) {
-			return niceName(o.getClass()) + ' ' + Log.toString(((TileEntity) o).getPos()) + ':' + getDimension((TileEntity) o);
-		} else if (o instanceof Entity) {
-			return niceName(o.getClass()) + ' ' + (int) ((Entity) o).posX + ',' + (int) ((Entity) o).posY + ',' + (int) ((Entity) o).posZ + ':' + getDimension((Entity) o);
-		}
-		return o.toString().substring(0, 48);
-	}
-
-	private static String niceName(Class<?> clazz) {
-		String name = clazz.getName();
-		if (name.contains(".")) {
-			String cName = name.substring(name.lastIndexOf('.') + 1);
-			String pName = name.substring(0, name.lastIndexOf('.'));
-			if (pName.contains(".")) {
-				pName = pName.substring(pName.lastIndexOf('.') + 1);
-			}
-			return (cName.length() < 15 ? pName + '.' : "") + cName;
-		}
-		return name;
 	}
 
 	private AtomicLong getSingleInvocationCount(Object o) {

@@ -1,4 +1,4 @@
-TickProfiler [![Build Status](https://nallar.me/buildservice/job/TickProfiler/branch/1.10.2/badge/icon)](https://nallar.me/buildservice/job/TickProfiler/)
+TickProfiler [![Build Status](https://jenkins.nallar.me/job/TickProfiler/branch/1.10.2/badge/icon)](https://jenkins.nallar.me/job/TickProfiler/)
 ==========
 A small mod for servers to assist with finding which TileEntities(machines) and Entities are being slow.
 
@@ -7,7 +7,7 @@ TickProfiler is licensed under the MIT license
 
 Download
 -----
-Download the latest builds from [Jenkins].
+Download the latest builds from [Jenkins](https://jenkins.nallar.me).
 
 Configuration
 -----
@@ -45,6 +45,3 @@ Acknowledgements
 ----------------------------------
 
 YourKit is kindly supporting open source projects with its full-featured Java Profiler. YourKit, LLC is the creator of innovative and intelligent tools for profiling Java and .NET applications. Take a look at YourKit's leading software products: [YourKit Java Profiler](http://www.yourkit.com/java/profiler/index.jsp) and [YourKit .NET Profiler](http://www.yourkit.com/.net/profiler/index.jsp).
-
-[License]: http://nallar.me/licenses/n-open-license-v1.txt
-[Jenkins]: http://nallar.me/buildservice

@@ -1,4 +1,4 @@
-package nallar.tickprofiler.util.stringfillers;
+package org.minimallycorrect.tickprofiler.util.stringfillers;
 
 public abstract class StringFiller {
 	public static final StringFiller CHAT = new ChatStringFiller();

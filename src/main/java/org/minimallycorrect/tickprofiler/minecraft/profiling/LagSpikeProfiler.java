@@ -1,16 +1,16 @@
-package nallar.tickprofiler.minecraft.profiling;
+package org.minimallycorrect.tickprofiler.minecraft.profiling;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import lombok.val;
-import nallar.tickprofiler.Log;
-import nallar.tickprofiler.minecraft.commands.Command;
-import nallar.tickprofiler.util.CollectionsUtil;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import org.minimallycorrect.tickprofiler.Log;
+import org.minimallycorrect.tickprofiler.minecraft.commands.Command;
+import org.minimallycorrect.tickprofiler.util.CollectionsUtil;
 
 import java.lang.management.*;
 import java.util.*;

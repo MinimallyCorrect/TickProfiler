@@ -1,9 +1,9 @@
-package nallar.tickprofiler.minecraft;
+package org.minimallycorrect.tickprofiler.minecraft;
 
-import me.nallar.libloader.LibLoader;
-import me.nallar.modpatcher.api.ModPatcher;
-import nallar.tickprofiler.Log;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
+import org.minimallycorrect.libloader.LibLoader;
+import org.minimallycorrect.modpatcher.api.ModPatcher;
+import org.minimallycorrect.tickprofiler.Log;
 
 import java.util.*;
 

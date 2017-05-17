@@ -1,11 +1,11 @@
-package nallar.tickprofiler.minecraft.profiling;
+package org.minimallycorrect.tickprofiler.minecraft.profiling;
 
-import nallar.tickprofiler.Log;
-import nallar.tickprofiler.minecraft.commands.Command;
-import nallar.tickprofiler.util.CollectionsUtil;
-import nallar.tickprofiler.util.TableFormatter;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
+import org.minimallycorrect.tickprofiler.Log;
+import org.minimallycorrect.tickprofiler.minecraft.commands.Command;
+import org.minimallycorrect.tickprofiler.util.CollectionsUtil;
+import org.minimallycorrect.tickprofiler.util.TableFormatter;
 
 import java.lang.management.*;
 import java.util.*;

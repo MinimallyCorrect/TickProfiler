@@ -1,4 +1,4 @@
-package nallar.tickprofiler.util;
+package org.minimallycorrect.tickprofiler.util;
 
 public enum ChatFormat {
 	BLACK('0'),
