@@ -1,12 +1,16 @@
 package org.minimallycorrect.tickprofiler.minecraft.profiling;
 
+import com.eclipsesource.json.Json;
+import com.eclipsesource.json.JsonArray;
+import com.eclipsesource.json.JsonObject;
+import com.eclipsesource.json.WriterConfig;
+import lombok.val;
 import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldProvider;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.minimallycorrect.modpatcher.api.UsedByPatch;
 import org.minimallycorrect.tickprofiler.Log;
 import org.minimallycorrect.tickprofiler.minecraft.TickProfiler;
@@ -16,6 +20,7 @@ import org.minimallycorrect.tickprofiler.util.TableFormatter;
 import org.minimallycorrect.tickprofiler.util.stringfillers.StringFiller;
 
 import java.io.*;
+import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.atomic.*;
 
@@ -193,14 +198,27 @@ public class EntityTickProfiler {
 		TableFormatter tf = new TableFormatter(StringFiller.FIXED_WIDTH);
 		tf.recordTables();
 		writeData(tf, 20);
-		ObjectMapper objectMapper = new ObjectMapper();
-		List<Object> tables = tf.getTables();
 		long timeProfiled = System.currentTimeMillis() - startTime;
 		float tps = ticks * 1000f / timeProfiled;
-		tables.add(0, CollectionsUtil.map(
-			"TPS", tps
-		));
-		objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, tables);
+		val result = Json.object();
+		result.add("TPS", tps);
+		List<List<Map<String, String>>> tables = tf.getTables();
+		val jsonTable = (JsonArray) Json.array();
+		for (val table : tables) {
+			val l = (JsonArray) Json.array();
+			for (Map<String, String> map : table) {
+				val o = Json.object();
+				for (Map.Entry<String, String> entry : map.entrySet()) {
+					o.add(entry.getKey(), entry.getValue());
+				}
+				l.add(o);
+			}
+			jsonTable.add(l);
+		}
+		result.add("tables", jsonTable);
+		try (val writer = Files.newBufferedWriter(file.toPath(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+			result.writeTo(writer, WriterConfig.PRETTY_PRINT);
+		}
 	}
 
 	public TableFormatter writeStringData(TableFormatter tf) {

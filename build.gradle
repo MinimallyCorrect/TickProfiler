@@ -51,8 +51,7 @@ configurations.all {
 }
 
 dependencies {
-	libLoader 'org.codehaus.jackson:jackson-core-lgpl:1.9.13'
-	libLoader 'org.codehaus.jackson:jackson-mapper-lgpl:1.9.13'
+	libLoader "com.eclipsesource.minimal-json:minimal-json:0.9.4"
 	libLoader "org.minimallycorrect.modpatcher:ModPatcher:$mcVersion-SNAPSHOT"
 	compileOnly 'org.projectlombok:lombok:1.16.16'
 }
