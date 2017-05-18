@@ -21,12 +21,12 @@ public class ContentionProfiler {
 	private long ticks;
 	private long[] threads;
 
-	public ContentionProfiler(int seconds, int resolution) {
+	private ContentionProfiler(int seconds, int resolution) {
 		this.seconds = seconds;
 		this.resolution = resolution;
 	}
 
-	public static boolean profile(final ICommandSender commandSender, int seconds, int resolution) {
+	public static void profile(final ICommandSender commandSender, int seconds, int resolution) {
 		Command.sendChat(commandSender, "Performing lock contention profiling for " + seconds + " seconds.");
 		final ContentionProfiler contentionProfiler = new ContentionProfiler(seconds, resolution);
 		contentionProfiler.run(() -> {
@@ -34,7 +34,6 @@ public class ContentionProfiler {
 			contentionProfiler.dump(tf, commandSender instanceof MinecraftServer ? 15 : 6);
 			Command.sendChat(commandSender, tf.toString());
 		});
-		return true;
 	}
 
 	private static String name(StackTraceElement stack) {
@@ -45,7 +44,7 @@ public class ContentionProfiler {
 		return className.substring(className.lastIndexOf('.') + 1) + '.' + stack.getMethodName();
 	}
 
-	public void run(final Runnable completed) {
+	private void run(final Runnable completed) {
 		final int ticks = seconds * 1000 / resolution;
 		new Thread(() -> {
 			profile(ticks);
@@ -53,7 +52,7 @@ public class ContentionProfiler {
 		}, "Contention Profiler").start();
 	}
 
-	public void dump(final TableFormatter tf, int entries) {
+	private void dump(final TableFormatter tf, int entries) {
 		float ticks = this.ticks;
 		tf
 			.heading("Monitor")
@@ -165,7 +164,7 @@ public class ContentionProfiler {
 	}
 
 	private static class IntegerHolder implements Comparable<IntegerHolder> {
-		public int value;
+		int value;
 
 		IntegerHolder() {
 		}
