@@ -28,7 +28,7 @@ public abstract class Command extends CommandBase {
 		}
 	}
 
-	protected boolean requireOp() {
+	boolean requireOp() {
 		return false;
 	}
 

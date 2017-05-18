@@ -7,6 +7,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldProvider;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.minimallycorrect.modpatcher.api.UsedByPatch;
 import org.minimallycorrect.tickprofiler.Log;
 import org.minimallycorrect.tickprofiler.minecraft.TickProfiler;
 import org.minimallycorrect.tickprofiler.minecraft.commands.ProfileCommand;
@@ -20,15 +21,12 @@ import java.util.concurrent.atomic.*;
 
 public class EntityTickProfiler {
 	public static final EntityTickProfiler INSTANCE = new EntityTickProfiler();
-	public static ProfileCommand.ProfilingState profilingState = ProfileCommand.ProfilingState.NONE;
+	private static ProfileCommand.ProfilingState profilingState = ProfileCommand.ProfilingState.NONE;
 	private final HashMap<Class<?>, AtomicInteger> invocationCount = new HashMap<>();
 	private final HashMap<Class<?>, AtomicLong> time = new HashMap<>();
 	private final HashMap<Object, AtomicLong> singleTime = new HashMap<>();
 	private final HashMap<Object, AtomicLong> singleInvocationCount = new HashMap<>();
 	private final AtomicLong totalTime = new AtomicLong();
-	private int lastCX = Integer.MIN_VALUE;
-	private int lastCZ = Integer.MIN_VALUE;
-	private boolean cachedActive = false;
 	private int ticks;
 	private volatile int chunkX;
 	private volatile int chunkZ;
@@ -37,7 +35,7 @@ public class EntityTickProfiler {
 	private EntityTickProfiler() {
 	}
 
-	public static synchronized boolean startProfiling(ProfileCommand.ProfilingState profilingState_) {
+	private static synchronized boolean startProfiling(ProfileCommand.ProfilingState profilingState_) {
 		if (profilingState != ProfileCommand.ProfilingState.NONE) {
 			return false;
 		}
@@ -45,7 +43,7 @@ public class EntityTickProfiler {
 		return true;
 	}
 
-	public static synchronized void endProfiling() {
+	private static synchronized void endProfiling() {
 		profilingState = ProfileCommand.ProfilingState.NONE;
 	}
 
@@ -125,6 +123,7 @@ public class EntityTickProfiler {
 		return true;
 	}
 
+	@UsedByPatch("entityhook.xml")
 	public void profileEntity(World w, Entity entity) {
 		final boolean profile = profilingState == ProfileCommand.ProfilingState.ENTITIES || (entity.chunkCoordX == chunkX && entity.chunkCoordZ == chunkZ);
 
@@ -138,6 +137,7 @@ public class EntityTickProfiler {
 		record(entity, System.nanoTime() - start);
 	}
 
+	@UsedByPatch("entityhook.xml")
 	public void profileTickable(ITickable tickable) {
 		final boolean profile = profilingState == ProfileCommand.ProfilingState.ENTITIES || shouldProfilePos(((TileEntity) tickable).getPos());
 
@@ -155,7 +155,7 @@ public class EntityTickProfiler {
 		return pos.getX() >> 4 == chunkX && pos.getZ() >> 4 == chunkZ;
 	}
 
-	public void record(Object o, long time) {
+	private void record(Object o, long time) {
 		if (time < 0) {
 			time = 0;
 		}
@@ -167,7 +167,7 @@ public class EntityTickProfiler {
 		totalTime.addAndGet(time);
 	}
 
-	public void clear() {
+	private void clear() {
 		invocationCount.clear();
 		synchronized (time) {
 			time.clear();
@@ -214,7 +214,7 @@ public class EntityTickProfiler {
 		return writeData(tf, elements);
 	}
 
-	public TableFormatter writeData(TableFormatter tf, int elements) {
+	private TableFormatter writeData(TableFormatter tf, int elements) {
 		Map<Class<?>, Long> time = new HashMap<>();
 		synchronized (this.time) {
 			for (Map.Entry<Class<?>, AtomicLong> entry : this.time.entrySet()) {
@@ -319,11 +319,7 @@ public class EntityTickProfiler {
 	private AtomicLong getSingleInvocationCount(Object o) {
 		AtomicLong t = singleInvocationCount.get(o);
 		if (t == null) {
-			t = singleInvocationCount.get(o);
-			if (t == null) {
-				t = new AtomicLong();
-				singleInvocationCount.put(o, t);
-			}
+			t = singleInvocationCount.computeIfAbsent(o, k -> new AtomicLong());
 		}
 		return t;
 	}
@@ -331,11 +327,7 @@ public class EntityTickProfiler {
 	private AtomicInteger getInvocationCount(Class<?> clazz) {
 		AtomicInteger i = invocationCount.get(clazz);
 		if (i == null) {
-			i = invocationCount.get(clazz);
-			if (i == null) {
-				i = new AtomicInteger();
-				invocationCount.put(clazz, i);
-			}
+			i = invocationCount.computeIfAbsent(clazz, k -> new AtomicInteger());
 		}
 		return i;
 	}
@@ -364,9 +356,9 @@ public class EntityTickProfiler {
 	}
 
 	private static final class ChunkCoords {
-		public final int chunkXPos;
-		public final int chunkZPos;
-		public final int dimension;
+		final int chunkXPos;
+		final int chunkZPos;
+		final int dimension;
 
 		ChunkCoords(final int chunkXPos, final int chunkZPos, final int dimension) {
 			this.chunkXPos = chunkXPos;
@@ -386,7 +378,7 @@ public class EntityTickProfiler {
 	}
 
 	private class ComparableLongHolder implements Comparable<ComparableLongHolder> {
-		public long value;
+		long value;
 
 		ComparableLongHolder() {
 		}

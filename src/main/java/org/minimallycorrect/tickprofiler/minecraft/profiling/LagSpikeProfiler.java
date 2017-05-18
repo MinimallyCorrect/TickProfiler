@@ -32,17 +32,16 @@ public class LagSpikeProfiler {
 		stopTime = System.nanoTime() + TimeUnit.SECONDS.toNanos(time_);
 	}
 
-	public static boolean profile(ICommandSender commandSender, int time_) {
+	public static void profile(ICommandSender commandSender, int time_) {
 		synchronized (LagSpikeProfiler.class) {
 			if (inProgress) {
 				Command.sendChat(commandSender, "Lag spike profiling is already in progress");
-				return false;
+				return;
 			}
 			inProgress = true;
 		}
 		Command.sendChat(commandSender, "Started lag spike detection for " + time_ + " seconds.");
 		new LagSpikeProfiler(commandSender, time_).start();
-		return true;
 	}
 
 	public static void tick(long nanoTime) {

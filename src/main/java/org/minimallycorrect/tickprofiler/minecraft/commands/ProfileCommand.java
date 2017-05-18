@@ -29,7 +29,7 @@ public class ProfileCommand extends Command {
 		process(commandSender, arguments);
 	}
 
-	private boolean process(final ICommandSender commandSender, List<String> arguments) {
+	private void process(final ICommandSender commandSender, List<String> arguments) {
 		World world = null;
 		int time_;
 		Integer x = null;
@@ -56,17 +56,21 @@ public class ProfileCommand extends Command {
 
 			switch (type) {
 				case PACKETS:
-					return PacketProfiler.profile(commandSender, time_);
+					PacketProfiler.profile(commandSender, time_);
+					return;
 				case UTILISATION:
-					return UtilisationProfiler.profile(commandSender, time_);
+					UtilisationProfiler.profile(commandSender, time_);
+					return;
 				case LOCK_CONTENTION:
 					int resolution = 240;
 					if (arguments.size() > 2) {
 						resolution = Integer.valueOf(arguments.get(2));
 					}
-					return ContentionProfiler.profile(commandSender, time_, resolution);
+					ContentionProfiler.profile(commandSender, time_, resolution);
+					return;
 				case LAG_SPIKE_DETECTOR:
-					return LagSpikeProfiler.profile(commandSender, time_);
+					LagSpikeProfiler.profile(commandSender, time_);
+					return;
 			}
 
 			if (arguments.size() > 2) {
@@ -84,7 +88,7 @@ public class ProfileCommand extends Command {
 			}
 		} catch (UsageException e) {
 			sendChat(commandSender, getUsage(commandSender));
-			return true;
+			return;
 		}
 
 		final List<World> worlds = new ArrayList<>();
@@ -97,14 +101,13 @@ public class ProfileCommand extends Command {
 		final EntityTickProfiler entityTickProfiler = EntityTickProfiler.INSTANCE;
 		if (!entityTickProfiler.startProfiling(() -> sendChat(commandSender, entityTickProfiler.writeStringData(new TableFormatter(commandSender)).toString()), type, time, worlds)) {
 			sendChat(commandSender, "Someone else is currently profiling.");
-			return false;
+			return;
 		}
 		if (type == ProfilingState.CHUNK_ENTITIES) {
 			entityTickProfiler.setLocation(x, z);
 		}
 		sendChat(commandSender, "Profiling for " + time + " seconds in " + (world == null ? "all worlds " : Log.name(world))
 			+ (type == ProfilingState.CHUNK_ENTITIES ? " at " + x + ',' + z : ""));
-		return true;
 	}
 
 	@Override

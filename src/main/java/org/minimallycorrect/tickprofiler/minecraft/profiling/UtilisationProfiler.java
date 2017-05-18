@@ -16,11 +16,11 @@ public class UtilisationProfiler {
 	private final int seconds;
 	private final Map<String, Long> monitorMap = new HashMap<>();
 
-	public UtilisationProfiler(int seconds) {
+	private UtilisationProfiler(int seconds) {
 		this.seconds = seconds;
 	}
 
-	public static boolean profile(final ICommandSender commandSender, int seconds) {
+	public static void profile(final ICommandSender commandSender, int seconds) {
 		Command.sendChat(commandSender, "Performing utilisation profiling for " + seconds + " seconds.");
 		final UtilisationProfiler contentionProfiler = new UtilisationProfiler(seconds);
 		contentionProfiler.run(() -> {
@@ -28,10 +28,9 @@ public class UtilisationProfiler {
 			contentionProfiler.dump(tf, commandSender instanceof MinecraftServer ? 15 : 6);
 			Command.sendChat(commandSender, tf.toString());
 		});
-		return true;
 	}
 
-	public void run(final Runnable completed) {
+	private void run(final Runnable completed) {
 		new Thread(() -> {
 			profile();
 			completed.run();
@@ -39,7 +38,7 @@ public class UtilisationProfiler {
 		}, "Contention Profiler").start();
 	}
 
-	public void dump(final TableFormatter tf, int entries) {
+	private void dump(final TableFormatter tf, int entries) {
 		double seconds = TimeUnit.SECONDS.toNanos(this.seconds);
 		tf
 			.heading("Thread")

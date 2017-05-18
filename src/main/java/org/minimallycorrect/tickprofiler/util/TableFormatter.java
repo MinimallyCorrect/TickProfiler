@@ -8,15 +8,15 @@ import java.util.*;
 
 public class TableFormatter {
 	private static final int POW10[] = {1, 10, 100, 1000, 10000, 100000, 1000000};
-	public final StringFiller stringFiller;
 	public final StringBuilder sb = new StringBuilder();
-	public final String rowColour = "";
+	private final StringFiller stringFiller;
+	private final String rowColour = "";
 	private final List<String> currentHeadings = new ArrayList<>();
 	private final List<String> currentData = new ArrayList<>();
-	public String splitter = " | ";
-	public String headingSplitter = " | ";
-	public String headingColour = "";
 	public String tableSeparator = "";
+	private String splitter = " | ";
+	private String headingSplitter = " | ";
+	private String headingColour = "";
 	private boolean recordTables = false;
 	private ArrayList<List<Map<String, String>>> tables;
 
@@ -126,7 +126,7 @@ public class TableFormatter {
 		currentData.clear();
 	}
 
-	private int getMaxLengths(double[] rowLengths, int rowIndex, int rowCount, Iterable<String> stringIterable) {
+	private void getMaxLengths(double[] rowLengths, int rowIndex, int rowCount, Iterable<String> stringIterable) {
 		for (String data : stringIterable) {
 			double length = stringFiller.getLength(data);
 			if (rowLengths[rowIndex % rowCount] < length) {
@@ -134,7 +134,6 @@ public class TableFormatter {
 			}
 			rowIndex++;
 		}
-		return rowIndex;
 	}
 
 	@Override

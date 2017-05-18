@@ -8,10 +8,11 @@ buildscript {
 		maven {
 			name = "nallar"
 			url = "https://repo.nallar.me/"
-	}
+		}
 	}
 	configurations.all {
-		resolutionStrategy.cacheChangingModulesFor 10, 'seconds'
+		resolutionStrategy.cacheChangingModulesFor 1, 'hours'
+		resolutionStrategy.cacheDynamicVersionsFor 1, 'hours'
 	}
 	dependencies {
 		classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
@@ -38,7 +39,6 @@ def calculateVersion() {
 	return ver + "-dev"
 }
 
-
 version = calculateVersion()
 
 repositories {
@@ -46,7 +46,8 @@ repositories {
 }
 
 configurations.all {
-	resolutionStrategy.cacheChangingModulesFor 10, 'seconds'
+	resolutionStrategy.cacheChangingModulesFor 1, 'hours'
+	resolutionStrategy.cacheDynamicVersionsFor 1, 'hours'
 }
 
 dependencies {

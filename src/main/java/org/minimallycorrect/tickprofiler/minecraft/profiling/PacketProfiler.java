@@ -5,6 +5,7 @@ import com.google.common.collect.Ordering;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketBuffer;
+import org.minimallycorrect.modpatcher.api.UsedByPatch;
 import org.minimallycorrect.tickprofiler.minecraft.commands.Command;
 import org.minimallycorrect.tickprofiler.util.TableFormatter;
 
@@ -17,29 +18,25 @@ public class PacketProfiler {
 	private static final Map<String, AtomicInteger> count = new ConcurrentHashMap<>();
 	private static boolean profiling = false;
 
-	public static synchronized boolean profile(final ICommandSender commandSender, final int time) {
+	public static synchronized void profile(final ICommandSender commandSender, final int time) {
 		if (profiling) {
 			Command.sendChat(commandSender, "Someone else is already profiling packets.");
-			return false;
+			return;
 		}
 		profiling = true;
 		Command.sendChat(commandSender, "Profiling packets for " + time + " seconds.");
-		new Thread() {
-			@Override
-			public void run() {
-				try {
-					Thread.sleep(time * 1000);
-				} catch (InterruptedException ignored) {
-				}
-				Command.sendChat(commandSender, writeStats(new TableFormatter(commandSender)).toString());
-				synchronized (PacketProfiler.class) {
-					size.clear();
-					count.clear();
-					profiling = false;
-				}
+		new Thread(() -> {
+			try {
+				Thread.sleep(time * 1000);
+			} catch (InterruptedException ignored) {
 			}
-		}.start();
-		return true;
+			Command.sendChat(commandSender, writeStats(new TableFormatter(commandSender)).toString());
+			synchronized (PacketProfiler.class) {
+				size.clear();
+				count.clear();
+				profiling = false;
+			}
+		}).start();
 	}
 
 	private static <T> List<T> sortedKeys(Map<T, ? extends Comparable<?>> map, int elements) {
@@ -96,8 +93,7 @@ public class PacketProfiler {
 		return name;
 	}
 
-	// called from packethook.xml
-	@SuppressWarnings("unused")
+	@UsedByPatch("packethook.xml")
 	public static void record(final Packet packet, PacketBuffer buffer) {
 		if (!profiling) {
 			return;
@@ -113,18 +109,14 @@ public class PacketProfiler {
 		AtomicInteger t = map.get(key);
 		if (t == null) {
 			synchronized (map) {
-				t = map.get(key);
-				if (t == null) {
-					t = new AtomicInteger();
-					map.put(key, t);
-				}
+				t = map.computeIfAbsent(key, k -> new AtomicInteger());
 			}
 		}
 		return t;
 	}
 
 	// http://stackoverflow.com/a/3758880/250076
-	public static String humanReadableByteCount(int bytes) {
+	private static String humanReadableByteCount(int bytes) {
 		int unit = 1024;
 		if (bytes < unit) {
 			return bytes + " B";

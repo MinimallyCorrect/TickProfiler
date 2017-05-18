@@ -1,5 +1,6 @@
 package org.minimallycorrect.tickprofiler.util;
 
+@SuppressWarnings("unused")
 public enum ChatFormat {
 	BLACK('0'),
 	DARK_BLUE('1'),
