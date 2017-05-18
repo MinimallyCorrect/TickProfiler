@@ -18,7 +18,7 @@ public class TableFormatter {
 	private String headingSplitter = " | ";
 	private String headingColour = "";
 	private boolean recordTables = false;
-	private ArrayList<List<Map<String, String>>> tables;
+	private List<List<Map<String, String>>> tables;
 
 	public TableFormatter(ICommandSender commandSender) {
 		boolean chat = commandSender instanceof Entity;
@@ -146,7 +146,7 @@ public class TableFormatter {
 		tables = new ArrayList<>();
 	}
 
-	public List getTables() {
+	public List<List<Map<String, String>>> getTables() {
 		return tables;
 	}
 }
