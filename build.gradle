@@ -42,6 +42,7 @@ def calculateVersion() {
 version = calculateVersion()
 
 repositories {
+	jcenter()
 	maven { url = 'https://repo.nallar.me/' }
 }
 
