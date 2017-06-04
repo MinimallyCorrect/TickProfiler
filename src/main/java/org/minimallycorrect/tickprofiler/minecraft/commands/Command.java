@@ -5,6 +5,7 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
 import org.minimallycorrect.tickprofiler.Log;
+import org.minimallycorrect.tickprofiler.minecraft.profiling.AlreadyRunningException;
 
 import java.util.*;
 
@@ -39,7 +40,16 @@ public abstract class Command extends CommandBase {
 
 	@Override
 	public final void execute(MinecraftServer server, ICommandSender commandSender, String[] argumentsArray) {
-		processCommand(commandSender, new ArrayList<>(Arrays.asList(argumentsArray)));
+		try {
+			processCommand(commandSender, new ArrayList<>(Arrays.asList(argumentsArray)));
+		} catch (UsageException e) {
+			String message = e.getMessage();
+			if (message != null && !message.isEmpty())
+				sendChat(commandSender, "Usage exception: " + message);
+			sendChat(commandSender, getUsage(commandSender));
+		} catch (AlreadyRunningException e) {
+			sendChat(commandSender, e.getMessage());
+		}
 	}
 
 	protected abstract void processCommand(ICommandSender commandSender, List<String> arguments);

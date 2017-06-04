@@ -17,21 +17,20 @@ public class TableFormatter {
 	private String splitter = " | ";
 	private String headingSplitter = " | ";
 	private String headingColour = "";
-	private boolean recordTables = false;
 	private List<List<Map<String, String>>> tables;
 
 	public TableFormatter(ICommandSender commandSender) {
-		boolean chat = commandSender instanceof Entity;
-		stringFiller = chat ? StringFiller.CHAT : StringFiller.FIXED_WIDTH;
-		if (chat) {
+		this(commandSender instanceof Entity ? StringFiller.CHAT : StringFiller.FIXED_WIDTH, false);
+	}
+
+	public TableFormatter(StringFiller stringFiller, boolean recordTables) {
+		this.stringFiller = stringFiller;
+		tables = recordTables ? new ArrayList<>() : null;
+		if (stringFiller == StringFiller.CHAT) {
 			splitter = " " + ChatFormat.YELLOW + '|' + ChatFormat.RESET + ' ';
 			headingSplitter = splitter;
 			headingColour = String.valueOf(ChatFormat.DARK_GREEN);
 		}
-	}
-
-	public TableFormatter(StringFiller stringFiller) {
-		this.stringFiller = stringFiller;
 	}
 
 	/*
@@ -100,7 +99,7 @@ public class TableFormatter {
 		cSplit = "";
 		rowIndex = 0;
 		ArrayList<Map<String, String>> table = null;
-		if (recordTables) {
+		if (tables != null) {
 			table = new ArrayList<>();
 			tables.add(table);
 		}
@@ -139,11 +138,6 @@ public class TableFormatter {
 	@Override
 	public String toString() {
 		return sb.toString();
-	}
-
-	public void recordTables() {
-		recordTables = true;
-		tables = new ArrayList<>();
 	}
 
 	public List<List<Map<String, String>>> getTables() {

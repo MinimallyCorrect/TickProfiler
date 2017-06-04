@@ -1,32 +1,27 @@
 package org.minimallycorrect.tickprofiler.minecraft;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.MapMaker;
-import com.google.common.io.Files;
 import net.minecraft.command.ServerCommandManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
-import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import org.minimallycorrect.modpatcher.api.UsedByPatch;
 import org.minimallycorrect.tickprofiler.Log;
 import org.minimallycorrect.tickprofiler.minecraft.commands.Command;
 import org.minimallycorrect.tickprofiler.minecraft.commands.DumpCommand;
 import org.minimallycorrect.tickprofiler.minecraft.commands.ProfileCommand;
 import org.minimallycorrect.tickprofiler.minecraft.commands.TPSCommand;
-import org.minimallycorrect.tickprofiler.minecraft.profiling.EntityTickProfiler;
-import org.minimallycorrect.tickprofiler.minecraft.profiling.LagSpikeProfiler;
 import org.minimallycorrect.tickprofiler.util.TableFormatter;
 
 import java.io.*;
@@ -40,6 +35,7 @@ public class TickProfiler {
 	public static TickProfiler instance;
 	public static long tickTime = 20; // Initialise with non-zero value to avoid divide-by-zero errors calculating TPS
 	public static long lastTickTime;
+	public static long tickCount = 0;
 	public boolean requireOpForProfileCommand = true;
 	public boolean requireOpForDumpCommand = true;
 	private int profilingInterval = 0;
@@ -47,7 +43,7 @@ public class TickProfiler {
 	private boolean profilingJson = false;
 
 	// Called from patch code
-	@SuppressWarnings("unused")
+	@UsedByPatch("entityhook.xml")
 	public static boolean shouldProfile(World w) {
 		return profilingWorlds.contains(w);
 	}
@@ -134,27 +130,14 @@ public class TickProfiler {
 			long time = System.nanoTime();
 			long thisTickTime = time - lastTickTime;
 			lastTickTime = time;
-			LagSpikeProfiler.tick(time);
 			tickTime = (tickTime * 19 + thisTickTime) / 20;
-			final EntityTickProfiler entityTickProfiler = EntityTickProfiler.INSTANCE;
-			entityTickProfiler.tick();
+			tickCount++;
 			int profilingInterval = this.profilingInterval;
 			if (profilingInterval <= 0 || counter++ % (profilingInterval * 60 * 20) != 0) {
 				return;
 			}
-			entityTickProfiler.startProfiling(() -> {
-				try {
-					TableFormatter tf = new TableFormatter(FMLCommonHandler.instance().getMinecraftServerInstance());
-					tf.tableSeparator = "\n";
-					if (json) {
-						entityTickProfiler.writeJSONData(profilingFile);
-					} else {
-						Files.write(entityTickProfiler.writeStringData(tf, 6).toString(), profilingFile, Charsets.UTF_8);
-					}
-				} catch (Throwable t) {
-					Log.error("Failed to save periodic profiling data to " + profilingFile, t);
-				}
-			}, ProfileCommand.ProfilingState.ENTITIES, 10, Arrays.asList(DimensionManager.getWorlds()));
+			throw new UnsupportedOperationException("Periodic JSON profiling not currently supported - TODO - fix");
+			// TODO: Should profile here to json/text
 		}
 	}
 }

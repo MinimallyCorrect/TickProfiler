@@ -1,11 +1,7 @@
 package org.minimallycorrect.tickprofiler.minecraft.commands;
 
-class UsageException extends RuntimeException {
-	UsageException() {
-		super();
-	}
-
-	UsageException(String message) {
+public class UsageException extends RuntimeException {
+	public UsageException(String message) {
 		super(message);
 	}
 }

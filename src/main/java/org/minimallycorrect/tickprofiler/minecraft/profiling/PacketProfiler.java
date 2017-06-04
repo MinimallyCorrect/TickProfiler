@@ -2,53 +2,27 @@ package org.minimallycorrect.tickprofiler.minecraft.profiling;
 
 import com.google.common.base.Functions;
 import com.google.common.collect.Ordering;
-import net.minecraft.command.ICommandSender;
+import lombok.val;
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketBuffer;
 import org.minimallycorrect.modpatcher.api.UsedByPatch;
-import org.minimallycorrect.tickprofiler.minecraft.commands.Command;
 import org.minimallycorrect.tickprofiler.util.TableFormatter;
 
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 
-public class PacketProfiler {
+public class PacketProfiler extends Profile {
+	private static final AtomicBoolean running = new AtomicBoolean();
 	private static final Map<String, AtomicInteger> size = new ConcurrentHashMap<>();
 	private static final Map<String, AtomicInteger> count = new ConcurrentHashMap<>();
-	private static boolean profiling = false;
-
-	public static synchronized void profile(final ICommandSender commandSender, final int time) {
-		if (profiling) {
-			Command.sendChat(commandSender, "Someone else is already profiling packets.");
-			return;
-		}
-		profiling = true;
-		Command.sendChat(commandSender, "Profiling packets for " + time + " seconds.");
-		new Thread(() -> {
-			try {
-				Thread.sleep(time * 1000);
-			} catch (InterruptedException ignored) {
-			}
-			Command.sendChat(commandSender, writeStats(new TableFormatter(commandSender)).toString());
-			synchronized (PacketProfiler.class) {
-				size.clear();
-				count.clear();
-				profiling = false;
-			}
-		}).start();
-	}
 
 	private static <T> List<T> sortedKeys(Map<T, ? extends Comparable<?>> map, int elements) {
 		List<T> list = Ordering.natural().reverse().onResultOf(Functions.forMap(map)).immutableSortedCopy(map.keySet());
 		return list.size() > elements ? list.subList(0, elements) : list;
 	}
 
-	private static TableFormatter writeStats(final TableFormatter tf) {
-		return writeStats(tf, 9);
-	}
-
-	private static TableFormatter writeStats(final TableFormatter tf, int elements) {
+	private static void writeStats(final TableFormatter tf, int elements) {
 		Map<String, Integer> count = new HashMap<>();
 		for (Map.Entry<String, AtomicInteger> entry : PacketProfiler.count.entrySet()) {
 			count.put(entry.getKey(), entry.getValue().get());
@@ -83,7 +57,6 @@ public class PacketProfiler {
 				.row(humanReadableByteCount(size.get(id)));
 		}
 		tf.finishTable();
-		return tf;
 	}
 
 	private static String humanReadableName(String name) {
@@ -95,7 +68,7 @@ public class PacketProfiler {
 
 	@UsedByPatch("packethook.xml")
 	public static void record(final Packet packet, PacketBuffer buffer) {
-		if (!profiling) {
+		if (!running.get()) {
 			return;
 		}
 		String id = packet.getClass().getSimpleName();
@@ -124,5 +97,26 @@ public class PacketProfiler {
 		int exp = (int) (Math.log(bytes) / Math.log(unit));
 		char pre = ("KMGTPE").charAt(exp - 1);
 		return String.format("%.1f%cB", bytes / Math.pow(unit, exp), pre);
+	}
+
+	@Override
+	protected AtomicBoolean getRunning() {
+		return running;
+	}
+
+	@Override
+	public void start() {
+		val elements = parameters.getInt("elements");
+		if (elements <= 0)
+			throw new IllegalArgumentException("elements must be > 0");
+		start(() -> {
+		}, () -> targets.forEach(it -> {
+			val tf = it.getTableFormatter();
+			writeStats(tf, elements);
+			it.sendTables(tf);
+		}), () -> {
+			size.clear();
+			count.clear();
+		});
 	}
 }
