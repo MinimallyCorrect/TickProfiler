@@ -1,56 +1,31 @@
 package org.minimallycorrect.tickprofiler.minecraft.profiling;
 
-import com.eclipsesource.json.Json;
-import com.eclipsesource.json.JsonArray;
-import com.eclipsesource.json.JsonObject;
-import com.eclipsesource.json.WriterConfig;
 import lombok.val;
 import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldProvider;
+import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.DimensionManager;
 import org.minimallycorrect.modpatcher.api.UsedByPatch;
 import org.minimallycorrect.tickprofiler.Log;
 import org.minimallycorrect.tickprofiler.minecraft.TickProfiler;
-import org.minimallycorrect.tickprofiler.minecraft.commands.ProfileCommand;
 import org.minimallycorrect.tickprofiler.util.CollectionsUtil;
 import org.minimallycorrect.tickprofiler.util.TableFormatter;
-import org.minimallycorrect.tickprofiler.util.stringfillers.StringFiller;
 
-import java.io.*;
-import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.atomic.*;
 
-public class EntityTickProfiler {
-	public static final EntityTickProfiler INSTANCE = new EntityTickProfiler();
-	private static ProfileCommand.ProfilingState profilingState = ProfileCommand.ProfilingState.NONE;
-	private final HashMap<Class<?>, AtomicInteger> invocationCount = new HashMap<>();
-	private final HashMap<Class<?>, AtomicLong> time = new HashMap<>();
-	private final HashMap<Object, AtomicLong> singleTime = new HashMap<>();
-	private final HashMap<Object, AtomicLong> singleInvocationCount = new HashMap<>();
-	private final AtomicLong totalTime = new AtomicLong();
-	private int ticks;
-	private volatile int chunkX;
-	private volatile int chunkZ;
-	private volatile long startTime;
-
-	private EntityTickProfiler() {
-	}
-
-	private static synchronized boolean startProfiling(ProfileCommand.ProfilingState profilingState_) {
-		if (profilingState != ProfileCommand.ProfilingState.NONE) {
-			return false;
-		}
-		profilingState = profilingState_;
-		return true;
-	}
-
-	private static synchronized void endProfiling() {
-		profilingState = ProfileCommand.ProfilingState.NONE;
-	}
+public class EntityProfiler extends Profile {
+	private static final AtomicBoolean running = new AtomicBoolean();
+	private static final HashMap<Class<?>, AtomicInteger> invocationCount = new HashMap<>();
+	private static final HashMap<Class<?>, AtomicLong> time = new HashMap<>();
+	private static final HashMap<Object, AtomicLong> singleTime = new HashMap<>();
+	private static final HashMap<Object, AtomicLong> singleInvocationCount = new HashMap<>();
+	private static final AtomicLong totalTime = new AtomicLong();
+	private static long startTick;
+	private static long startTime;
 
 	private static int getDimension(TileEntity o) {
 		//noinspection ConstantConditions
@@ -87,80 +62,21 @@ public class EntityTickProfiler {
 		return name;
 	}
 
-	public void setLocation(final int x, final int z) {
-		chunkX = x;
-		chunkZ = z;
-	}
-
-	public boolean startProfiling(final Runnable runnable, ProfileCommand.ProfilingState state, final int time, final Collection<World> worlds_) {
-		if (time <= 0) {
-			throw new IllegalArgumentException("time must be > 0");
-		}
-		final Collection<World> worlds = new ArrayList<>(worlds_);
-		synchronized (EntityTickProfiler.class) {
-			if (!startProfiling(state)) {
-				return false;
-			}
-			for (World world_ : worlds) {
-				TickProfiler.instance.hookProfiler(world_);
-			}
-		}
-
-		Runnable profilingRunnable = () -> {
-			try {
-				Thread.sleep(1000 * time);
-			} catch (InterruptedException ignored) {
-			}
-
-			synchronized (EntityTickProfiler.class) {
-				endProfiling();
-				for (World world_ : worlds) {
-					TickProfiler.instance.unhookProfiler(world_);
-				}
-				runnable.run();
-				clear();
-			}
-		};
-		Thread profilingThread = new Thread(profilingRunnable);
-		profilingThread.setName("TickProfiler");
-		profilingThread.start();
-		startTime = System.currentTimeMillis();
-		return true;
-	}
-
 	@UsedByPatch("entityhook.xml")
-	public void profileEntity(World w, Entity entity) {
-		final boolean profile = profilingState == ProfileCommand.ProfilingState.ENTITIES || (entity.chunkCoordX == chunkX && entity.chunkCoordZ == chunkZ);
-
-		if (!profile) {
-			w.updateEntity(entity);
-			return;
-		}
-
+	public static void profileEntity(World w, Entity entity) {
 		long start = System.nanoTime();
 		w.updateEntity(entity);
 		record(entity, System.nanoTime() - start);
 	}
 
 	@UsedByPatch("entityhook.xml")
-	public void profileTickable(ITickable tickable) {
-		final boolean profile = profilingState == ProfileCommand.ProfilingState.ENTITIES || shouldProfilePos(((TileEntity) tickable).getPos());
-
-		if (!profile) {
-			tickable.update();
-			return;
-		}
-
+	public static void profileTickable(ITickable tickable) {
 		long start = System.nanoTime();
 		tickable.update();
 		record(tickable, System.nanoTime() - start);
 	}
 
-	private boolean shouldProfilePos(BlockPos pos) {
-		return pos.getX() >> 4 == chunkX && pos.getZ() >> 4 == chunkZ;
-	}
-
-	private void record(Object o, long time) {
+	private static void record(Object o, long time) {
 		if (time < 0) {
 			time = 0;
 		}
@@ -172,80 +88,27 @@ public class EntityTickProfiler {
 		totalTime.addAndGet(time);
 	}
 
-	private void clear() {
-		invocationCount.clear();
-		synchronized (time) {
-			time.clear();
-		}
-		totalTime.set(0);
-		synchronized (singleTime) {
-			singleTime.clear();
-		}
-		singleInvocationCount.clear();
-		synchronized (this) {
-			ticks = 0;
-		}
-	}
-
-	public synchronized void tick() {
-		if (profilingState != ProfileCommand.ProfilingState.NONE) {
-			ticks++;
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	public void writeJSONData(File file) throws IOException {
-		TableFormatter tf = new TableFormatter(StringFiller.FIXED_WIDTH);
-		tf.recordTables();
-		writeData(tf, 20);
+	private static void writeStringData(TableFormatter tf, int elements) {
 		long timeProfiled = System.currentTimeMillis() - startTime;
-		float tps = ticks * 1000f / timeProfiled;
-		val result = Json.object();
-		result.add("TPS", tps);
-		List<List<Map<String, String>>> tables = tf.getTables();
-		val jsonTable = (JsonArray) Json.array();
-		for (val table : tables) {
-			val l = (JsonArray) Json.array();
-			for (Map<String, String> map : table) {
-				val o = Json.object();
-				for (Map.Entry<String, String> entry : map.entrySet()) {
-					o.add(entry.getKey(), entry.getValue());
-				}
-				l.add(o);
-			}
-			jsonTable.add(l);
-		}
-		result.add("tables", jsonTable);
-		try (val writer = Files.newBufferedWriter(file.toPath(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
-			result.writeTo(writer, WriterConfig.PRETTY_PRINT);
-		}
-	}
-
-	public TableFormatter writeStringData(TableFormatter tf) {
-		return writeStringData(tf, 5);
-	}
-
-	public TableFormatter writeStringData(TableFormatter tf, int elements) {
-		long timeProfiled = System.currentTimeMillis() - startTime;
-		float tps = ticks * 1000f / timeProfiled;
+		float tps = (TickProfiler.tickCount - startTick) * 1000f / timeProfiled;
 		tf.sb.append("TPS: ").append(tps).append('\n').append(tf.tableSeparator);
-		return writeData(tf, elements);
+		writeData(tf, elements);
 	}
 
-	private TableFormatter writeData(TableFormatter tf, int elements) {
+	private static void writeData(TableFormatter tf, int elements) {
 		Map<Class<?>, Long> time = new HashMap<>();
-		synchronized (this.time) {
-			for (Map.Entry<Class<?>, AtomicLong> entry : this.time.entrySet()) {
+		synchronized (EntityProfiler.time) {
+			for (Map.Entry<Class<?>, AtomicLong> entry : EntityProfiler.time.entrySet()) {
 				time.put(entry.getKey(), entry.getValue().get());
 			}
 		}
 		Map<Object, Long> singleTime = new HashMap<>();
-		synchronized (this.singleTime) {
-			for (Map.Entry<Object, AtomicLong> entry : this.singleTime.entrySet()) {
+		synchronized (EntityProfiler.singleTime) {
+			for (Map.Entry<Object, AtomicLong> entry : EntityProfiler.singleTime.entrySet()) {
 				singleTime.put(entry.getKey(), entry.getValue().get());
 			}
 		}
-		double totalTime = this.totalTime.get();
+		double totalTime = EntityProfiler.totalTime.get();
 		tf
 			.heading("Single Entity")
 			.heading("Time/Tick")
@@ -271,6 +134,7 @@ public class EntityTickProfiler {
 				return value;
 			}
 		};
+		val ticks = TickProfiler.tickCount - startTick;
 		for (final Map.Entry<Object, Long> singleTimeEntry : singleTime.entrySet()) {
 			int x;
 			int z;
@@ -317,7 +181,7 @@ public class EntityTickProfiler {
 		tf.finishTable();
 		tf.sb.append('\n');
 		Map<Class<?>, Long> timePerTick = new HashMap<>();
-		for (Map.Entry<Class<?>, AtomicLong> entry : this.time.entrySet()) {
+		for (Map.Entry<Class<?>, AtomicLong> entry : EntityProfiler.time.entrySet()) {
 			timePerTick.put(entry.getKey(), entry.getValue().get() / invocationCount.get(entry.getKey()).get());
 		}
 		tf
@@ -331,10 +195,9 @@ public class EntityTickProfiler {
 				.row(invocationCount.get(c));
 		}
 		tf.finishTable();
-		return tf;
 	}
 
-	private AtomicLong getSingleInvocationCount(Object o) {
+	private static AtomicLong getSingleInvocationCount(Object o) {
 		AtomicLong t = singleInvocationCount.get(o);
 		if (t == null) {
 			t = singleInvocationCount.computeIfAbsent(o, k -> new AtomicLong());
@@ -342,7 +205,7 @@ public class EntityTickProfiler {
 		return t;
 	}
 
-	private AtomicInteger getInvocationCount(Class<?> clazz) {
+	private static AtomicInteger getInvocationCount(Class<?> clazz) {
 		AtomicInteger i = invocationCount.get(clazz);
 		if (i == null) {
 			i = invocationCount.computeIfAbsent(clazz, k -> new AtomicInteger());
@@ -350,16 +213,16 @@ public class EntityTickProfiler {
 		return i;
 	}
 
-	private AtomicLong getSingleTime(Object o) {
-		return this.getTime(o, singleTime);
+	private static AtomicLong getSingleTime(Object o) {
+		return getTime(o, singleTime);
 	}
 
-	private AtomicLong getTime(Class<?> clazz) {
-		return this.getTime(clazz, time);
+	private static AtomicLong getTime(Class<?> clazz) {
+		return getTime(clazz, time);
 	}
 
 	@SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
-	private <T> AtomicLong getTime(T clazz, HashMap<T, AtomicLong> time) {
+	private static <T> AtomicLong getTime(T clazz, HashMap<T, AtomicLong> time) {
 		AtomicLong t = time.get(clazz);
 		if (t == null) {
 			t = time.get(clazz);
@@ -371,6 +234,54 @@ public class EntityTickProfiler {
 			}
 		}
 		return t;
+	}
+
+	@Override
+	protected AtomicBoolean getRunning() {
+		return running;
+	}
+
+	@Override
+	public void start() {
+		val elements = parameters.getInt("elements");
+		if (elements <= 0)
+			throw new IllegalArgumentException("elements must be > 0");
+		val worlds = parameters.getString("worlds").toLowerCase();
+		val worldList = new ArrayList<WorldServer>();
+		if (worlds.equals("all")) {
+			Collections.addAll(worldList, DimensionManager.getWorlds());
+		} else {
+			//TODO: handle multiple entries, split by ','
+			worldList.add(DimensionManager.getWorld(Integer.parseInt(worlds)));
+		}
+		start(() -> {
+			for (World world_ : worldList) {
+				TickProfiler.instance.hookProfiler(world_);
+			}
+			startTick = TickProfiler.tickCount;
+			startTime = System.currentTimeMillis();
+		}, () -> targets.forEach(it -> {
+			val tf = it.getTableFormatter();
+			writeStringData(tf, elements);
+			it.sendTables(tf);
+		}), () -> {
+			for (World world_ : worldList) {
+				TickProfiler.instance.unhookProfiler(world_);
+			}
+			clear();
+		});
+	}
+
+	private void clear() {
+		invocationCount.clear();
+		synchronized (time) {
+			time.clear();
+		}
+		totalTime.set(0);
+		synchronized (singleTime) {
+			singleTime.clear();
+		}
+		singleInvocationCount.clear();
 	}
 
 	private static final class ChunkCoords {
@@ -395,7 +306,7 @@ public class EntityTickProfiler {
 		}
 	}
 
-	private class ComparableLongHolder implements Comparable<ComparableLongHolder> {
+	private static class ComparableLongHolder implements Comparable<ComparableLongHolder> {
 		long value;
 
 		ComparableLongHolder() {

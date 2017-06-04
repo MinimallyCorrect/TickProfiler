@@ -59,6 +59,8 @@ dependencies {
 	libLoader "com.eclipsesource.minimal-json:minimal-json:0.9.4"
 	libLoader "org.minimallycorrect.modpatcher:ModPatcher:$mcVersion-SNAPSHOT"
 	compileOnly 'org.projectlombok:lombok:1.16.16'
+	testCompileOnly 'org.projectlombok:lombok:1.16.16'
+	testCompile 'junit:junit:4.12'
 }
 
 tasks.withType(JavaCompile) {

@@ -3,50 +3,23 @@ package org.minimallycorrect.tickprofiler.minecraft.profiling;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import lombok.SneakyThrows;
 import lombok.val;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.dedicated.DedicatedServer;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import org.minimallycorrect.tickprofiler.Log;
-import org.minimallycorrect.tickprofiler.minecraft.commands.Command;
+import org.minimallycorrect.tickprofiler.minecraft.TickProfiler;
 import org.minimallycorrect.tickprofiler.util.CollectionsUtil;
 
 import java.lang.management.*;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.*;
 
-public class LagSpikeProfiler {
+public class LagSpikeProfiler extends Profile {
+	private static final AtomicBoolean running = new AtomicBoolean();
 	private static final StackTraceElement[] EMPTY_STACK_TRACE = new StackTraceElement[0];
 	private static final int lagSpikeMillis = 200;
 	private static final long lagSpikeNanoSeconds = TimeUnit.MILLISECONDS.toNanos(lagSpikeMillis);
 	private static final boolean ALL_THREADS = Boolean.parseBoolean(System.getProperty("TickProfiler.allThreads", "false"));
-	private static boolean inProgress;
-	private static volatile long lastTickTime = 0;
-	private final ICommandSender commandSender;
-	private final long stopTime;
 	private boolean detected;
-
-	private LagSpikeProfiler(ICommandSender commandSender, int time_) {
-		this.commandSender = commandSender;
-		stopTime = System.nanoTime() + TimeUnit.SECONDS.toNanos(time_);
-	}
-
-	public static void profile(ICommandSender commandSender, int time_) {
-		synchronized (LagSpikeProfiler.class) {
-			if (inProgress) {
-				Command.sendChat(commandSender, "Lag spike profiling is already in progress");
-				return;
-			}
-			inProgress = true;
-		}
-		Command.sendChat(commandSender, "Started lag spike detection for " + time_ + " seconds.");
-		new LagSpikeProfiler(commandSender, time_).start();
-	}
-
-	public static void tick(long nanoTime) {
-		lastTickTime = nanoTime;
-	}
 
 	private static void printThreadDump(StringBuilder sb) {
 		ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
@@ -105,13 +78,6 @@ public class LagSpikeProfiler {
 
 	private static boolean includeThread(ThreadInfo thread) {
 		return thread.getThreadName().toLowerCase().startsWith("server thread");
-	}
-
-	private static void trySleep(long millis) {
-		try {
-			Thread.sleep(millis);
-		} catch (InterruptedException ignored) {
-		}
 	}
 
 	private static String toString(ThreadInfo threadInfo, boolean name) {
@@ -188,51 +154,31 @@ public class LagSpikeProfiler {
 		return (run <= 2 && sb.indexOf("at java.util.concurrent.LinkedBlockingQueue.take(") != -1) ? null : sb.toString();
 	}
 
-	private void start() {
-		final int sleepTime = 1 + Math.min(1000, lagSpikeMillis / 6);
-		Thread detectorThread = new Thread(() -> {
-			try {
-				while (checkForLagSpikes()) {
-					trySleep(sleepTime);
-				}
-				synchronized (LagSpikeProfiler.class) {
-					inProgress = false;
-					if (commandSender != null)
-						Command.sendChat(commandSender, "Lag spike profiling finished.");
-				}
-			} catch (Throwable t) {
-				Log.error("Error detecting lag spikes", t);
-			}
-		});
-		detectorThread.setName("Lag Spike Detector");
-		detectorThread.start();
+	@Override
+	protected AtomicBoolean getRunning() {
+		return running;
 	}
 
-	private boolean checkForLagSpikes() {
-		long time = System.nanoTime();
+	@Override
+	public void start() {
+		start(null, null, null, 1 + Math.min(1000, lagSpikeMillis / 6), this::checkForLagSpikes);
+	}
 
-		if (time > stopTime)
-			return false;
-
-		long deadTime = time - lastTickTime;
+	private void checkForLagSpikes() {
+		long deadTime = System.nanoTime() - TickProfiler.lastTickTime;
 		if (deadTime < lagSpikeNanoSeconds) {
 			detected = false;
-			return true;
+			return;
 		}
 
 		if (detected)
-			return true;
-
-		final MinecraftServer minecraftServer = FMLCommonHandler.instance().getMinecraftServerInstance();
-		if (!minecraftServer.isServerRunning() || minecraftServer.isServerStopped()) {
-			return false;
-		}
+			return;
 
 		detected = true;
 		handleLagSpike(deadTime);
-		return true;
 	}
 
+	@SneakyThrows
 	private void handleLagSpike(long deadNanoSeconds) {
 		StringBuilder sb = new StringBuilder();
 		sb
@@ -241,10 +187,7 @@ public class LagSpikeProfiler {
 
 		printThreadDump(sb);
 
-		Log.error(sb.toString());
-
-		if (commandSender != null && !(commandSender instanceof DedicatedServer))
-			Command.sendChat(commandSender, "Lag spike detected. See console/log for more information.");
-		trySleep(15000);
+		targets.forEach(it -> it.sendMessage(sb.toString()));
+		Thread.sleep(2000);
 	}
 }

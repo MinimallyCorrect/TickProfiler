@@ -1,10 +1,7 @@
 package org.minimallycorrect.tickprofiler.minecraft.profiling;
 
 import com.google.common.primitives.Longs;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.server.MinecraftServer;
-import org.minimallycorrect.tickprofiler.Log;
-import org.minimallycorrect.tickprofiler.minecraft.commands.Command;
+import lombok.val;
 import org.minimallycorrect.tickprofiler.util.CollectionsUtil;
 import org.minimallycorrect.tickprofiler.util.TableFormatter;
 
@@ -12,29 +9,12 @@ import java.lang.management.*;
 import java.util.*;
 import java.util.stream.*;
 
-public class ContentionProfiler {
-	private final int seconds;
-	private final int resolution;
+public class ContentionProfiler extends Profile {
 	private final Map<String, IntegerHolder> monitorMap = new IntHashMap<>();
 	private final Map<String, IntegerHolder> waitingMap = new IntHashMap<>();
 	private final Map<String, IntegerHolder> traceMap = new IntHashMap<>();
-	private long ticks;
 	private long[] threads;
-
-	private ContentionProfiler(int seconds, int resolution) {
-		this.seconds = seconds;
-		this.resolution = resolution;
-	}
-
-	public static void profile(final ICommandSender commandSender, int seconds, int resolution) {
-		Command.sendChat(commandSender, "Performing lock contention profiling for " + seconds + " seconds.");
-		final ContentionProfiler contentionProfiler = new ContentionProfiler(seconds, resolution);
-		contentionProfiler.run(() -> {
-			TableFormatter tf = new TableFormatter(commandSender);
-			contentionProfiler.dump(tf, commandSender instanceof MinecraftServer ? 15 : 6);
-			Command.sendChat(commandSender, tf.toString());
-		});
-	}
+	private int ticks = 0;
 
 	private static String name(StackTraceElement stack) {
 		if (stack == null) {
@@ -44,12 +24,25 @@ public class ContentionProfiler {
 		return className.substring(className.lastIndexOf('.') + 1) + '.' + stack.getMethodName();
 	}
 
-	private void run(final Runnable completed) {
-		final int ticks = seconds * 1000 / resolution;
-		new Thread(() -> {
-			profile(ticks);
-			completed.run();
-		}, "Contention Profiler").start();
+	@Override
+	public void start() {
+		val elements = parameters.getInt("elements");
+		if (elements <= 0)
+			throw new IllegalArgumentException("elements must be > 0");
+		val resolution = parameters.getInt("resolution");
+		start(() -> {
+			List<Long> threads = Thread.getAllStackTraces().keySet().stream().map(Thread::getId).collect(Collectors.toList());
+			this.threads = Longs.toArray(threads);
+		}, () -> targets.forEach(it -> {
+			val tf = it.getTableFormatter();
+			dump(tf, elements);
+			it.sendTables(tf);
+		}), () -> {
+			monitorMap.clear();
+			waitingMap.clear();
+			traceMap.clear();
+			ticks = 0;
+		}, resolution, this::tick);
 	}
 
 	private void dump(final TableFormatter tf, int entries) {
@@ -85,29 +78,8 @@ public class ContentionProfiler {
 		tf.finishTable();
 	}
 
-	private void profile(int ticks) {
-		List<Long> threads = Thread.getAllStackTraces().keySet().stream().map(Thread::getId).collect(Collectors.toList());
-		// TODO
-		this.threads = Longs.toArray(threads);
-		while (ticks-- > 0) {
-			long r = resolution - tick();
-
-			if (r > 0) {
-				try {
-					Thread.sleep(r, 0);
-				} catch (InterruptedException e) {
-					Log.error("Interrupted in profiling", e);
-					return;
-				}
-			} else if (r < -10) {
-				ticks--;
-			}
-			this.ticks++;
-		}
-	}
-
-	private long tick() {
-		long t = System.currentTimeMillis();
+	private void tick() {
+		ticks++;
 		ThreadInfo[] threads = ManagementFactory.getThreadMXBean().getThreadInfo(this.threads, 6);
 		for (ThreadInfo thread : threads) {
 			if (thread == null) {
@@ -130,9 +102,6 @@ public class ContentionProfiler {
 							break;
 						}
 					}
-					if (stack != null && "waitForCompletion".equals(stack.getMethodName())) {
-						continue;
-					}
 					LockInfo lockInfo = thread.getLockInfo();
 					if (lockInfo != null) {
 						(ts == Thread.State.BLOCKED ? monitorMap : waitingMap).get(lockInfo.toString()).value++;
@@ -144,7 +113,6 @@ public class ContentionProfiler {
 					break;
 			}
 		}
-		return System.currentTimeMillis() - t;
 	}
 
 	private static class IntHashMap<K> extends HashMap<K, IntegerHolder> {
