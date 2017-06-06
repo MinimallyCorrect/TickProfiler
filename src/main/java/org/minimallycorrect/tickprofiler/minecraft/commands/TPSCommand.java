@@ -58,6 +58,11 @@ public class TPSCommand extends Command {
 	}
 
 	@Override
+	public boolean requireOp() {
+		return TickProfiler.instance.requireOpForTPSCommand;
+	}
+
+	@Override
 	public String getCommandUsage(ICommandSender commandSender) {
 		return "Usage: /tps";
 	}
