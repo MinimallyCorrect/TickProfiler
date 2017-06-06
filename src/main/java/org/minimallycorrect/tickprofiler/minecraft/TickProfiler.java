@@ -38,6 +38,7 @@ public class TickProfiler {
 	public static long tickCount = 0;
 	public boolean requireOpForProfileCommand = true;
 	public boolean requireOpForDumpCommand = true;
+	public boolean requireOpForTPSCommand = true;
 	private int profilingInterval = 0;
 	private String profilingFileName = "world/computer/<computer id>/profile.txt";
 	private boolean profilingJson = false;
@@ -66,6 +67,7 @@ public class TickProfiler {
 		DumpCommand.name = config.get(GENERAL, "dumpCommandName", DumpCommand.name, "Name of the command to be used for dumping block data.").getString();
 		TPSCommand.name = config.get(GENERAL, "tpsCommandName", TPSCommand.name, "Name of the command to be used for TPS reports.").getString();
 		requireOpForProfileCommand = config.get(GENERAL, "requireOpForProfileCommand", requireOpForProfileCommand, "If a player must be opped to use /profile").getBoolean(requireOpForProfileCommand);
+		requireOpForTPSCommand = config.get(GENERAL, "requireOpForTPSCommand", requireOpForTPSCommand, "If a player must be opped to use /tps").getBoolean(requireOpForTPSCommand);
 		requireOpForDumpCommand = config.get(GENERAL, "requireOpForProfileCommand", requireOpForDumpCommand, "If a player must be opped to use /dump").getBoolean(requireOpForDumpCommand);
 		profilingInterval = config.get(GENERAL, "profilingInterval", profilingInterval, "Interval, in minutes, to record profiling information to disk. 0 = never. Recommended >= 2.").getInt();
 		profilingFileName = config.get(GENERAL, "profilingFileName", profilingFileName, "Location to store profiling information to, relative to the server folder. For example, why not store it in a computercraft computer's folder?").getString();
