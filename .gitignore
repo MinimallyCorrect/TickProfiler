@@ -57,3 +57,4 @@ build.number
 # Forge+MCP downloads #
 ##################
 download
+/.nb-gradle/

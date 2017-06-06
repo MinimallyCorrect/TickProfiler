@@ -56,6 +56,11 @@ public class TPSCommand extends Command {
 	public String getCommandName() {
 		return name;
 	}
+	
+	@Override
+	public boolean requireOp() {
+		return TickProfiler.instance.requireOpForTPSCommand;
+	}
 
 	@Override
 	public String getCommandUsage(ICommandSender commandSender) {
