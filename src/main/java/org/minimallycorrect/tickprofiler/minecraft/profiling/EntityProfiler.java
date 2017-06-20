@@ -3,7 +3,6 @@ package org.minimallycorrect.tickprofiler.minecraft.profiling;
 import lombok.val;
 import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ITickable;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
@@ -63,20 +62,7 @@ public class EntityProfiler extends Profile {
 	}
 
 	@UsedByPatch("entityhook.xml")
-	public static void profileEntity(World w, Entity entity) {
-		long start = System.nanoTime();
-		w.updateEntity(entity);
-		record(entity, System.nanoTime() - start);
-	}
-
-	@UsedByPatch("entityhook.xml")
-	public static void profileTickable(ITickable tickable) {
-		long start = System.nanoTime();
-		tickable.update();
-		record(tickable, System.nanoTime() - start);
-	}
-
-	private static void record(Object o, long time) {
+	public static void record(Object o, long time) {
 		if (time < 0) {
 			time = 0;
 		}
