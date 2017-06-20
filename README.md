@@ -1,4 +1,4 @@
-TickProfiler [![Build Status](https://jenkins.nallar.me/job/TickProfiler/branch/1.11.2/badge/icon)](https://jenkins.nallar.me/job/TickProfiler/)
+TickProfiler [![Build Status](https://jenkins.nallar.me/job/TickProfiler/branch/1.11.2/badge/icon)](https://jenkins.nallar.me/job/TickProfiler/) ![Curse](http://cf.way2muchnoise.eu/versions/For%20MC_270330_all.svg)
 ==========
 A small mod for servers to assist with finding which TileEntities(machines) and Entities are being slow.
 
