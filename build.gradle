@@ -21,6 +21,9 @@ buildscript {
 		classpath 'org.minimallycorrect.libloader:LibLoaderGradle:0.1-SNAPSHOT'
 	}
 }
+plugins {
+	id "com.matthewprenger.cursegradle" version "1.0.9"
+}
 apply plugin: 'org.minimallycorrect.libloader.LibLoaderGradle'
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'idea'
@@ -107,4 +110,17 @@ wrapper {
 		scriptFile.write scriptFile.text.replace("$optsEnvVar=\"\"", "$optsEnvVar=\"$jvmOpts\"")
 		batchScript.write batchScript.text.replace("set $optsEnvVar=", "set $optsEnvVar=$jvmOpts")
 	}
+}
+
+if (System.getenv("CURSEFORGE_API_KEY") != null) {
+	curseforge {
+		apiKey = System.getenv("CURSEFORGE_API_KEY") // This should really be in a gradle.properties file
+		project {
+			id = "270330"
+			changelog = "git rev-parse --short HEAD".execute().text.trim() + ":" + "git log -1 --pretty=%B".execute().text.trim()
+			releaseType = "beta"
+			addArtifact sourceJar
+		}
+	}
+	project.tasks.getByName("curseforge").dependsOn.add(sourceJar)
 }
