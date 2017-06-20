@@ -25,10 +25,10 @@ apply plugin: 'org.minimallycorrect.libloader.LibLoaderGradle'
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'idea'
 
-ext.mcVersion = "1.11.2"
-ext.runMcVersion = "1.11.2"
-ext.forgeVersion = "13.20.0.2216"
-ext.forgeMappings = "snapshot_20161220"
+ext.mcVersion = "1.12"
+ext.runMcVersion = "1.12"
+ext.forgeVersion = "14.21.0.2340"
+ext.forgeMappings = "snapshot_20170617"
 group = "org.minimallycorrect.tickprofiler" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "TickProfiler"
 
