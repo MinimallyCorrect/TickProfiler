@@ -1,15 +1,13 @@
 <patchGroups>
 	<minecraft>
-		<!-- TODO: update packet profiling for 1.8.9
-		<class id="net.minecraft.util.MessageSerializer">
-			<replaceMethodCall method="^method:Packet/writePacketData^"
-							   code="$_ = $0.^method:Packet/writePacketData^($PacketProfileriler.record($0, $1);">
-				encode
-			</replaceMethodCall>
-			<insertCodeBefore coTickProfileriler.handlePacket($1);">
-				scheduleOutboundPacket
-			</insertCodeBefore>
+		<class id="net.minecraft.network.play.server.SPacketCustomPayload">
+			<addMethod code="public String ^method:SPacketCustomPayload/getChannel^() { return this.^field:SPacketCustomPayload/channel^; }"/>
 		</class>
-		-->
+		<class id="net.minecraft.network.NettyPacketEncoder">
+			<replaceMethodCall method="^method:Packet/writePacketData^"
+							   code="{$_ = $proceed($$);org.minimallycorrect.tickprofiler.minecraft.profiling.PacketProfiler.record($0, $1);}">
+				encode(Lio/netty/channel/ChannelHandlerContext;L^class:Packet^;Lio/netty/buffer/ByteBuf;)V
+			</replaceMethodCall>
+		</class>
 	</minecraft>
 </patchGroups>

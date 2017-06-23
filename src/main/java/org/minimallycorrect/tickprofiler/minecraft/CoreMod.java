@@ -34,8 +34,7 @@ public class CoreMod implements IFMLLoadingPlugin {
 		Log.info("TickProfiler v@MOD_VERSION@ coremod injectData called, loading patches");
 
 		ModPatcher.loadPatches(CoreMod.class.getResourceAsStream("/entityhook.xml"));
-		// TODO: Not implemented
-		// ModPatcher.loadPatches(CoreMod.class.getResourceAsStream("/packethook.xml"));
+		ModPatcher.loadPatches(CoreMod.class.getResourceAsStream("/packethook.xml"));
 	}
 
 	@Override
