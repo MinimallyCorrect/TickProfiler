@@ -5,6 +5,7 @@ import com.google.common.collect.Ordering;
 import lombok.val;
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.play.server.SPacketCustomPayload;
 import org.minimallycorrect.modpatcher.api.UsedByPatch;
 import org.minimallycorrect.tickprofiler.util.TableFormatter;
 
@@ -71,7 +72,14 @@ public class PacketProfiler extends Profile {
 		if (!running.get()) {
 			return;
 		}
-		String id = packet.getClass().getSimpleName();
+		String id;
+
+		if (packet instanceof SPacketCustomPayload) {
+			id = ((SPacketCustomPayload) packet).getChannelName();
+		} else {
+			id = packet.getClass().getName();
+			id = id.substring(id.lastIndexOf('.') + 1);
+		}
 		int size = buffer.readableBytes();
 		getAtomicInteger(id, count).getAndIncrement();
 		getAtomicInteger(id, PacketProfiler.size).addAndGet(size);
