@@ -29,7 +29,7 @@ public class ContentionProfiler extends Profile {
 		val elements = parameters.getInt("elements");
 		if (elements <= 0)
 			throw new IllegalArgumentException("elements must be > 0");
-		val resolution = parameters.getInt("resolution");
+		val intervalMs = parameters.getInt("interval_ms");
 		start(() -> {
 			List<Long> threads = Thread.getAllStackTraces().keySet().stream().map(Thread::getId).collect(Collectors.toList());
 			this.threads = Longs.toArray(threads);
@@ -42,7 +42,7 @@ public class ContentionProfiler extends Profile {
 			waitingMap.clear();
 			traceMap.clear();
 			ticks = 0;
-		}, resolution, this::tick);
+		}, intervalMs, this::tick);
 	}
 
 	private void dump(final TableFormatter tf, int entries) {
