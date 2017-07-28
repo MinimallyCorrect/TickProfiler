@@ -106,7 +106,7 @@ public abstract class Profile {
 		ENTITIES("e", EntityProfiler.class, Arrays.asList("time", "30", "worlds", "all", "elements", "5")),
 		PACKETS("p", PacketProfiler.class, Arrays.asList("time", "30", "elements", "5")),
 		UTILISATION("u", UtilisationProfiler.class, Arrays.asList("time", "30", "elements", "5")),
-		LOCK_CONTENTION("l", ContentionProfiler.class, Arrays.asList("time", "30", "elements", "5")),
+		LOCK_CONTENTION("l", ContentionProfiler.class, Arrays.asList("time", "30", "elements", "5", "interval_ms", "23")),
 		LAG_SPIKE_DETECTOR("s", LagSpikeProfiler.class, Arrays.asList("time", "500"));
 		private static final Map<String, Types> types = new HashMap<>();
 
