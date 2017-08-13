@@ -7,7 +7,8 @@ import org.minimallycorrect.tickprofiler.Log;
 
 import java.util.*;
 
-@IFMLLoadingPlugin.MCVersion("@MC_VERSION@")
+//Can't use this as it limits to an exact version, no possibility for a range.
+//@IFMLLoadingPlugin.MCVersion("@MC_VERSION@")
 @IFMLLoadingPlugin.SortingIndex(-1)
 public class CoreMod implements IFMLLoadingPlugin {
 	static {
