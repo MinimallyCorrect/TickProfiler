@@ -1,126 +1,36 @@
 buildscript {
 	repositories {
+		mavenLocal()
 		jcenter()
-		maven {
-			name = "forge"
-			url = "http://files.minecraftforge.net/maven"
-		}
-		maven {
-			name = "nallar"
-			url = "https://repo.nallar.me/"
-		}
-	}
-	if (System.getenv("GRADLE_NO_CACHE_CHANGING") != null) {
-		configurations.all {
-			resolutionStrategy.cacheChangingModulesFor 1, 'seconds'
-			resolutionStrategy.cacheDynamicVersionsFor 1, 'seconds'
-		}
+		maven { url "https://repo.nallar.me/" }
+		maven { url "https://plugins.gradle.org/m2/" }
+		maven { url "http://files.minecraftforge.net/maven" }
 	}
 	dependencies {
 		classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
 		classpath 'org.minimallycorrect.libloader:LibLoaderGradle:0.1-SNAPSHOT'
+		classpath 'org.minimallycorrect.gradle:DefaultsPlugin:0.0.9'
 	}
 }
 plugins {
 	id "com.matthewprenger.cursegradle" version "1.0.9"
 }
+apply plugin: 'org.minimallycorrect.gradle.DefaultsPlugin'
 apply plugin: 'org.minimallycorrect.libloader.LibLoaderGradle'
-apply plugin: 'net.minecraftforge.gradle.forge'
-apply plugin: 'idea'
 
-ext.mcVersion = "1.12"
-ext.runMcVersion = "1.12"
-ext.forgeVersion = "14.21.0.2340"
-ext.forgeMappings = "snapshot_20170617"
-group = "org.minimallycorrect.tickprofiler" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = "TickProfiler"
+group = "org.minimallycorrect.tickprofiler"
 
-def calculateVersion() {
-	def ver = project.runMcVersion
-	if (System.env.BUILD_NUMBER != null)
-		return ver + "-jenkins." + System.env.BUILD_NUMBER
-	if (project.hasProperty("release"))
-		return ver + '-' + project.release
-	return ver + "-dev"
-}
-
-version = calculateVersion()
-
-repositories {
-	jcenter()
-	maven { url = 'https://repo.nallar.me/' }
-}
-
-if (System.getenv("GRADLE_NO_CACHE_CHANGING") != null) {
-	configurations.all {
-		resolutionStrategy.cacheChangingModulesFor 1, 'seconds'
-		resolutionStrategy.cacheDynamicVersionsFor 1, 'seconds'
-	}
-}
+minimallyCorrectDefaults {
+	minecraft = 1.12
+	fmlCorePlugin = "org.minimallycorrect.tickprofiler.minecraft.CoreMod"
+	fmlCorePluginContainsFmlMod = true
+	curseforgeProject = 270330
+	labels = ['minecraft-mod', 'profiler', 'minecraft', 'java', 'performance']
+	description = "Profile your minecraft server: Find which entities and tile entities are making your server slow"
+} ()
 
 dependencies {
 	libLoader "com.eclipsesource.minimal-json:minimal-json:0.9.4"
-	libLoader "org.minimallycorrect.modpatcher:ModPatcher:$mcVersion-SNAPSHOT"
-	compileOnly 'org.projectlombok:lombok:1.16.16'
-	testCompileOnly 'org.projectlombok:lombok:1.16.16'
+	libLoader "org.minimallycorrect.modpatcher:ModPatcher:${project.minecraft.version}-SNAPSHOT"
 	testCompile 'junit:junit:4.12'
-}
-
-tasks.withType(JavaCompile) {
-	sourceCompatibility = 8
-	targetCompatibility = 8
-	options.with {
-		encoding = 'UTF-8'
-		compilerArgs << "-Xlint:all" << '-Xlint:-path' << '-Xlint:-processing' << '-Xlint:-rawtypes' << '-Xlint:-serial'
-	}
-}
-
-minecraft {
-	version = "${project.mcVersion}-${project.forgeVersion}"
-	runDir = "run"
-	mappings = project.forgeMappings
-
-	replace "@MOD_VERSION@", project.version
-	replace "@MC_VERSION@", runMcVersion
-}
-
-processResources {
-	// this will ensure that this task is redone when the versions change.
-	inputs.property "version", project.version
-	inputs.property "mcversion", project.minecraft.version
-
-	filesMatching("mcmod.info") {
-		expand 'version': project.version, 'mcversion': runMcVersion
-	}
-	filesMatching("modpatcher.version") {
-		expand 'version': project.version
-	}
-}
-
-jar {
-	manifest.mainAttributes("FMLCorePlugin": "org.minimallycorrect.tickprofiler.minecraft.CoreMod", "FMLCorePluginContainsFMLMod": "YasPlease")
-}
-
-wrapper {
-	gradleVersion = "3.5"
-	def jvmOpts = "-Xmx2G"
-	inputs.property("jvmOpts", jvmOpts)
-	doLast {
-		def optsEnvVar = "DEFAULT_JVM_OPTS"
-		scriptFile.write scriptFile.text.replace("$optsEnvVar=\"\"", "$optsEnvVar=\"$jvmOpts\"")
-		batchScript.write batchScript.text.replace("set $optsEnvVar=", "set $optsEnvVar=$jvmOpts")
-	}
-}
-
-if (System.getenv("CURSEFORGE_API_KEY") != null) {
-	curseforge {
-		apiKey = System.getenv("CURSEFORGE_API_KEY") // This should really be in a gradle.properties file
-		project {
-			id = "270330"
-			changelog = "git rev-parse --short HEAD".execute().text.trim() + ":" + "git log -1 --pretty=%B".execute().text.trim()
-			releaseType = "beta"
-			addArtifact sourceJar
-		}
-	}
-	project.tasks.getByName("curseforge").dependsOn.add(sourceJar)
 }

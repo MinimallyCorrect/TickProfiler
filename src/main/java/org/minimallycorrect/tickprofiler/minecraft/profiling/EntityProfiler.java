@@ -1,5 +1,6 @@
 package org.minimallycorrect.tickprofiler.minecraft.profiling;
 
+import lombok.EqualsAndHashCode;
 import lombok.val;
 import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
@@ -28,13 +29,15 @@ public class EntityProfiler extends Profile {
 
 	private static int getDimension(TileEntity o) {
 		//noinspection ConstantConditions
-		if (o.getWorld() == null) return -999;
+		if (o.getWorld() == null)
+			return -999;
 		WorldProvider worldProvider = o.getWorld().provider;
 		return worldProvider == null ? -999 : worldProvider.getDimension();
 	}
 
 	private static int getDimension(Entity o) {
-		if (o.world == null) return -999;
+		if (o.world == null)
+			return -999;
 		WorldProvider worldProvider = o.world.provider;
 		return worldProvider == null ? -999 : worldProvider.getDimension();
 	}
@@ -158,7 +161,7 @@ public class EntityProfiler extends Profile {
 			.heading("All Entities of Type")
 			.heading("Time/Tick")
 			.heading("%");
-		for (Class c : CollectionsUtil.sortedKeys(time, elements)) {
+		for (Class<?> c : CollectionsUtil.sortedKeys(time, elements)) {
 			tf
 				.row(niceName(c))
 				.row(time.get(c) / (1000000d * ticks))
@@ -174,7 +177,7 @@ public class EntityProfiler extends Profile {
 			.heading("Average Entity of Type")
 			.heading("Time/tick")
 			.heading("Calls");
-		for (Class c : CollectionsUtil.sortedKeys(timePerTick, elements)) {
+		for (Class<?> c : CollectionsUtil.sortedKeys(timePerTick, elements)) {
 			tf
 				.row(niceName(c))
 				.row(timePerTick.get(c) / 1000000d)
@@ -237,7 +240,7 @@ public class EntityProfiler extends Profile {
 		if (worlds.equals("all")) {
 			Collections.addAll(worldList, DimensionManager.getWorlds());
 		} else {
-			//TODO: handle multiple entries, split by ','
+			// TODO: handle multiple entries, split by ','
 			worldList.add(DimensionManager.getWorld(Integer.parseInt(worlds)));
 		}
 		start(() -> {
@@ -292,16 +295,15 @@ public class EntityProfiler extends Profile {
 		}
 	}
 
+	@EqualsAndHashCode
 	private static class ComparableLongHolder implements Comparable<ComparableLongHolder> {
 		long value;
 
-		ComparableLongHolder() {
-		}
+		ComparableLongHolder() {}
 
 		@Override
 		public int compareTo(final ComparableLongHolder comparableLongHolder) {
-			long otherValue = comparableLongHolder.value;
-			return (value < otherValue) ? -1 : ((value == otherValue) ? 0 : 1);
+			return Long.compare(value, comparableLongHolder.value);
 		}
 	}
 }

@@ -10,7 +10,6 @@ public class TableFormatter {
 	private static final int POW10[] = {1, 10, 100, 1000, 10000, 100000, 1000000};
 	public final StringBuilder sb = new StringBuilder();
 	private final StringFiller stringFiller;
-	private final String rowColour = "";
 	private final List<String> currentHeadings = new ArrayList<>();
 	private final List<String> currentData = new ArrayList<>();
 	public String tableSeparator = "";
@@ -33,9 +32,7 @@ public class TableFormatter {
 		}
 	}
 
-	/*
-	 * http://stackoverflow.com/a/10554128/250076
-	 */
+	/* http://stackoverflow.com/a/10554128/250076 */
 	public static String formatDoubleWithPrecision(double val, int precision) {
 		if (Double.isInfinite(val) || Double.isNaN(val)) {
 			return Double.toString(val);
@@ -109,7 +106,7 @@ public class TableFormatter {
 				entry = new HashMap<>();
 				table.add(entry);
 			}
-			sb.append(cSplit).append(rowColour).append(stringFiller.fill(data, rowLengths[rowIndex % rowCount]));
+			sb.append(cSplit).append(stringFiller.fill(data, rowLengths[rowIndex % rowCount]));
 			cSplit = splitter;
 			if (entry != null) {
 				entry.put(currentHeadings.get(rowIndex % rowCount), data);

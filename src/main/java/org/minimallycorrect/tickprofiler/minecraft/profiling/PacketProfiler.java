@@ -68,7 +68,7 @@ public class PacketProfiler extends Profile {
 	}
 
 	@UsedByPatch("packethook.xml")
-	public static void record(final Packet packet, PacketBuffer buffer) {
+	public static void record(final Packet<?> packet, PacketBuffer buffer) {
 		if (!running.get()) {
 			return;
 		}
@@ -117,8 +117,7 @@ public class PacketProfiler extends Profile {
 		val elements = parameters.getInt("elements");
 		if (elements <= 0)
 			throw new IllegalArgumentException("elements must be > 0");
-		start(() -> {
-		}, () -> targets.forEach(it -> {
+		start(() -> {}, () -> targets.forEach(it -> {
 			val tf = it.getTableFormatter();
 			writeStats(tf, elements);
 			it.sendTables(tf);

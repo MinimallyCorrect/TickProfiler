@@ -1,6 +1,7 @@
 package org.minimallycorrect.tickprofiler.minecraft.profiling;
 
 import com.google.common.primitives.Longs;
+import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.minimallycorrect.tickprofiler.util.CollectionsUtil;
 import org.minimallycorrect.tickprofiler.util.TableFormatter;
@@ -116,8 +117,7 @@ public class ContentionProfiler extends Profile {
 	}
 
 	private static class IntHashMap<K> extends HashMap<K, IntegerHolder> {
-		IntHashMap() {
-		}
+		IntHashMap() {}
 
 		@SuppressWarnings("unchecked")
 		@Override
@@ -131,17 +131,15 @@ public class ContentionProfiler extends Profile {
 		}
 	}
 
+	@EqualsAndHashCode
 	private static class IntegerHolder implements Comparable<IntegerHolder> {
 		int value;
 
-		IntegerHolder() {
-		}
+		IntegerHolder() {}
 
 		@Override
 		public int compareTo(final IntegerHolder o) {
-			int x = value;
-			int y = o.value;
-			return (x < y) ? -1 : ((x == y) ? 0 : 1);
+			return Integer.compare(value, o.value);
 		}
 	}
 }

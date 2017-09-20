@@ -2,6 +2,7 @@ package org.minimallycorrect.tickprofiler.util;
 
 import com.google.common.base.Functions;
 import com.google.common.collect.Ordering;
+import lombok.val;
 
 import java.util.*;
 import java.util.function.*;
@@ -14,7 +15,7 @@ public enum CollectionsUtil {
 		return input.stream().map(function).collect(Collectors.toList());
 	}
 
-	public static String join(Iterable iterable, String delimiter) {
+	public static String join(Iterable<?> iterable, String delimiter) {
 		StringBuilder stringBuilder = new StringBuilder();
 		boolean join = false;
 		for (Object o : iterable) {
@@ -34,13 +35,13 @@ public enum CollectionsUtil {
 
 	@SuppressWarnings("unchecked")
 	public static <K, V> Map<K, V> map(Object... objects) {
-		HashMap map = new HashMap();
+		val map = new HashMap<K, V>();
 		Object key = null;
 		for (final Object object : objects) {
 			if (key == null) {
 				key = object;
 			} else {
-				map.put(key, object);
+				map.put((K) key, (V) object);
 				key = null;
 			}
 		}

@@ -31,7 +31,7 @@ public class ProfileCommand extends Command {
 
 	private void addPostParameters(Parameters p) {
 		p.orderWithDefault(Arrays.asList("output", "commandsender"));
-			}
+	}
 
 	private void process(final ICommandSender commandSender, List<String> arguments) {
 		val p = new Parameters(arguments);
@@ -58,8 +58,8 @@ public class ProfileCommand extends Command {
 					break;
 				default:
 					throw new UsageException("Unknown output: " + output);
-					}
 			}
+		}
 
 		val profile = type.create();
 		try {
@@ -67,7 +67,7 @@ public class ProfileCommand extends Command {
 		} finally {
 			profile.closeIfNeeded();
 		}
-		}
+	}
 
 	@Override
 	public String getUsage(ICommandSender icommandsender) {
@@ -79,7 +79,7 @@ public class ProfileCommand extends Command {
 			sb.append(type.name()).append(": ").append("/profile ").append(type.shortName);
 			p.writeExpectedParameters(sb);
 			sb.append('\n');
-	}
+		}
 		return sb.toString();
 	}
 }

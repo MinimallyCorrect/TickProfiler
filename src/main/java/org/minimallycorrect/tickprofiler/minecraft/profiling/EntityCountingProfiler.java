@@ -18,14 +18,14 @@ public class EntityCountingProfiler extends Profile {
 		val elements = parameters.getInt("elements");
 		if (elements <= 0)
 			throw new IllegalArgumentException("elements must be > 0");
-		val entityCounts = new HashMap<Class, Integer>();
-		val tileEntityCounts = new HashMap<Class, Integer>();
+		val entityCounts = new HashMap<Class<?>, Integer>();
+		val tileEntityCounts = new HashMap<Class<?>, Integer>();
 		val worlds = parameters.getString("worlds").toLowerCase();
 		val worldList = new ArrayList<WorldServer>();
 		if (worlds.equals("all")) {
 			Collections.addAll(worldList, DimensionManager.getWorlds());
 		} else {
-			//TODO: handle multiple entries, split by ','
+			// TODO: handle multiple entries, split by ','
 			worldList.add(DimensionManager.getWorld(Integer.parseInt(worlds)));
 		}
 		for (val world : worldList)

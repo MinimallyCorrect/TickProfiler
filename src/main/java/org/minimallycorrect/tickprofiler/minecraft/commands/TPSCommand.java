@@ -5,6 +5,7 @@ import lombok.val;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraft.world.gen.ChunkProviderServer;
 import org.minimallycorrect.tickprofiler.Log;
 import org.minimallycorrect.tickprofiler.minecraft.TickProfiler;
@@ -82,13 +83,11 @@ public class TPSCommand extends Command {
 			.heading("TE")
 			.heading("C")
 			.heading("");
-		for (World world : server.worlds) {
+		for (WorldServer world : server.worlds) {
 			int worldEntities = world.loadedEntityList.size();
 			int worldTileEntities = world.loadedTileEntityList.size();
-			int worldChunks = 0;
 			val provider = world.getChunkProvider();
-			if (provider instanceof ChunkProviderServer)
-				worldChunks = ((ChunkProviderServer) provider).getLoadedChunkCount();
+			int worldChunks = provider.getLoadedChunkCount();
 			entities += worldEntities;
 			tileEntities += worldTileEntities;
 			chunks += worldChunks;
@@ -97,8 +96,7 @@ public class TPSCommand extends Command {
 				.row(worldEntities)
 				.row(worldTileEntities)
 				.row(worldChunks)
-				.row("")
-			;
+				.row("");
 		}
 		tf
 			.row(server.getPlayerList().getCurrentPlayerCount() + " Players")

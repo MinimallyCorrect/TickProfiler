@@ -30,7 +30,7 @@ import java.util.*;
 @SuppressWarnings("WeakerAccess")
 @Mod(modid = "tickprofiler", name = "TickProfiler", acceptableRemoteVersions = "*", version = "@MOD_VERSION@", acceptedMinecraftVersions = "[@MC_VERSION@]")
 public class TickProfiler {
-	private static final Set<World> profilingWorlds = Collections.newSetFromMap(new MapMaker().weakKeys().<World, Boolean>makeMap());
+	private static final Set<World> profilingWorlds = Collections.newSetFromMap(new MapMaker().weakKeys().makeMap());
 	@Mod.Instance("tickprofiler")
 	public static TickProfiler instance;
 	public static long tickTime = 20; // Initialise with non-zero value to avoid divide-by-zero errors calculating TPS

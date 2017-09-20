@@ -135,7 +135,7 @@ public abstract class Profile {
 		}
 	}
 
-	public interface ProfileTarget {
+	public interface ProfileTarget extends AutoCloseable {
 		static ProfileTarget console() {
 			return new ProfileTarget() {
 				@Override
@@ -195,7 +195,6 @@ public abstract class Profile {
 			sendMessage(tf.toString());
 		}
 
-		default void close() {
-		}
+		default void close() {}
 	}
 }
