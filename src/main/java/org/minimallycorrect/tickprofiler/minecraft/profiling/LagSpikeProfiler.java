@@ -1,17 +1,19 @@
 package org.minimallycorrect.tickprofiler.minecraft.profiling;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import lombok.SneakyThrows;
-import lombok.val;
-import org.minimallycorrect.tickprofiler.minecraft.TickProfiler;
-import org.minimallycorrect.tickprofiler.util.CollectionsUtil;
-
 import java.lang.management.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
+
+import lombok.SneakyThrows;
+import lombok.val;
+
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+
+import org.minimallycorrect.tickprofiler.minecraft.TickProfiler;
+import org.minimallycorrect.tickprofiler.util.CollectionsUtil;
 
 public class LagSpikeProfiler extends Profile {
 	private static final AtomicBoolean running = new AtomicBoolean();

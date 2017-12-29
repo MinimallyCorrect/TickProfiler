@@ -1,5 +1,12 @@
 package org.minimallycorrect.tickprofiler.minecraft.commands;
 
+import java.lang.reflect.*;
+import java.util.*;
+
+import org.minimallycorrect.tickprofiler.Log;
+import org.minimallycorrect.tickprofiler.minecraft.TickProfiler;
+import org.minimallycorrect.tickprofiler.util.TableFormatter;
+
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.Entity;
@@ -8,12 +15,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
-import org.minimallycorrect.tickprofiler.Log;
-import org.minimallycorrect.tickprofiler.minecraft.TickProfiler;
-import org.minimallycorrect.tickprofiler.util.TableFormatter;
-
-import java.lang.reflect.*;
-import java.util.*;
 
 public class DumpCommand extends Command {
 	public static String name = "dump";

@@ -1,21 +1,23 @@
 package org.minimallycorrect.tickprofiler.minecraft.profiling;
 
+import java.util.*;
+import java.util.concurrent.atomic.*;
+
 import lombok.EqualsAndHashCode;
 import lombok.val;
-import net.minecraft.entity.Entity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldProvider;
-import net.minecraft.world.WorldServer;
-import net.minecraftforge.common.DimensionManager;
+
 import org.minimallycorrect.modpatcher.api.UsedByPatch;
 import org.minimallycorrect.tickprofiler.Log;
 import org.minimallycorrect.tickprofiler.minecraft.TickProfiler;
 import org.minimallycorrect.tickprofiler.util.CollectionsUtil;
 import org.minimallycorrect.tickprofiler.util.TableFormatter;
 
-import java.util.*;
-import java.util.concurrent.atomic.*;
+import net.minecraft.entity.Entity;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldProvider;
+import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.DimensionManager;
 
 public class EntityProfiler extends Profile {
 	private static final AtomicBoolean running = new AtomicBoolean();

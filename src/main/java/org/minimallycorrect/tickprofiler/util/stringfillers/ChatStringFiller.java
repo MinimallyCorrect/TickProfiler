@@ -1,8 +1,8 @@
 package org.minimallycorrect.tickprofiler.util.stringfillers;
 
-import org.minimallycorrect.tickprofiler.util.ChatFormat;
-
 import java.util.*;
+
+import org.minimallycorrect.tickprofiler.util.ChatFormat;
 
 /**
  * Derived from https://github.com/andfRa/Saga/blob/master/src/org/saga/utility/chat/ChatFiller.java

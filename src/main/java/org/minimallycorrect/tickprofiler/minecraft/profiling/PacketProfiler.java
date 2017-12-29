@@ -1,17 +1,20 @@
 package org.minimallycorrect.tickprofiler.minecraft.profiling;
 
-import com.google.common.base.Functions;
-import com.google.common.collect.Ordering;
-import lombok.val;
-import net.minecraft.network.Packet;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.play.server.SPacketCustomPayload;
-import org.minimallycorrect.modpatcher.api.UsedByPatch;
-import org.minimallycorrect.tickprofiler.util.TableFormatter;
-
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
+
+import lombok.val;
+
+import com.google.common.base.Functions;
+import com.google.common.collect.Ordering;
+
+import org.minimallycorrect.modpatcher.api.UsedByPatch;
+import org.minimallycorrect.tickprofiler.util.TableFormatter;
+
+import net.minecraft.network.Packet;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.play.server.SPacketCustomPayload;
 
 public class PacketProfiler extends Profile {
 	private static final AtomicBoolean running = new AtomicBoolean();

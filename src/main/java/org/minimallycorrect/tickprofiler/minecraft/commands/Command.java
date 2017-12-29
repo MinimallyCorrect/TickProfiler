@@ -1,13 +1,14 @@
 package org.minimallycorrect.tickprofiler.minecraft.commands;
 
+import java.util.*;
+
+import org.minimallycorrect.tickprofiler.Log;
+import org.minimallycorrect.tickprofiler.minecraft.profiling.AlreadyRunningException;
+
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
-import org.minimallycorrect.tickprofiler.Log;
-import org.minimallycorrect.tickprofiler.minecraft.profiling.AlreadyRunningException;
-
-import java.util.*;
 
 public abstract class Command extends CommandBase {
 	public static void sendChat(ICommandSender commandSender, String message) {

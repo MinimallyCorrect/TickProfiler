@@ -1,8 +1,8 @@
 package org.minimallycorrect.tickprofiler.minecraft.commands;
 
-import lombok.val;
-
 import java.util.*;
+
+import lombok.val;
 
 public class Parameters {
 	private final ArrayList<String> unmatched = new ArrayList<>();

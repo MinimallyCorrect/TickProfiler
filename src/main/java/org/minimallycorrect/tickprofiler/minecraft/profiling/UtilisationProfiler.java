@@ -1,13 +1,14 @@
 package org.minimallycorrect.tickprofiler.minecraft.profiling;
 
-import lombok.val;
-import org.minimallycorrect.tickprofiler.util.CollectionsUtil;
-import org.minimallycorrect.tickprofiler.util.TableFormatter;
-
 import java.lang.management.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.*;
+
+import lombok.val;
+
+import org.minimallycorrect.tickprofiler.util.CollectionsUtil;
+import org.minimallycorrect.tickprofiler.util.TableFormatter;
 
 public class UtilisationProfiler extends Profile {
 	private final Map<String, Long> monitorMap = new HashMap<>();

@@ -1,11 +1,13 @@
 package org.minimallycorrect.tickprofiler.minecraft.profiling;
 
+import java.util.*;
+
 import lombok.val;
-import net.minecraft.world.WorldServer;
-import net.minecraftforge.common.DimensionManager;
+
 import org.minimallycorrect.tickprofiler.util.CollectionsUtil;
 
-import java.util.*;
+import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.DimensionManager;
 
 public class EntityCountingProfiler extends Profile {
 	private static <T> void increment(HashMap<T, Integer> counts, T t) {

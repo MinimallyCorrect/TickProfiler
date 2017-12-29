@@ -1,6 +1,18 @@
 package org.minimallycorrect.tickprofiler.minecraft;
 
+import java.io.*;
+import java.util.*;
+
 import com.google.common.collect.MapMaker;
+
+import org.minimallycorrect.modpatcher.api.UsedByPatch;
+import org.minimallycorrect.tickprofiler.Log;
+import org.minimallycorrect.tickprofiler.minecraft.commands.Command;
+import org.minimallycorrect.tickprofiler.minecraft.commands.DumpCommand;
+import org.minimallycorrect.tickprofiler.minecraft.commands.ProfileCommand;
+import org.minimallycorrect.tickprofiler.minecraft.commands.TPSCommand;
+import org.minimallycorrect.tickprofiler.util.TableFormatter;
+
 import net.minecraft.command.ServerCommandManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
@@ -16,16 +28,6 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
-import org.minimallycorrect.modpatcher.api.UsedByPatch;
-import org.minimallycorrect.tickprofiler.Log;
-import org.minimallycorrect.tickprofiler.minecraft.commands.Command;
-import org.minimallycorrect.tickprofiler.minecraft.commands.DumpCommand;
-import org.minimallycorrect.tickprofiler.minecraft.commands.ProfileCommand;
-import org.minimallycorrect.tickprofiler.minecraft.commands.TPSCommand;
-import org.minimallycorrect.tickprofiler.util.TableFormatter;
-
-import java.io.*;
-import java.util.*;
 
 @SuppressWarnings("WeakerAccess")
 @Mod(modid = "tickprofiler", name = "TickProfiler", acceptableRemoteVersions = "*", version = "@MOD_VERSION@", acceptedMinecraftVersions = "[@MC_VERSION@]")

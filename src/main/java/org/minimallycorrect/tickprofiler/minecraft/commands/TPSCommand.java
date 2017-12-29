@@ -1,19 +1,20 @@
 package org.minimallycorrect.tickprofiler.minecraft.commands;
 
-import com.google.common.base.Strings;
+import java.util.*;
+import java.util.concurrent.*;
+
 import lombok.val;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
-import net.minecraft.world.gen.ChunkProviderServer;
+
+import com.google.common.base.Strings;
+
 import org.minimallycorrect.tickprofiler.Log;
 import org.minimallycorrect.tickprofiler.minecraft.TickProfiler;
 import org.minimallycorrect.tickprofiler.util.ChatFormat;
 import org.minimallycorrect.tickprofiler.util.TableFormatter;
 
-import java.util.*;
-import java.util.concurrent.*;
+import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.WorldServer;
 
 public class TPSCommand extends Command {
 	private static final int tpsWidth = 40;

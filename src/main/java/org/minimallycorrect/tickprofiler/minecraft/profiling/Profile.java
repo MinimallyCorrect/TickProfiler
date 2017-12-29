@@ -1,9 +1,15 @@
 package org.minimallycorrect.tickprofiler.minecraft.profiling;
 
+import java.io.*;
+import java.nio.file.*;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.*;
+
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.val;
-import net.minecraft.command.ICommandSender;
+
 import org.minimallycorrect.tickprofiler.Log;
 import org.minimallycorrect.tickprofiler.minecraft.commands.Command;
 import org.minimallycorrect.tickprofiler.minecraft.commands.Parameters;
@@ -11,11 +17,7 @@ import org.minimallycorrect.tickprofiler.minecraft.commands.UsageException;
 import org.minimallycorrect.tickprofiler.util.TableFormatter;
 import org.minimallycorrect.tickprofiler.util.stringfillers.StringFiller;
 
-import java.io.*;
-import java.nio.file.*;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.*;
+import net.minecraft.command.ICommandSender;
 
 public abstract class Profile {
 	List<ProfileTarget> targets;

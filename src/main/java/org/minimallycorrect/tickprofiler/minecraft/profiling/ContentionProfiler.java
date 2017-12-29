@@ -1,14 +1,16 @@
 package org.minimallycorrect.tickprofiler.minecraft.profiling;
 
-import com.google.common.primitives.Longs;
-import lombok.EqualsAndHashCode;
-import lombok.val;
-import org.minimallycorrect.tickprofiler.util.CollectionsUtil;
-import org.minimallycorrect.tickprofiler.util.TableFormatter;
-
 import java.lang.management.*;
 import java.util.*;
 import java.util.stream.*;
+
+import lombok.EqualsAndHashCode;
+import lombok.val;
+
+import com.google.common.primitives.Longs;
+
+import org.minimallycorrect.tickprofiler.util.CollectionsUtil;
+import org.minimallycorrect.tickprofiler.util.TableFormatter;
 
 public class ContentionProfiler extends Profile {
 	private final Map<String, IntegerHolder> monitorMap = new IntHashMap<>();

@@ -1,12 +1,13 @@
 package org.minimallycorrect.tickprofiler.util;
 
-import com.google.common.base.Functions;
-import com.google.common.collect.Ordering;
-import lombok.val;
-
 import java.util.*;
 import java.util.function.*;
 import java.util.stream.*;
+
+import lombok.val;
+
+import com.google.common.base.Functions;
+import com.google.common.collect.Ordering;
 
 public enum CollectionsUtil {
 	;

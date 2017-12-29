@@ -1,11 +1,12 @@
 package org.minimallycorrect.tickprofiler.minecraft;
 
-import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
+import java.util.*;
+
 import org.minimallycorrect.libloader.LibLoader;
 import org.minimallycorrect.modpatcher.api.ModPatcher;
 import org.minimallycorrect.tickprofiler.Log;
 
-import java.util.*;
+import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 
 //Can't use this as it limits to an exact version, no possibility for a range.
 //@IFMLLoadingPlugin.MCVersion("@MC_VERSION@")

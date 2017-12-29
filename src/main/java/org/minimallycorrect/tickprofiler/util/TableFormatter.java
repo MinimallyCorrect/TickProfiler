@@ -1,10 +1,11 @@
 package org.minimallycorrect.tickprofiler.util;
 
-import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.Entity;
+import java.util.*;
+
 import org.minimallycorrect.tickprofiler.util.stringfillers.StringFiller;
 
-import java.util.*;
+import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.Entity;
 
 public class TableFormatter {
 	private static final int POW10[] = {1, 10, 100, 1000, 10000, 100000, 1000000};

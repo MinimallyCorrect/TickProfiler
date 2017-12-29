@@ -1,11 +1,13 @@
 package org.minimallycorrect.tickprofiler.minecraft.commands;
 
+import java.util.*;
+
 import lombok.val;
-import net.minecraft.command.ICommandSender;
+
 import org.minimallycorrect.tickprofiler.minecraft.TickProfiler;
 import org.minimallycorrect.tickprofiler.minecraft.profiling.Profile;
 
-import java.util.*;
+import net.minecraft.command.ICommandSender;
 
 public class ProfileCommand extends Command {
 	public static String name = "profile";

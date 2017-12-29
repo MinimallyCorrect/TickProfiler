@@ -1,10 +1,12 @@
 package org.minimallycorrect.tickprofiler.test;
 
-import lombok.val;
-import org.junit.Test;
-import org.minimallycorrect.tickprofiler.minecraft.commands.Parameters;
-
 import java.util.*;
+
+import lombok.val;
+
+import org.junit.Test;
+
+import org.minimallycorrect.tickprofiler.minecraft.commands.Parameters;
 
 public class ParameterTest {
 	@Test
