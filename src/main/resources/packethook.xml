@@ -1,7 +1,7 @@
 <patchGroups>
 	<minecraft>
 		<class id="net.minecraft.network.play.server.SPacketCustomPayload">
-			<addMethod code="public String ^method:SPacketCustomPayload/getChannelName^() { return this.^field:SPacketCustomPayload/channel^; }"/>
+			<addMethod ignoreDuplicate="true" code="public String ^method:SPacketCustomPayload/getChannelName^() { return this.^field:SPacketCustomPayload/channel^; }"/>
 		</class>
 		<class id="net.minecraft.network.NettyPacketEncoder">
 			<replaceMethodCall method="^method:Packet/writePacketData^"
