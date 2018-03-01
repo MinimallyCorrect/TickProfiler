@@ -36,7 +36,8 @@ public class Parameters {
 		int size = unmatched.size();
 		for (int j = 0; j < keys.size(); j += 2) {
 			val key = keys.get(j);
-			map.put(key, i < size ? unmatched.get(i++) : keys.get(j + 1));
+			if (!map.containsKey(key))
+				map.put(key, i < size ? unmatched.get(i++) : keys.get(j + 1));
 			expected.add(key);
 		}
 		if (i != 0)
