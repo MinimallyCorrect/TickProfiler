@@ -1,7 +1,9 @@
 package org.minimallycorrect.tickprofiler.minecraft.profiling;
 
 import java.util.*;
-import java.util.concurrent.atomic.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import lombok.EqualsAndHashCode;
 import lombok.val;
@@ -14,6 +16,8 @@ import org.minimallycorrect.tickprofiler.util.TableFormatter;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ITickable;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
@@ -28,19 +32,23 @@ public class EntityProfiler extends Profile {
 	private static final AtomicLong totalTime = new AtomicLong();
 	private static long startTick;
 	private static long startTime;
+	private static int chunkX;
+	private static int chunkZ;
 
 	private static int getDimension(TileEntity o) {
+		val world = o.getWorld();
 		//noinspection ConstantConditions
-		if (o.getWorld() == null)
+		if (world == null)
 			return -999;
 		WorldProvider worldProvider = o.getWorld().provider;
 		return worldProvider == null ? -999 : worldProvider.getDimension();
 	}
 
 	private static int getDimension(Entity o) {
-		if (o.world == null)
+		val world = o.world;
+		if (world == null)
 			return -999;
-		WorldProvider worldProvider = o.world.provider;
+		WorldProvider worldProvider = world.provider;
 		return worldProvider == null ? -999 : worldProvider.getDimension();
 	}
 
@@ -67,7 +75,24 @@ public class EntityProfiler extends Profile {
 	}
 
 	@UsedByPatch("entityhook.xml")
-	public static void record(Object o, long time) {
+	public static void record(ITickable e, long time) {
+		int chunkX = EntityProfiler.chunkX;
+		if (chunkX == Integer.MIN_VALUE || (posInChunk(((TileEntity) e).getPos(), chunkX, chunkZ)))
+			record_inner(e, time);
+	}
+
+	private static boolean posInChunk(BlockPos pos, int chunkX, int chunkZ) {
+		return pos.getX() >> 4 == chunkX && pos.getZ() >> 4 == chunkZ;
+	}
+
+	@UsedByPatch("entityhook.xml")
+	public static void record(Entity e, long time) {
+		int chunkX = EntityProfiler.chunkX;
+		if (chunkX == Integer.MIN_VALUE || (e.chunkCoordX == chunkX && e.chunkCoordZ == chunkZ))
+			record_inner(e, time);
+	}
+
+	private static void record_inner(Object o, long time) {
 		if (time < 0) {
 			time = 0;
 		}
@@ -245,12 +270,34 @@ public class EntityProfiler extends Profile {
 			// TODO: handle multiple entries, split by ','
 			worldList.add(DimensionManager.getWorld(Integer.parseInt(worlds)));
 		}
+		int cX = Integer.MIN_VALUE;
+		int cZ = Integer.MIN_VALUE;
+		val chunk = parameters.getString("chunk").toLowerCase();
+		switch (chunk) {
+			case "all":
+				// defaults are corrext
+				break;
+			case "current":
+				if (commandSender == null)
+					throw new IllegalArgumentException("Can't use 'current' as chunk when profiling not started by a command sender");
+				val pos = commandSender.getPosition();
+				cX = pos.getX() >> 4;
+				cZ = pos.getZ() >> 4;
+				break;
+			default:
+				throw new IllegalArgumentException("Unknown option for chunk: " + chunk);
+		}
+		int cXFinal = cX;
+		int cZFinal = cZ;
+
 		start(() -> {
 			for (World world_ : worldList) {
 				TickProfiler.instance.hookProfiler(world_);
 			}
 			startTick = TickProfiler.tickCount;
 			startTime = System.currentTimeMillis();
+			chunkX = cXFinal;
+			chunkZ = cZFinal;
 		}, () -> targets.forEach(it -> {
 			val tf = it.getTableFormatter();
 			writeStringData(tf, elements);

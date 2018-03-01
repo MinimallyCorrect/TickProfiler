@@ -1,10 +1,15 @@
 package org.minimallycorrect.tickprofiler.minecraft.profiling;
 
-import java.io.*;
-import java.nio.file.*;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.*;
+import java.io.File;
+import java.nio.file.Files;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import javax.annotation.Nullable;
 
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -20,6 +25,8 @@ import org.minimallycorrect.tickprofiler.util.stringfillers.StringFiller;
 import net.minecraft.command.ICommandSender;
 
 public abstract class Profile {
+	@Nullable
+	ICommandSender commandSender;
 	List<ProfileTarget> targets;
 	Parameters parameters;
 	long startTime;
@@ -32,7 +39,8 @@ public abstract class Profile {
 
 	public abstract void start();
 
-	public final void start(List<ProfileTarget> targets, Parameters p) {
+	public final void start(ICommandSender commandSender, List<ProfileTarget> targets, Parameters p) {
+		this.commandSender = commandSender;
 		this.targets = targets;
 		this.parameters = p;
 		startTime = System.nanoTime();
@@ -105,7 +113,7 @@ public abstract class Profile {
 	@RequiredArgsConstructor
 	public enum Types {
 		COUNT_ENTITIES("c", EntityCountingProfiler.class, Arrays.asList("worlds", "all", "elements", "10")),
-		ENTITIES("e", EntityProfiler.class, Arrays.asList("time", "30", "worlds", "all", "elements", "5")),
+		ENTITIES("e", EntityProfiler.class, Arrays.asList("time", "30", "worlds", "all", "elements", "5", "chunk", "all")),
 		PACKETS("p", PacketProfiler.class, Arrays.asList("time", "30", "elements", "5")),
 		UTILISATION("u", UtilisationProfiler.class, Arrays.asList("time", "30", "elements", "5")),
 		LOCK_CONTENTION("l", ContentionProfiler.class, Arrays.asList("time", "30", "elements", "5", "interval_ms", "23")),

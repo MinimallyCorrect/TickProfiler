@@ -1,6 +1,9 @@
 package org.minimallycorrect.tickprofiler.minecraft.commands;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import lombok.val;
 
@@ -65,7 +68,7 @@ public class ProfileCommand extends Command {
 
 		val profile = type.create();
 		try {
-			profile.start(targets, p);
+			profile.start(commandSender, targets, p);
 		} finally {
 			profile.closeIfNeeded();
 		}
