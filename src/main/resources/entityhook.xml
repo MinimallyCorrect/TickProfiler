@@ -6,7 +6,7 @@
 				code="if (org.minimallycorrect.tickprofiler.minecraft.TickProfiler.shouldProfile(this)) { updateEntities_withProfiling(); return; }">
 				updateEntities
 			</insertCodeBefore>
-			<replaceMethodCall method="^method:ITickable/update^"
+			<replaceMethodCall method="^method:net.minecraft.util.ITickable/update^"
 							   code="{ long start = System.nanoTime(); $proceed($$); org.minimallycorrect.tickprofiler.minecraft.profiling.EntityProfiler.record($0, System.nanoTime() - start); }">
 				updateEntities_withProfiling
 			</replaceMethodCall>
