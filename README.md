@@ -20,10 +20,9 @@ You're staring right at it! :P
 
 Compiling
 ---------
-TickProfiler is built using Ant. astyle is also required for linux users.
+TickProfiler is built using Gradle
 
-* Install [Ant](http://ant.apache.org/)
-* Checkout this repo and run: `ant`
+* Checkout this repo and run: `./gradlew build` or `gradlew.bat build`
 
 Coding and Pull Request Formatting
 ----------------------------------
