@@ -236,6 +236,7 @@ public class EntityProfiler extends Profile {
 		val worldList = new ArrayList<WorldServer>();
 		if (worlds.equals("all")) {
 			Collections.addAll(worldList, DimensionManager.getWorlds());
+			worldList.removeIf(Objects::isNull);// #100 null world in world list?
 		} else {
 			//TODO: handle multiple entries, split by ','
 			worldList.add(DimensionManager.getWorld(Integer.parseInt(worlds)));
