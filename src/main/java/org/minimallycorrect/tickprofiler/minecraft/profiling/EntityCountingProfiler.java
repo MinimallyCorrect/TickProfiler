@@ -29,12 +29,12 @@ public class EntityCountingProfiler extends Profile {
 			//TODO: handle multiple entries, split by ','
 			worldList.add(DimensionManager.getWorld(Integer.parseInt(worlds)));
 		}
-		for (val world : worldList)
+		for (val world : worldList) {
 			for (val entity : world.loadedEntityList)
 				increment(entityCounts, entity.getClass());
-		for (val world : worldList)
 			for (val entity : world.loadedTileEntityList)
 				increment(tileEntityCounts, entity.getClass());
+		}
 		targets.forEach(it -> {
 			val tf = it.getTableFormatter();
 			tf.heading("Class").heading("Count");
