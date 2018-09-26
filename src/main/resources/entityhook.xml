@@ -14,8 +14,16 @@
 							   code="{ long start = System.nanoTime(); $proceed($$); org.minimallycorrect.tickprofiler.minecraft.profiling.EntityProfiler.record($1, System.nanoTime() - start); }">
 				updateEntities_withProfiling
 			</replaceMethodCall>
+			<replaceMethodCall methodPrefix="redirect$tileEntityUpdate$"
+							   code="{ long start = System.nanoTime(); $proceed($$); org.minimallycorrect.tickprofiler.minecraft.profiling.EntityProfiler.record($1, System.nanoTime() - start); }">
+				updateEntities_withProfiling
+			</replaceMethodCall>
 			<replaceMethodCall method="^method:World/updateEntity^"
 							   code="{ long start = System.nanoTime(); $proceed($$); org.minimallycorrect.tickprofiler.minecraft.profiling.EntityProfiler.record($1, System.nanoTime() - start); }">
+				updateEntities_withProfiling
+			</replaceMethodCall>
+			<replaceMethodCall methodPrefix="redirect$updateEntity$"
+							   code="{ long start = System.nanoTime(); $proceed($$); org.minimallycorrect.tickprofiler.minecraft.profiling.EntityProfiler.record($2, System.nanoTime() - start); }">
 				updateEntities_withProfiling
 			</replaceMethodCall>
 		</class>
