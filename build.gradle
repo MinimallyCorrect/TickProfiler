@@ -4,18 +4,17 @@ buildscript {
 		jcenter()
 		maven { url "https://repo.nallar.me/" }
 		maven { url "https://plugins.gradle.org/m2/" }
-		maven { url "http://files.minecraftforge.net/maven" }
+		maven { url "https://files.minecraftforge.net/maven" }
 	}
 	dependencies {
 		classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
 		classpath 'org.minimallycorrect.libloader:LibLoaderGradle:0.1-SNAPSHOT'
 		classpath 'org.minimallycorrect.gradle:DefaultsPlugin:0.0.29'
-		classpath 'gradle.plugin.com.matthewprenger:CurseGradle:1.4.0'
 	}
 }
 
 plugins {
-	id "com.matthewprenger.cursegradle" version "1.0.9"
+	id "com.matthewprenger.cursegradle" version "1.4.0"
 }
 apply plugin: 'org.minimallycorrect.gradle.DefaultsPlugin'
 apply plugin: 'org.minimallycorrect.libloader.LibLoaderGradle'
@@ -30,6 +29,12 @@ minimallyCorrectDefaults {
 	labels = ['minecraft-mod', 'profiler', 'minecraft', 'java', 'performance']
 	description = "Profile your minecraft server: Find which entities and tile entities are making your server slow"
 } ()
+
+curseforge {
+	curseProjects.each { proj ->
+		proj.setGameVersionStrings(new ArrayList<String>(proj.getGameVersionStrings()))
+	}
+}
 
 dependencies {
 	libLoader "com.eclipsesource.minimal-json:minimal-json:0.9.4"
