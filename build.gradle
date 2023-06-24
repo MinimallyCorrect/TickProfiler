@@ -7,9 +7,9 @@ buildscript {
 		maven { url "https://files.minecraftforge.net/maven" }
 	}
 	dependencies {
-		classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+		classpath 'net.minecraftforge.gradle:ForgeGradle:2.3.4'
 		classpath 'org.minimallycorrect.libloader:LibLoaderGradle:0.1-SNAPSHOT'
-		classpath 'org.minimallycorrect.gradle:DefaultsPlugin:0.0.29'
+		classpath 'org.minimallycorrect.gradle:DefaultsPlugin:0.1.12'
 	}
 }
 
@@ -37,7 +37,7 @@ curseforge {
 }
 
 dependencies {
-	libLoader "com.eclipsesource.minimal-json:minimal-json:0.9.4"
+	libLoader "com.eclipsesource.minimal-json:minimal-json:0.9.5"
 	libLoader "org.minimallycorrect.modpatcher:ModPatcher:${project.minimallyCorrectDefaults.minecraft}-SNAPSHOT"
-	testCompile 'junit:junit:4.12'
+	testCompile 'junit:junit:4.13.2'
 }
